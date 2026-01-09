@@ -305,41 +305,6 @@ export class ChoreBotGroupedCard extends LitElement {
     ha-dialog {
       --mdc-dialog-min-width: 500px;
     }
-
-    /* Floating Points Animation */
-    @keyframes floatPoints {
-      0% {
-        transform: scale(0.5) translateY(0);
-        opacity: 1;
-      }
-      50% {
-        transform: scale(1.5) translateY(-30px);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(1.5) translateY(-60px);
-        opacity: 0;
-      }
-    }
-
-    .floating-points {
-      position: absolute;
-      font-size: 28px;
-      font-weight: bold;
-      color: white;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-      pointer-events: none;
-      z-index: 9999;
-      animation: floatPoints 2s ease-out forwards;
-    }
-
-    /* Respect reduced motion preference */
-    @media (prefers-reduced-motion: reduce) {
-      .floating-points {
-        animation: none;
-        opacity: 0;
-      }
-    }
   `;
 
   setConfig(config: ChoreBotGroupedConfig) {
@@ -727,7 +692,7 @@ export class ChoreBotGroupedCard extends LitElement {
       // 2. Play floating points animation if task has points
       const totalPoints = this._calculateTotalPointsAwarded(task);
       if (totalPoints !== null && totalPoints > 0) {
-        // Convert confettiOrigin (normalized 0-1) to pixel coordinates
+        // Convert normalized origin (0-1) to viewport pixel coordinates for points animation
         const pixelOrigin = {
           x: confettiOrigin.x * window.innerWidth,
           y: confettiOrigin.y * window.innerHeight,

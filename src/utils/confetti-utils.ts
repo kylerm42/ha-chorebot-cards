@@ -140,12 +140,43 @@ export function playPointsAnimation(
 
   // Create DOM element
   const pointsEl = document.createElement("div");
-  pointsEl.className = "floating-points";
   pointsEl.textContent = `+${totalPoints}`;
 
-  // Position element at origin (offset above and slightly left)
+  // Apply all styles inline (cannot use component CSS since element is appended to body)
+  // Use 'fixed' positioning so element stays relative to viewport (like confetti canvas)
+  pointsEl.style.position = "fixed";
   pointsEl.style.left = `${origin.x - 20}px`;
   pointsEl.style.top = `${origin.y - 30}px`;
+  pointsEl.style.fontSize = "28px";
+  pointsEl.style.fontWeight = "bold";
+  pointsEl.style.color = "white";
+  pointsEl.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.8)";
+  pointsEl.style.pointerEvents = "none";
+  pointsEl.style.zIndex = "9999";
+  pointsEl.style.animation = "floatPoints 2s ease-out forwards";
+
+  // Define keyframes animation dynamically if not already defined
+  if (!document.getElementById("chorebot-points-animation-styles")) {
+    const styleSheet = document.createElement("style");
+    styleSheet.id = "chorebot-points-animation-styles";
+    styleSheet.textContent = `
+      @keyframes floatPoints {
+        0% {
+          transform: scale(0.5) translateY(0);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.5) translateY(-30px);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1.5) translateY(-60px);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+  }
 
   // Append to body
   document.body.appendChild(pointsEl);
