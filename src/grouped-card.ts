@@ -45,6 +45,7 @@ interface ChoreBotGroupedConfig extends ChoreBotBaseConfig {
   tag_group_order?: string[];
   show_future_tasks?: boolean;
   person_entity?: string; // NEW: Optional person filter
+  show_add_task_button?: boolean; // NEW: Show add task button
 }
 
 // ============================================================================
@@ -70,6 +71,9 @@ export class ChoreBotGroupedCard extends LitElement {
   @state() private _editingTask: EditingTask | null = null;
   @state() private _saving = false;
   @state() private _groups: GroupState[] = [];
+  @state() private _addTaskDialogOpen = false;
+  @state() private _newTask: EditingTask | null = null;
+  @state() private _savingNewTask = false;
   private _autoCollapseTimeouts = new Map<string, number>();
   private _previousGroupProgress = new Map<
     string,
@@ -302,6 +306,79 @@ export class ChoreBotGroupedCard extends LitElement {
       color: var(--secondary-text-color);
     }
 
+    /* Add Task Button */
+    .add-task-button-container {
+      margin-top: 16px;
+    }
+
+    .add-task-card {
+      border-radius: 12px;
+      background: var(--card-background-color);
+      border: 2px dashed var(--divider-color);
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 80px;
+      height: 80px;
+    }
+
+    .add-task-card:hover {
+      border-color: var(--button-border-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .add-task-icon-section {
+      flex-shrink: 0;
+      width: 80px;
+      background: color-mix(in srgb, var(--divider-color) 50%, transparent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .add-task-card:hover .add-task-icon-section {
+      background: var(--button-hover-bg);
+    }
+
+    .add-task-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--secondary-text-color);
+      transition: all 0.2s ease;
+    }
+
+    .add-task-card:hover .add-task-icon {
+      color: var(--button-hover-color);
+    }
+
+    .add-task-icon ha-icon {
+      --mdc-icon-size: 36px;
+    }
+
+    .add-task-info {
+      flex: 1;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .add-task-text {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--secondary-text-color);
+      transition: all 0.2s ease;
+    }
+
+    .add-task-card:hover .add-task-text {
+      color: var(--button-hover-color);
+    }
+
     ha-dialog {
       --mdc-dialog-min-width: 500px;
     }
@@ -325,6 +402,7 @@ export class ChoreBotGroupedCard extends LitElement {
       show_future_tasks: config.show_future_tasks === true,
       filter_section_id: config.filter_section_id,
       person_entity: config.person_entity,
+      show_add_task_button: config.show_add_task_button !== false,
     };
   }
 
@@ -430,9 +508,10 @@ export class ChoreBotGroupedCard extends LitElement {
           : html`<div class="tag-groups">
               ${this._renderAllGroups(this._groups)}
             </div>`}
+        ${this._renderAddTaskButton()}
       </ha-card>
 
-      ${this._renderEditDialog()}
+      ${this._renderEditDialog()} ${this._renderAddTaskDialog()}
     `;
   }
 
@@ -1032,6 +1111,255 @@ export class ChoreBotGroupedCard extends LitElement {
   }
 
   // ============================================================================
+  // Add Task Dialog
+  // ============================================================================
+
+  private _renderAddTaskButton() {
+    if (!this._config?.show_add_task_button) {
+      return html``;
+    }
+
+    // Use the same color shades as the rest of the card
+    const borderColor = `#${this.shades.light}`;
+    const hoverBg = `color-mix(in srgb, #${this.shades.light} 20%, var(--card-background-color))`;
+    const hoverColor = `#${this.shades.light}`;
+
+    return html`
+      <div
+        class="add-task-button-container"
+        style="--button-border-color: ${borderColor}; --button-hover-bg: ${hoverBg}; --button-hover-color: ${hoverColor};"
+      >
+        <div class="add-task-card" @click="${this._openAddTaskDialog}">
+          <div class="add-task-icon-section">
+            <div class="add-task-icon">
+              <ha-icon icon="mdi:plus"></ha-icon>
+            </div>
+          </div>
+          <div class="add-task-info">
+            <div class="add-task-text">Add Task</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  private _openAddTaskDialog() {
+    const entity = this.hass?.states[this._config!.entity];
+    const sections = entity?.attributes.chorebot_sections || [];
+
+    // Create a blank task with smart defaults
+    this._newTask = this._createBlankTask(sections);
+    this._addTaskDialogOpen = true;
+  }
+
+  private _closeAddTaskDialog() {
+    this._addTaskDialogOpen = false;
+    this._newTask = null;
+  }
+
+  private _createBlankTask(sections: Section[]): EditingTask {
+    let defaultSectionId: string | undefined;
+
+    // Priority 1: Explicit section filter (can be either ID or name)
+    if (this._config!.filter_section_id) {
+      // First try to find by ID
+      let filtered = sections.find(
+        (s) => s.id === this._config!.filter_section_id,
+      );
+      
+      // If not found by ID, try by name (case-insensitive)
+      if (!filtered) {
+        filtered = sections.find(
+          (s) =>
+            s.name.toLowerCase() ===
+            this._config!.filter_section_id!.toLowerCase(),
+        );
+      }
+      
+      if (filtered) {
+        defaultSectionId = filtered.id;
+      }
+    }
+
+    // Priority 2: Person's assigned section (find section where person_id matches)
+    if (!defaultSectionId && this._config!.person_entity) {
+      const personSection = sections.find(
+        (s) => s.person_id === this._config!.person_entity,
+      );
+      
+      if (personSection) {
+        defaultSectionId = personSection.id;
+      }
+    }
+
+    // Priority 3: First section (highest sort_order)
+    if (!defaultSectionId && sections.length > 0) {
+      defaultSectionId = sections.sort(
+        (a: Section, b: Section) => b.sort_order - a.sort_order,
+      )[0].id;
+    }
+
+    return {
+      uid: "",
+      summary: "",
+      status: "needs_action",
+      has_due_date: false,
+      is_all_day: false,
+      due_date: undefined,
+      due_time: undefined,
+      description: "",
+      section_id: defaultSectionId,
+      tags: [],
+      has_recurrence: false,
+      recurrence_frequency: "DAILY",
+      recurrence_interval: 1,
+      recurrence_byweekday: [],
+      recurrence_bymonthday: 1,
+      points_value: 0,
+      streak_bonus_points: 0,
+      streak_bonus_interval: 0,
+    };
+  }
+
+  private _renderAddTaskDialog() {
+    const entity = this.hass?.states[this._config!.entity];
+    const sections = entity?.attributes.chorebot_sections || [];
+    const availableTags = entity?.attributes.chorebot_tags || [];
+
+    return renderTaskDialog(
+      this._addTaskDialogOpen,
+      this._newTask,
+      this.hass!,
+      sections,
+      availableTags,
+      this._savingNewTask,
+      () => this._closeAddTaskDialog(),
+      (ev: CustomEvent) => this._formValueChangedForNewTask(ev),
+      () => this._saveNewTask(),
+      undefined, // onDelete - not applicable for new tasks
+      "Add Task", // Custom dialog title
+      false, // showDelete - hide delete button for new tasks
+    );
+  }
+
+  private _formValueChangedForNewTask(ev: CustomEvent) {
+    const updatedValues = ev.detail.value;
+
+    this._newTask = {
+      ...this._newTask!,
+      ...updatedValues,
+    };
+
+    // Trigger re-render for conditional fields
+    if (
+      "has_due_date" in updatedValues ||
+      "is_all_day" in updatedValues ||
+      "has_recurrence" in updatedValues ||
+      "recurrence_frequency" in updatedValues
+    ) {
+      this.requestUpdate();
+    }
+  }
+
+  private async _saveNewTask() {
+    if (!this._newTask || !this._newTask.summary?.trim() || this._savingNewTask) {
+      return;
+    }
+
+    this._savingNewTask = true;
+
+    const serviceData: any = {
+      list_id: this._config!.entity,
+      summary: this._newTask.summary.trim(),
+    };
+
+    // Handle due date
+    if (this._newTask.has_due_date && this._newTask.due_date) {
+      const isAllDay = !!this._newTask.is_all_day;
+
+      let dateTimeString: string;
+      if (isAllDay || !this._newTask.due_time) {
+        dateTimeString = `${this._newTask.due_date}T00:00:00`;
+      } else {
+        const timeStr =
+          this._newTask.due_time.split(":").length === 3
+            ? this._newTask.due_time
+            : `${this._newTask.due_time}:00`;
+        dateTimeString = `${this._newTask.due_date}T${timeStr}`;
+      }
+
+      const dateObj = new Date(dateTimeString);
+      if (isNaN(dateObj.getTime())) {
+        console.error("Invalid date/time combination:", dateTimeString);
+        this._savingNewTask = false;
+        return;
+      }
+
+      serviceData.due = dateObj.toISOString();
+      serviceData.is_all_day = isAllDay;
+    }
+
+    // Handle description
+    if (this._newTask.description) {
+      serviceData.description = this._newTask.description;
+    }
+
+    // Handle section
+    if (this._newTask.section_id) {
+      serviceData.section_id = this._newTask.section_id;
+    }
+
+    // Handle tags
+    if (this._newTask.tags !== undefined && this._newTask.tags.length > 0) {
+      serviceData.tags = this._newTask.tags;
+    }
+
+    // Handle recurrence
+    const rrule = buildRrule(this._newTask);
+    if (rrule !== null) {
+      serviceData.rrule = rrule;
+    }
+
+    // Handle points
+    if (
+      this._newTask.points_value !== undefined &&
+      this._newTask.points_value > 0
+    ) {
+      serviceData.points_value = this._newTask.points_value;
+    }
+
+    // Handle streak bonus (only for recurring tasks)
+    if (rrule !== null) {
+      if (
+        this._newTask.streak_bonus_points !== undefined &&
+        this._newTask.streak_bonus_points > 0
+      ) {
+        serviceData.streak_bonus_points = this._newTask.streak_bonus_points;
+      }
+      if (
+        this._newTask.streak_bonus_interval !== undefined &&
+        this._newTask.streak_bonus_interval > 0
+      ) {
+        serviceData.streak_bonus_interval = this._newTask.streak_bonus_interval;
+      }
+    }
+
+    try {
+      await this.hass!.callService("chorebot", "add_task", serviceData);
+      this._closeAddTaskDialog();
+      // Reset task for next use
+      const entity = this.hass?.states[this._config!.entity];
+      const sections = entity?.attributes.chorebot_sections || [];
+      this._newTask = this._createBlankTask(sections);
+    } catch (error) {
+      console.error("Error adding task:", error);
+      alert("Failed to add task. Please try again.");
+    } finally {
+      this._savingNewTask = false;
+    }
+  }
+
+  // ============================================================================
   // Configuration
   // ============================================================================
 
@@ -1049,6 +1377,7 @@ export class ChoreBotGroupedCard extends LitElement {
       task_text_color: "",
       untagged_header: "Untagged",
       tag_group_order: [],
+      show_add_task_button: true,
     };
   }
 
@@ -1124,6 +1453,11 @@ export class ChoreBotGroupedCard extends LitElement {
             },
           },
         },
+        {
+          name: "show_add_task_button",
+          default: true,
+          selector: { boolean: {} },
+        },
       ],
       computeLabel: (schema: any) => {
         const labels: { [key: string]: string } = {
@@ -1139,6 +1473,7 @@ export class ChoreBotGroupedCard extends LitElement {
           task_text_color: "Task Text Color",
           untagged_header: "Untagged Tasks Header",
           tag_group_order: "Tag Display Order",
+          show_add_task_button: "Show Add Task Button",
         };
         return labels[schema.name] || undefined;
       },
@@ -1164,6 +1499,8 @@ export class ChoreBotGroupedCard extends LitElement {
             'Header text for tasks without tags (default: "Untagged")',
           tag_group_order:
             "Order to display tag groups. Tags not listed will appear alphabetically after these.",
+          show_add_task_button:
+            "Show the 'Add Task' button below tag groups for creating new tasks",
         };
         return helpers[schema.name] || undefined;
       },
