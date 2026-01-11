@@ -380,7 +380,7 @@ export class ChoreBotGroupedCard extends LitElement {
     }
 
     ha-dialog {
-      --mdc-dialog-min-width: 500px;
+      --mdc-dialog-min-width: min(500px, 90vw);
     }
   `;
 

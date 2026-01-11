@@ -107,7 +107,7 @@ export class ChoreBotAddTaskCard extends LitElement {
       --mdc-icon-size: 24px;
     }
     ha-dialog {
-      --mdc-dialog-min-width: 500px;
+      --mdc-dialog-min-width: min(500px, 90vw);
     }
   `;
 

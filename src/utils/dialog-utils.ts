@@ -426,7 +426,7 @@ export function renderTaskDialog(
 
       <style>
         ha-dialog {
-          --mdc-dialog-min-width: 500px;
+          --mdc-dialog-min-width: min(500px, 90vw);
         }
         .delete-button {
           --mdc-theme-primary: var(--error-color, #db4437);
