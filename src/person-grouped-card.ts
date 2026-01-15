@@ -32,7 +32,11 @@ import {
   prepareTaskForEditing,
   renderTaskDialog,
 } from "./utils/dialog-utils.js";
-import { calculateColorShades, ColorShades } from "./utils/color-utils.js";
+import {
+  calculateColorShades,
+  ColorShades,
+  resolveAccentColor,
+} from "./utils/color-utils.js";
 import { getPointsDisplayParts } from "./utils/points-display-utils.js";
 import {
   playCompletionBurst,
@@ -48,6 +52,8 @@ import {
   getAllPeople,
   detectCurrentUserPerson,
 } from "./utils/person-display-utils.js";
+import { renderProgressBar } from "./utils/progress-bar-utils.js";
+import { renderPointsBadge } from "./utils/points-badge-utils.js";
 
 // Card-specific config interface
 interface ChoreBotPersonGroupedConfig extends ChoreBotBaseConfig {
@@ -909,18 +915,11 @@ export class ChoreBotPersonGroupedCard extends LitElement {
 
     // Phase 3: Color shade recalculation when config or person changes
     if ((changedProperties.has("_config") || changedProperties.has("_selectedPersonId")) && this._config) {
-      const personProfile = this._selectedPersonId 
-        ? getPersonProfile(this.hass!, this._selectedPersonId) 
-        : null;
-      
-      // Determine accent color (precedence: config > person profile > theme)
-      let baseColor = "var(--primary-color)";
-      if (personProfile?.accent_color) {
-        baseColor = personProfile.accent_color;
-      }
-      if (this._config.accent_color) {
-        baseColor = this._config.accent_color;
-      }
+      const baseColor = resolveAccentColor(
+        this.hass!,
+        this._config.accent_color,
+        this._selectedPersonId
+      );
       
       this.shades = calculateColorShades(baseColor);
       this.shadesArray = [
@@ -1095,28 +1094,12 @@ export class ChoreBotPersonGroupedCard extends LitElement {
     
     // Calculate progress for dated tasks only
     const progress = calculateDatedTasksProgress(personTasks);
-    const percentage = progress.total > 0 
-      ? (progress.completed / progress.total) * 100
-      : 0;
     
-    // Get text color from config or use default
-    const textColor = this._config?.progress_text_color || "var(--text-primary-color)";
-    
-    return html`
-      <div
-        class="progress-bar"
-        style="background: #${this.shades.lighter}"
-        aria-label="${progress.completed} of ${progress.total} tasks completed"
-      >
-        <div
-          class="progress-bar-fill"
-          style="width: ${percentage}%; background: #${this.shades.darker}"
-        ></div>
-        <div class="progress-text" style="color: ${textColor}">
-          ${progress.completed}/${progress.total}
-        </div>
-      </div>
-    `;
+    return renderProgressBar(
+      progress,
+      this.shades,
+      this._config?.progress_text_color
+    );
   }
 
   /**
@@ -1305,51 +1288,18 @@ export class ChoreBotPersonGroupedCard extends LitElement {
   }
 
   private _renderPointsBadge(task: Task) {
-    // Don't show if points disabled or task has no points
-    if (!this._config?.show_points || !task.points_value) {
-      return html``;
-    }
-
-    // Get configured text color and points display parts
-    const textColor = this._config!.task_text_color || "white";
-    const parts = getPointsDisplayParts(this.hass!);
-
-    // Check if this is a recurring task with upcoming bonus
-    const entity = this.hass?.states[this._config.entity];
+    const entity = this.hass?.states[this._config!.entity];
     const templates = entity?.attributes.chorebot_templates || [];
+    const textColor = this._config!.task_text_color || "white";
 
-    if (task.parent_uid) {
-      const template = templates.find((t: any) => t.uid === task.parent_uid);
-      if (
-        template &&
-        template.streak_bonus_points &&
-        template.streak_bonus_interval
-      ) {
-        const nextStreak = template.streak_current + 1;
-        if (nextStreak % template.streak_bonus_interval === 0) {
-          // Next completion will award bonus!
-          return html`<span
-            class="points-badge bonus-pending"
-            style="color: ${textColor};"
-          >
-            +${task.points_value} + ${template.streak_bonus_points}
-            ${parts.icon ? html`<ha-icon icon="${parts.icon}"></ha-icon>` : ""}
-            ${parts.text ? parts.text : ""}
-          </span>`;
-        }
-      }
-    }
-
-    // Regular points badge
-    return html`<span
-      class="points-badge"
-      style="background: #${this.shades
-        .lighter}; color: ${textColor}; border: 1px solid ${textColor};"
-    >
-      +${task.points_value}
-      ${parts.icon ? html`<ha-icon icon="${parts.icon}"></ha-icon>` : ""}
-      ${parts.text ? parts.text : ""}
-    </span>`;
+    return renderPointsBadge(
+      task,
+      templates,
+      this.shades,
+      this.hass!,
+      this._config?.show_points !== false,
+      textColor
+    );
   }
 
   private _renderAddTaskButton() {

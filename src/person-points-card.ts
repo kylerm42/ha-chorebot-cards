@@ -13,8 +13,18 @@ import {
   filterTasksByPerson,
   calculateDatedTasksProgress,
 } from "./utils/task-utils.js";
-import { calculateColorShades, ColorShades } from "./utils/color-utils.js";
-import { getPointsDisplayParts } from "./utils/points-display-utils.js";
+import {
+  calculateColorShades,
+  ColorShades,
+  resolveAccentColor,
+} from "./utils/color-utils.js";
+import {
+  renderPersonAvatar,
+  renderPersonPoints,
+  getPersonProfile,
+  getPersonName,
+} from "./utils/person-display-utils.js";
+import { renderProgressBar } from "./utils/progress-bar-utils.js";
 
 // ============================================================================
 // ChoreBot Person Points Card (TypeScript)
@@ -236,24 +246,11 @@ export class ChoreBotPersonPointsCard extends LitElement {
       this._config &&
       this.hass
     ) {
-      // Precedence: Manual config > Person profile > Theme default
-      let baseColor = "var(--primary-color)"; // Default fallback
-
-      // Check for centralized person color from sensor
-      if (this._config.person_entity) {
-        const sensor = this.hass.states["sensor.chorebot_points"];
-        const people = sensor?.attributes.people || {};
-        const personProfile = people[this._config.person_entity];
-        if (personProfile?.accent_color) {
-          baseColor = personProfile.accent_color;
-        }
-      }
-
-      // Manual config overrides everything
-      if (this._config.accent_color) {
-        baseColor = this._config.accent_color;
-      }
-
+      const baseColor = resolveAccentColor(
+        this.hass,
+        this._config.accent_color,
+        this._config.person_entity
+      );
       this.shades = calculateColorShades(baseColor);
     }
 
@@ -434,31 +431,22 @@ export class ChoreBotPersonPointsCard extends LitElement {
   }
 
   private _renderPersonDisplay(personEntity: any, personData: PersonPoints) {
-    const pictureUrl = personEntity.attributes.entity_picture;
-    const name = this._getPersonName(this._config!.person_entity);
-    const parts = getPointsDisplayParts(this.hass!);
+    const name = getPersonName(this.hass!, this._config!.person_entity);
 
     return html`
       <div class="person-container">
         <div class="person-left">
-          ${pictureUrl
-            ? html`<div class="person-avatar">
-                <img src="${pictureUrl}" alt="${name}" />
-              </div>`
-            : html`<div class="person-avatar initials">
-                ${this._getPersonInitials(this._config!.person_entity)}
-              </div>`}
+          ${renderPersonAvatar(
+            this.hass!,
+            this._config!.person_entity,
+            personData,
+            64
+          )}
         </div>
         <div class="person-info">
           <div class="person-header">
             <div class="person-name">${name}</div>
-            <div class="person-points" style="color: #${this.shades.base}">
-              ${personData.points_balance}
-              ${parts.icon
-                ? html`<ha-icon icon="${parts.icon}"></ha-icon>`
-                : ""}
-              ${parts.text ? parts.text : ""}
-            </div>
+            ${renderPersonPoints(personData, this.hass!, `#${this.shades.base}`)}
           </div>
           ${this._config!.show_progress && this._progress
             ? this._renderProgressBar(this._progress)
@@ -469,45 +457,14 @@ export class ChoreBotPersonPointsCard extends LitElement {
   }
 
   private _renderProgressBar(progress: Progress) {
-    // Calculate percentage (handle divide by zero)
-    const percentage =
-      progress.total > 0 ? (progress.completed / progress.total) * 100 : 0;
-
-    // Get text color from config or use default
-    const textColor =
-      this._config!.progress_text_color || "var(--text-primary-color)";
-
-    return html`
-      <div
-        class="progress-bar"
-        style="background: #${this.shades.lighter}"
-        aria-label="${progress.completed} of ${progress.total} tasks completed"
-      >
-        <div
-          class="progress-bar-fill"
-          style="width: ${percentage}%; background: #${this.shades.darker}"
-        ></div>
-        <div class="progress-text" style="color: ${textColor}">
-          ${progress.completed}/${progress.total}
-        </div>
-      </div>
-    `;
+    return renderProgressBar(
+      progress,
+      this.shades,
+      this._config!.progress_text_color
+    );
   }
 
-  private _getPersonName(entityId: string): string {
-    const entity = this.hass?.states[entityId];
-    return entity?.attributes.friendly_name || entityId.replace("person.", "");
-  }
 
-  private _getPersonInitials(entityId: string): string {
-    const name = this._getPersonName(entityId);
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  }
 }
 
 // Register card with Home Assistant

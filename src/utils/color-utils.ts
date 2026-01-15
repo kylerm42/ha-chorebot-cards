@@ -183,3 +183,38 @@ export function shadesToCssVars(shades: ColorShades): string {
     )
     .join("; ");
 }
+
+/**
+ * Resolve accent color with precedence: config > person profile > theme default
+ * This ensures consistent color inheritance across all ChoreBot cards
+ *
+ * @param hass - Home Assistant instance
+ * @param configAccentColor - Optional accent color from card config
+ * @param personEntityId - Optional person entity ID to check for profile color
+ * @returns Resolved accent color (hex, rgb, or CSS variable)
+ */
+export function resolveAccentColor(
+  hass: any,
+  configAccentColor?: string,
+  personEntityId?: string
+): string {
+  // Precedence: Manual config > Person profile > Theme default
+  let baseColor = "var(--primary-color)"; // Default fallback
+
+  // Check for centralized person color from sensor
+  if (personEntityId) {
+    const sensor = hass.states["sensor.chorebot_points"];
+    const people = sensor?.attributes.people || {};
+    const personProfile = people[personEntityId];
+    if (personProfile?.accent_color) {
+      baseColor = personProfile.accent_color;
+    }
+  }
+
+  // Manual config overrides everything
+  if (configAccentColor) {
+    baseColor = configAccentColor;
+  }
+
+  return baseColor;
+}

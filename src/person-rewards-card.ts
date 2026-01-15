@@ -16,6 +16,7 @@ import {
   getPointsDisplayParts,
   getPointsTermLowercase,
 } from "./utils/points-display-utils.js";
+import { getPersonName } from "./utils/person-display-utils.js";
 
 // ============================================================================
 // ChoreBot Person Rewards Card (TypeScript)
@@ -612,7 +613,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     this.style.setProperty("--accent-color", accentColor);
 
     // Get person name for default title
-    const personName = this._getPersonName(this._config.person_entity);
+    const personName = getPersonName(this.hass, this._config.person_entity);
     const cardTitle = this._config.title || `${personName}'s Rewards`;
 
     return html`
@@ -642,7 +643,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
 
     if (!person || !reward) return "";
 
-    const personName = this._getPersonName(personId);
+    const personName = getPersonName(this.hass!, personId);
     const remainingPoints = person.points_balance - reward.cost;
     const canAfford = person.points_balance >= reward.cost;
     const canRedeem = reward.enabled && canAfford;
@@ -1118,10 +1119,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     }
   }
 
-  private _getPersonName(entityId: string): string {
-    const entity = this.hass?.states[entityId];
-    return entity?.attributes.friendly_name || entityId.replace("person.", "");
-  }
+
 }
 
 // Register card with Home Assistant
