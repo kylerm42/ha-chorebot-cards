@@ -101,13 +101,10 @@ export class ChoreBotGroupedCard extends LitElement {
       display: block;
     }
     ha-card {
-      padding: 16px;
-      border: none;
-    }
-    ha-card.no-background {
-      padding: 0;
       background: transparent;
       box-shadow: none;
+      padding: 0;
+      border: none;
     }
     .card-header {
       font-size: 24px;
@@ -562,7 +559,10 @@ export class ChoreBotGroupedCard extends LitElement {
       const isCompleted = task.status === "completed";
 
       // Task styling based on completion
-      const taskBgColor = isCompleted ? `#${this.shades.base}` : "transparent";
+      // When hide_card_background is enabled, incomplete tasks are transparent
+      const taskBgColor = isCompleted 
+        ? `#${this.shades.base}` 
+        : (this._config?.hide_card_background ? "transparent" : "var(--card-background-color)");
       const taskTextColor = isCompleted
         ? textColor
         : "var(--primary-text-color)";

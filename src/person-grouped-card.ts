@@ -151,13 +151,6 @@ export class ChoreBotPersonGroupedCard extends LitElement {
 
     /* Tasks Section Container */
     .tasks-section {
-      background: var(--card-background-color);
-      border-radius: var(--ha-card-border-radius, 12px);
-      box-shadow: var(--ha-card-box-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
-      padding: 16px;
-    }
-
-    .tasks-section.no-background {
       background: transparent;
       box-shadow: none;
       padding: 0;
@@ -384,6 +377,11 @@ export class ChoreBotPersonGroupedCard extends LitElement {
 
     .tag-group-container.collapsed {
       border-radius: var(--ha-card-border-radius, 12px);
+    }
+
+    /* Remove border when hide_tasks_background is enabled */
+    .tasks-section.no-background .tag-group-container {
+      border: none;
     }
 
     /* Tag Group Header Bar */
@@ -1230,7 +1228,10 @@ export class ChoreBotPersonGroupedCard extends LitElement {
       const isCompleted = task.status === "completed";
 
       // Task styling based on completion
-      const taskBgColor = isCompleted ? `#${this.shades.base}` : "transparent";
+      // When hide_tasks_background is enabled, incomplete tasks are transparent
+      const taskBgColor = isCompleted 
+        ? `#${this.shades.base}` 
+        : (this._config?.hide_tasks_background ? "transparent" : "var(--card-background-color)");
       const taskTextColor = isCompleted
         ? textColor
         : "var(--primary-text-color)";
