@@ -11,8 +11,8 @@ This directory contains cards that are no longer actively used or built, but are
 
 ### `rewards-card.ts` (Deprecated 2025-12-03)
 
-- **Replaced by:** `person-rewards-card.ts`
-- **Reason:** The person-rewards card provides better person-specific functionality with inline creation and redemption. The original rewards card required selecting a person first.
+- **Replaced by:** `rewards-card.ts` (active as of 2026-01-15)
+- **Reason:** The rewards card provides better person-specific functionality with inline creation and redemption. The original rewards card required selecting a person first.
 
 ## Notes
 

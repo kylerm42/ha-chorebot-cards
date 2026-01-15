@@ -1,23 +1,25 @@
 /**
  * ChoreBot Cards - Single Bundle Entry Point
  * 
- * This file imports and registers all 5 ChoreBot dashboard cards.
+ * This file imports and registers all 6 ChoreBot dashboard cards.
  * Each card self-registers via customElements.define() in its respective module.
  * 
  * Cards included:
  * - chorebot-grouped-card: Tag-based grouped task view with progress tracking
  * - chorebot-add-task-card: Quick task creation with full field support
  * - chorebot-person-points-card: Visual points balance display with progress bar
- * - chorebot-person-rewards-card: Person-specific rewards with inline redemption
+ * - chorebot-rewards-card: Person-specific rewards with inline redemption
  * - chorebot-person-grouped-card: Person-filtered tag-based grouped task view
+ * - chorebot-person-rewards-card: Combined person selector and rewards list
  */
 
 // Import all card modules - they self-register on import
 import './grouped-card';
 import './add-task-card';
 import './person-points-card';
-import './person-rewards-card';
+import './rewards-card';
 import './person-grouped-card';
+import './person-rewards-card';
 
 // Version banner for browser console
 console.info(

@@ -11,6 +11,7 @@ import {
   Section,
   GroupState,
   PersonProfile,
+  Progress,
 } from "./utils/types.js";
 import {
   filterTodayTasks,
@@ -54,6 +55,10 @@ import {
 } from "./utils/person-display-utils.js";
 import { renderProgressBar } from "./utils/progress-bar-utils.js";
 import { renderPointsBadge } from "./utils/points-badge-utils.js";
+import {
+  renderPersonDropdown,
+  detectDefaultPerson,
+} from "./utils/person-dropdown-utils.js";
 
 // Card-specific config interface
 interface ChoreBotPersonGroupedConfig extends ChoreBotBaseConfig {
@@ -137,6 +142,7 @@ export class ChoreBotPersonGroupedCard extends LitElement {
       gap: 20px; /* Spacing between sections like separate cards */
     }
 
+    /* Person Dropdown Styles - Shared with person-dropdown-utils.ts */
     /* Person Section Container */
     .person-section {
       background: var(--card-background-color);
@@ -928,30 +934,11 @@ export class ChoreBotPersonGroupedCard extends LitElement {
   willUpdate(changedProperties: Map<string, any>) {
     // Phase 3: Initial person detection
     if (changedProperties.has("hass") && this._selectedPersonId === "") {
-      // First load - detect default person
-      
-      // 1. Try auto-detect logged-in user
-      let detectedPerson = detectCurrentUserPerson(this.hass!);
-      
-      // 2. Fallback to config default
-      if (!detectedPerson && this._config!.default_person_entity) {
-        detectedPerson = this._config!.default_person_entity;
-      }
-      
-      // 3. Fallback to first person alphabetically
-      if (!detectedPerson) {
-        const allPeople = getAllPeople(this.hass!);
-        if (allPeople.length > 0) {
-          // Sort by entity_id and pick first
-          const sorted = allPeople.sort((a, b) => 
-            a.entity_id.localeCompare(b.entity_id)
-          );
-          detectedPerson = sorted[0].entity_id;
-        }
-      }
-      
-      // 4. If still no person detected, leave as empty string
-      this._selectedPersonId = detectedPerson || "";
+      // First load - detect default person using utility
+      this._selectedPersonId = detectDefaultPerson(
+        this.hass!,
+        this._config?.default_person_entity
+      );
     }
 
     // Phase 3: Color shade recalculation when config or person changes
@@ -994,12 +981,27 @@ export class ChoreBotPersonGroupedCard extends LitElement {
       `;
     }
 
+    // Get available people for dropdown
+    const allPeople = this._getAvailablePeople();
+    
+    // Compute progress for selected person (for progress bar in header)
+    const progress = this._config.show_progress ? this._computeProgress() : undefined;
+
     return html`
       <div class="card-container">
-        <div class="person-section ${this._config.hide_person_background ? 'no-background' : ''} ${this._dropdownOpen ? 'dropdown-open' : ''}">
-          ${this._renderPersonDisplay()}
-          ${this._renderPersonDropdown()}
-        </div>
+        ${renderPersonDropdown(
+          this.hass,
+          this._selectedPersonId,
+          this._dropdownOpen,
+          allPeople,
+          this._config.show_progress ?? true,
+          progress,
+          this.shades,
+          this._config.progress_text_color,
+          () => this._toggleDropdown(),
+          (personId) => this._selectPerson(personId),
+          this._config.hide_person_background ?? false
+        )}
 
         <div class="tasks-section ${this._config.hide_tasks_background ? 'no-background' : ''}">
           ${this._renderGroupedTasks()}
@@ -1011,84 +1013,25 @@ export class ChoreBotPersonGroupedCard extends LitElement {
   }
 
   /**
-   * Render person display header (collapsed state)
+   * Compute progress for selected person (for progress bar)
+   * Uses same logic as person-points-card: today's tasks only (due today + overdue), dated tasks only
    */
-  private _renderPersonDisplay() {
-    const personId = this._selectedPersonId;
-    const personProfile = personId ? getPersonProfile(this.hass!, personId) : null;
+  private _computeProgress(): Progress {
+    // Get all ChoreBot todo entities
+    const allStates = Object.values(this.hass!.states);
+    const todoEntities = allStates.filter((e) =>
+      e.entity_id.startsWith("todo.chorebot_"),
+    ) as HassEntity[];
     
-    // Determine accent color (precedence: config > person profile > theme)
-    let baseColor = "var(--primary-color)";
-    if (personProfile?.accent_color) {
-      baseColor = personProfile.accent_color;
-    }
-    if (this._config!.accent_color) {
-      baseColor = this._config!.accent_color;
-    }
+    // Filter tasks assigned to this person (excludes dateless by default)
+    const personTasks = filterTasksByPerson(
+      todoEntities,
+      this._selectedPersonId,
+      false, // Don't include dateless
+    );
     
-    return html`
-      <div 
-        class="person-header"
-        @click=${this._toggleDropdown}
-      >
-        <div class="person-container">
-          <div class="person-left">
-            ${renderPersonAvatar(this.hass!, personId, personProfile!, 64)}
-          </div>
-          <div class="person-info">
-            <div class="person-header-row">
-              <div class="person-name">${getPersonName(this.hass!, personId)}</div>
-              <div class="person-points-and-chevron">
-                ${renderPersonPoints(personProfile!, this.hass!, baseColor)}
-                <ha-icon 
-                  icon="mdi:chevron-down" 
-                  class="dropdown-chevron ${this._dropdownOpen ? 'open' : ''}"
-                ></ha-icon>
-              </div>
-            </div>
-            ${this._config!.show_progress ? this._renderProgressBar() : ''}
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Render person dropdown (expanded state)
-   */
-  private _renderPersonDropdown() {
-    const people = this._getAvailablePeople();
-    
-    return html`
-      <div class="person-dropdown ${this._dropdownOpen ? 'open' : ''}">
-        <div class="person-dropdown-inner">
-          ${people.map(person => {
-            const isSelected = person.entity_id === this._selectedPersonId;
-            const pointsDisplay = getPointsDisplayParts(this.hass!);
-            
-            return html`
-              <div 
-                class="person-dropdown-item ${isSelected ? 'selected' : ''}"
-                @click=${() => this._selectPerson(person.entity_id)}
-              >
-                ${renderPersonAvatar(this.hass!, person.entity_id, person, 40)}
-                <div class="person-dropdown-info">
-                  <div class="person-dropdown-name">
-                    ${getPersonName(this.hass!, person.entity_id)}
-                  </div>
-                  <div class="person-dropdown-points">
-                    ${person.points_balance}
-                    ${pointsDisplay.icon ? html`<ha-icon icon="${pointsDisplay.icon}"></ha-icon>` : ''}
-                    ${pointsDisplay.text}
-                  </div>
-                </div>
-                ${isSelected ? html`<ha-icon icon="mdi:check"></ha-icon>` : ''}
-              </div>
-            `;
-          })}
-        </div>
-      </div>
-    `;
+    // Calculate progress for dated tasks only
+    return calculateDatedTasksProgress(personTasks);
   }
 
   /**
@@ -1114,34 +1057,6 @@ export class ChoreBotPersonGroupedCard extends LitElement {
     }
     
     return allPeople.filter(p => peopleWithTasks.has(p.entity_id));
-  }
-
-  /**
-   * Render progress bar (optional)
-   * Uses same logic as person-points-card: today's tasks only (due today + overdue), dated tasks only
-   */
-  private _renderProgressBar() {
-    // Get all ChoreBot todo entities
-    const allStates = Object.values(this.hass!.states);
-    const todoEntities = allStates.filter((e) =>
-      e.entity_id.startsWith("todo.chorebot_"),
-    ) as HassEntity[];
-    
-    // Filter tasks assigned to this person (excludes dateless by default)
-    const personTasks = filterTasksByPerson(
-      todoEntities,
-      this._selectedPersonId,
-      false, // Don't include dateless
-    );
-    
-    // Calculate progress for dated tasks only
-    const progress = calculateDatedTasksProgress(personTasks);
-    
-    return renderProgressBar(
-      progress,
-      this.shades,
-      this._config?.progress_text_color
-    );
   }
 
   /**

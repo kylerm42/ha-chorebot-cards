@@ -138,8 +138,8 @@ export interface ChoreBotPersonPointsConfig {
   progress_text_color?: string; // Default: var(--text-primary-color)
 }
 
-export interface ChoreBotPersonRewardsConfig {
-  type: "custom:chorebot-person-rewards-card";
+export interface ChoreBotSinglePersonRewardsConfig {
+  type: "custom:chorebot-rewards-card";
   person_entity: string; // Required - e.g., "person.kyle"
   title?: string;
   show_title?: boolean;
@@ -148,6 +148,18 @@ export interface ChoreBotPersonRewardsConfig {
   sort_by?: "cost" | "name" | "created"; // Default: "cost"
   show_add_reward_button?: boolean; // Default: true
   accent_color?: string; // Default: var(--primary-color) - used for icons, costs, and buttons
+}
+
+export interface ChoreBotPersonRewardsConfig {
+  type: "custom:chorebot-person-rewards-card";
+  default_person_entity?: string; // Override auto-detection
+  show_progress?: boolean; // Default: true - show task progress bar
+  hide_rewards_background?: boolean; // Default: false - hide individual reward tile backgrounds
+  show_disabled_rewards?: boolean; // Default: false
+  sort_by?: "cost" | "name" | "created"; // Default: "cost"
+  show_add_reward_button?: boolean; // Default: true
+  accent_color?: string; // Override accent color (hex or CSS variable)
+  progress_text_color?: string; // Progress bar text color override
 }
 
 export interface PersonProfile {

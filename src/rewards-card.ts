@@ -4,11 +4,9 @@ import { customElement, property, state } from "lit/decorators.js";
 // Import shared utilities
 import {
   HomeAssistant,
-  HassEntity,
-  PersonProfile,
+  ChoreBotSinglePersonRewardsConfig,
+  PersonPoints,
   Reward,
-  Progress,
-  ChoreBotPersonRewardsConfig,
 } from "./utils/types.js";
 import {
   extractColorVariants,
@@ -18,50 +16,29 @@ import {
   getPointsDisplayParts,
   getPointsTermLowercase,
 } from "./utils/points-display-utils.js";
-import { getPersonName, getAllPeople } from "./utils/person-display-utils.js";
-import {
-  renderPersonDropdown,
-  detectDefaultPerson,
-} from "./utils/person-dropdown-utils.js";
-import {
-  calculateColorShades,
-  resolveAccentColor,
-  ColorShades,
-} from "./utils/color-utils.js";
-import {
-  filterTasksByPerson,
-  calculateDatedTasksProgress,
-} from "./utils/task-utils.js";
+import { getPersonName } from "./utils/person-display-utils.js";
 
 // ============================================================================
-// ChoreBot Person Rewards Card (TypeScript)
+// ChoreBot Rewards Card (TypeScript)
 // ============================================================================
 
 /**
- * ChoreBot Person Rewards Card
+ * ChoreBot Rewards Card
  *
- * Combines person selection dropdown with rewards list view.
- * Features:
- * - Person dropdown with avatar/initials display
- * - Auto-detection of default person (logged-in user or first alphabetically)
- * - Rewards list filtered by selected person
- * - Task progress tracking for selected person
- * - Click reward card to open confirmation modal
- * - "Add Reward" placeholder card
- * - Create/edit reward modals with form fields
+ * Displays rewards for a single person with:
+ * - Filtered rewards grid (only rewards for configured person)
+ * - Click reward card to open confirmation modal (no separate redeem button)
+ * - "Add Reward" placeholder card at end of grid
+ * - Create reward modal with form fields
  * - Confetti animation on successful redemption
  */
-@customElement("chorebot-person-rewards-card")
+@customElement("chorebot-rewards-card")
 export class ChoreBotPersonRewardsCard extends LitElement {
   @property({ attribute: false }) hass?: HomeAssistant;
-  @state() private _config?: ChoreBotPersonRewardsConfig;
-  @state() private _selectedPersonId: string = "";
-  @state() private _dropdownOpen = false;
-  @state() private _progress: Progress | undefined;
+  @state() private _config?: ChoreBotSinglePersonRewardsConfig;
   @state() private _redeeming: string | null = null; // reward_id being redeemed
   @state() private _showConfirmModal: boolean = false; // Show redemption confirmation
   @state() private _showAddRewardModal: boolean = false; // Show add reward modal
-  @state() private _showEditRewardModal: boolean = false; // Show edit reward modal
   @state() private _pendingRedemption: {
     personId: string;
     rewardId: string;
@@ -77,16 +54,8 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     icon: "mdi:gift",
     description: "",
   }; // Reward form data for ha-form
+  @state() private _showEditRewardModal: boolean = false;
   @state() private _editingRewardId: string | null = null;
-
-  // Cached color shades for performance
-  private shades: ColorShades = {
-    lighter: "",
-    light: "",
-    base: "",
-    dark: "",
-    darker: "",
-  };
 
   private _rewardFormSchema = [
     { name: "name", required: true, selector: { text: {} } },
@@ -111,12 +80,15 @@ export class ChoreBotPersonRewardsCard extends LitElement {
       --mdc-text-field-label-ink-color: var(--primary-text-color);
     }
 
-    /* Make ha-card wrapper completely transparent */
     ha-card {
-      background: transparent !important;
-      box-shadow: none !important;
-      border: none !important;
+      padding: 16px;
+      border: none;
+    }
+
+    ha-card.no-background {
       padding: 0;
+      background: transparent;
+      box-shadow: none;
     }
 
     ha-dialog {
@@ -127,274 +99,13 @@ export class ChoreBotPersonRewardsCard extends LitElement {
       display: block;
     }
 
-    /* Card Container with Gap */
-    .card-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px; /* Spacing between person and rewards sections */
-    }
-
-    /* Person Dropdown Styles - Shared with person-dropdown-utils.ts */
-    /* Person Section Container */
-    .person-section {
-      background: var(--card-background-color);
-      border-radius: var(--ha-card-border-radius, 12px);
-      box-shadow: var(--ha-card-box-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
-      position: relative;
-      z-index: 2;
-      transition: border-radius 0.3s ease;
-    }
-
-    .person-section.no-background {
-      background: transparent;
-      box-shadow: none;
-    }
-
-    .person-section.dropdown-open {
-      border-radius: var(--ha-card-border-radius, 12px)
-        var(--ha-card-border-radius, 12px) 0 0;
-    }
-
-    /* Person Display Header (matches person-points-card) */
-    .person-header {
-      cursor: pointer;
-      transition: filter 0.2s ease, border-radius 0.3s ease;
-      user-select: none;
-      padding: 16px;
-      position: relative;
-      z-index: 2;
-      background: var(--card-background-color);
-      border-radius: var(--ha-card-border-radius, 12px);
-    }
-
-    .dropdown-open .person-header {
-      border-radius: var(--ha-card-border-radius, 12px)
-        var(--ha-card-border-radius, 12px) 0 0;
-    }
-
-    .person-header:hover {
-      filter: brightness(1.05);
-    }
-
-    .person-header:active {
-      filter: brightness(0.95);
-    }
-
-    .person-container {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .person-left {
-      flex-shrink: 0;
-    }
-
-    .person-info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 0;
-    }
-
-    .person-header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      line-height: 1;
-    }
-
-    .person-name {
+    .card-header {
       font-size: 24px;
       font-weight: 500;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex: 1;
-      min-width: 0;
-      line-height: 1;
+      margin-bottom: 16px;
     }
 
-    .person-points-and-chevron {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .person-points {
-      font-size: 24px;
-      font-weight: bold;
-      color: var(--primary-color);
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      line-height: 1;
-    }
-
-    .person-points ha-icon {
-      --mdc-icon-size: 20px;
-      display: flex;
-    }
-
-    .dropdown-chevron {
-      --mdc-icon-size: 20px;
-      transition: transform 0.3s ease;
-      color: var(--secondary-text-color);
-    }
-
-    .dropdown-chevron.open {
-      transform: rotate(180deg);
-    }
-
-    /* Person Dropdown */
-    .person-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: var(--card-background-color);
-      border-radius: 0 0 var(--ha-card-border-radius, 12px)
-        var(--ha-card-border-radius, 12px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-      display: grid;
-      grid-template-rows: 0fr;
-      transition: grid-template-rows 0.3s ease;
-      overflow: hidden;
-      z-index: 1;
-    }
-
-    .person-dropdown.open {
-      grid-template-rows: 1fr;
-    }
-
-    .person-dropdown-inner {
-      overflow: hidden;
-      max-height: 400px;
-    }
-
-    .person-dropdown.open .person-dropdown-inner {
-      overflow-y: auto;
-    }
-
-    .person-dropdown-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      cursor: pointer;
-      transition: filter 0.2s ease;
-      border-bottom: 1px solid var(--divider-color);
-      background: var(--card-background-color);
-    }
-
-    .person-dropdown-item:last-child {
-      border-bottom: none;
-    }
-
-    .person-dropdown-item:hover {
-      filter: brightness(1.1);
-    }
-
-    .person-dropdown-item.selected {
-      background: color-mix(in srgb, var(--primary-color) 10%, transparent);
-    }
-
-    .person-dropdown-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .person-dropdown-name {
-      font-size: 16px;
-      font-weight: 500;
-    }
-
-    .person-dropdown-points {
-      font-size: 14px;
-      opacity: 0.7;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .person-dropdown-points ha-icon {
-      --mdc-icon-size: 14px;
-      display: flex;
-    }
-
-    /* Person Avatar Styling */
-    .person-avatar {
-      border-radius: 50%;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .person-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .person-avatar.initials {
-      background: linear-gradient(
-        135deg,
-        var(--primary-color),
-        var(--accent-color, var(--primary-color))
-      );
-      color: white;
-      font-weight: 600;
-    }
-
-    /* Progress Bar (matches person-points-card) */
-    .progress-bar {
-      position: relative;
-      border-radius: 12px;
-      height: 24px;
-      overflow: hidden;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-      width: 100%;
-    }
-
-    .progress-bar-fill {
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      transition: width 0.3s ease;
-      border-radius: 12px;
-    }
-
-    .progress-text {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 500;
-      z-index: 1;
-    }
-
-    /* Rewards Section - Always transparent */
-    .rewards-section {
-      background: transparent;
-      box-shadow: none;
-      padding: 0;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Rewards Grid - From rewards-card.ts */
+    /* Rewards Grid */
     .rewards-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -409,26 +120,14 @@ export class ChoreBotPersonRewardsCard extends LitElement {
       flex-direction: row;
       overflow: hidden;
       cursor: pointer;
-      transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      transition: all 0.2s ease;
       min-height: 80px;
       height: 80px;
     }
 
-    .reward-card.no-background {
-      background: transparent;
-      box-shadow: none;
-      /* Keep border - DO NOT remove it */
-      border: 1px solid var(--divider-color);
-    }
-
     .reward-card:hover {
-      filter: brightness(1.1);
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .reward-card.no-background:hover {
-      box-shadow: none;
     }
 
     .reward-card.disabled {
@@ -528,7 +227,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     }
 
     .add-reward-card:hover {
-      border-color: var(--button-border-color);
+      border-color: var(--accent-color, var(--primary-color));
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
@@ -544,7 +243,11 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     }
 
     .add-reward-card:hover .add-reward-icon-section {
-      background: var(--button-hover-bg);
+      background: color-mix(
+        in srgb,
+        var(--accent-color, var(--primary-color)) 20%,
+        var(--card-background-color)
+      );
     }
 
     .add-reward-icon {
@@ -556,7 +259,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     }
 
     .add-reward-card:hover .add-reward-icon {
-      color: var(--button-hover-color);
+      color: var(--accent-color, var(--primary-color));
     }
 
     .add-reward-icon ha-icon {
@@ -579,7 +282,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     }
 
     .add-reward-card:hover .add-reward-text {
-      color: var(--button-hover-color);
+      color: var(--accent-color, var(--primary-color));
     }
 
     /* Modal Overlay */
@@ -617,8 +320,8 @@ export class ChoreBotPersonRewardsCard extends LitElement {
 
     .edit-button {
       position: absolute;
-      top: -8px;
-      right: -8px;
+      top: 8px;
+      right: 8px;
       background: transparent;
       border: none;
       cursor: pointer;
@@ -709,12 +412,11 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     }
 
     .modal-button.confirm {
-      background: var(--modal-confirm-bg, var(--accent-color, var(--primary-color)));
+      background: var(--accent-color, var(--primary-color));
       color: white;
     }
 
     .modal-button.confirm:hover {
-      background: var(--modal-confirm-hover-bg, var(--modal-confirm-bg, var(--accent-color, var(--primary-color))));
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
@@ -740,94 +442,63 @@ export class ChoreBotPersonRewardsCard extends LitElement {
       padding: 32px;
       color: var(--error-color);
     }
-
-    /* Responsive: Smaller elements on mobile */
-    @media (max-width: 600px) {
-      .person-header {
-        padding: 12px;
-      }
-
-      .person-left .person-avatar {
-        width: 48px;
-        height: 48px;
-      }
-
-      .person-left .person-avatar.initials {
-        font-size: 18px;
-      }
-
-      .person-name {
-        font-size: 20px;
-      }
-
-      .person-points {
-        font-size: 20px;
-      }
-
-      .person-points ha-icon {
-        --mdc-icon-size: 18px;
-      }
-
-      .dropdown-chevron {
-        --mdc-icon-size: 18px;
-      }
-
-      .person-dropdown-inner {
-        max-height: 300px;
-      }
-    }
   `;
 
-  setConfig(config: ChoreBotPersonRewardsConfig) {
-    if (!config.type) {
-      throw new Error("type is required");
+  setConfig(config: ChoreBotSinglePersonRewardsConfig) {
+    if (!config.person_entity) {
+      throw new Error("person_entity is required");
     }
 
     this._config = {
-      type: "custom:chorebot-person-rewards-card",
-      show_progress: config.show_progress !== false,
-      hide_rewards_background: config.hide_rewards_background === true,
+      type: "custom:chorebot-rewards-card",
+      person_entity: config.person_entity,
+      title: config.title || undefined, // Will default to "{Name}'s Rewards" in render
+      show_title: config.show_title !== false,
+      hide_card_background: config.hide_card_background === true,
       show_disabled_rewards: config.show_disabled_rewards === true,
       sort_by: config.sort_by || "cost",
       show_add_reward_button: config.show_add_reward_button !== false,
       accent_color: config.accent_color || "",
-      progress_text_color: config.progress_text_color || "",
-      default_person_entity: config.default_person_entity || "",
     };
   }
 
   static getStubConfig() {
     return {
-      type: "custom:chorebot-person-rewards-card",
-      default_person_entity: "",
-      show_progress: true,
-      hide_rewards_background: false,
+      type: "custom:chorebot-rewards-card",
+      person_entity: "person.example",
+      title: "My Rewards",
+      show_title: true,
+      hide_card_background: false,
       show_disabled_rewards: false,
       sort_by: "cost",
       show_add_reward_button: true,
       accent_color: "",
-      progress_text_color: "",
     };
+  }
+
+  getCardSize() {
+    return 3;
   }
 
   static getConfigForm() {
     return {
       schema: [
         {
-          name: "default_person_entity",
-          selector: {
-            entity: {
-              filter: { domain: "person" },
-            },
-          },
+          name: "person_entity",
+          required: true,
+          selector: { entity: { domain: "person" } },
         },
         {
-          name: "show_progress",
+          name: "title",
+          selector: { text: {} },
+        },
+        {
+          name: "show_title",
           default: true,
           selector: { boolean: {} },
         },
         {
-          name: "hide_rewards_background",
+          name: "hide_card_background",
           default: false,
           selector: { boolean: {} },
         },
@@ -858,334 +529,117 @@ export class ChoreBotPersonRewardsCard extends LitElement {
           name: "accent_color",
           selector: { text: {} },
         },
-        {
-          name: "progress_text_color",
-          selector: { text: {} },
-        },
       ],
       computeLabel: (schema: any) => {
         const labels: { [key: string]: string } = {
-          default_person_entity: "Default Person",
-          show_progress: "Show Progress Bar",
-          hide_rewards_background: "Hide Rewards Tile Backgrounds",
+          person_entity: "Person Entity",
+          title: "Card Title",
+          show_title: "Show Title",
+          hide_card_background: "Hide Card Background",
           show_disabled_rewards: "Show Disabled Rewards",
           sort_by: "Sort Rewards By",
           show_add_reward_button: "Show Add Reward Button",
           accent_color: "Accent Color",
-          progress_text_color: "Progress Text Color",
         };
         return labels[schema.name] || undefined;
       },
       computeHelper: (schema: any) => {
         const helpers: { [key: string]: string } = {
-          default_person_entity:
-            "Override auto-detected person. Leave empty to auto-detect logged-in user or use first person alphabetically.",
-          show_progress:
-            "Display progress bar showing completed/total tasks for selected person",
-          hide_rewards_background:
-            "Hide individual reward tile backgrounds for a seamless look",
+          person_entity: "Select the person whose rewards to display",
+          title:
+            'Custom title for the card (defaults to "{Person Name}\'s Rewards")',
+          show_title: "Show the card title",
+          hide_card_background:
+            "Hide the card background and padding for a seamless look",
           show_disabled_rewards:
             "Include rewards that have been disabled in the grid",
           sort_by: "Choose how to sort the rewards in the grid",
           show_add_reward_button:
             "Show the 'Add Reward' card for creating new rewards",
           accent_color:
-            "Override accent color (hex code or CSS variable). By default inherits from person's profile.",
-          progress_text_color:
-            "Text color for progress label (hex code or CSS variable)",
+            "Accent color for reward icons and buttons (hex code or CSS variable like var(--primary-color))",
         };
         return helpers[schema.name] || undefined;
       },
     };
   }
 
-  willUpdate(changedProperties: Map<string, any>) {
-    // Phase 1: Initial person detection
-    if (changedProperties.has("hass") && this._selectedPersonId === "") {
-      this._selectedPersonId = detectDefaultPerson(
-        this.hass!,
-        this._config?.default_person_entity
-      );
-    }
-
-    // Phase 2: Color shade recalculation
-    if (
-      (changedProperties.has("_config") ||
-        changedProperties.has("_selectedPersonId")) &&
-      this._config
-    ) {
-      const baseColor = resolveAccentColor(
-        this.hass!,
-        this._config.accent_color,
-        this._selectedPersonId
-      );
-      this.shades = calculateColorShades(baseColor);
-    }
-
-    // Phase 3: Calculate task progress for selected person
-    if (
-      changedProperties.has("hass") ||
-      changedProperties.has("_selectedPersonId")
-    ) {
-      this._progress = this._computeProgress();
-    }
-  }
-
   render() {
     if (!this.hass || !this._config) {
-      return html`<ha-card><div class="empty-state">Loading...</div></ha-card>`;
+      return html`<ha-card>Loading...</ha-card>`;
+    }
+
+    // Validate person entity exists
+    const personEntity = this.hass.states[this._config.person_entity];
+    if (!personEntity) {
+      return html`<ha-card>
+        <div class="error-state">
+          Person entity "${this._config.person_entity}" not found. Please check
+          your configuration.
+        </div>
+      </ha-card>`;
     }
 
     // Get points sensor entity
     const sensor = this.hass.states["sensor.chorebot_points"];
     if (!sensor) {
       return html`<ha-card>
-        <div class="error-state">
+        <div class="empty-state">
           ChoreBot Points sensor not found. Make sure the integration is set up.
         </div>
       </ha-card>`;
     }
 
-    // If no person detected, show error message
-    if (!this._selectedPersonId) {
-      return html`
-        <ha-card>
-          <div class="error-state">
-            Please select a person. No people found with ChoreBot access.
-          </div>
-        </ha-card>
-      `;
+    const people = sensor.attributes.people || {};
+    const rewards = sensor.attributes.rewards || [];
+
+    // Precedence: Manual config > Person profile > Theme default
+    let accentColor = "var(--primary-color)"; // Default fallback
+
+    // Check for centralized person color from sensor
+    if (this._config.person_entity) {
+      const personProfile = people[this._config.person_entity];
+      if (personProfile?.accent_color) {
+        accentColor = personProfile.accent_color;
+      }
     }
 
-    // Get available people for dropdown
-    const allPeople = this._getAvailablePeople();
-    const showProgress = this._config.show_progress ?? true;
-
-    return html`
-      <ha-card>
-        <div class="card-container">
-          <!-- Person Dropdown Section -->
-          <div
-            class="person-section ${this._dropdownOpen ? "dropdown-open" : ""}"
-          >
-            ${renderPersonDropdown(
-              this.hass,
-              this._selectedPersonId,
-              this._dropdownOpen,
-              allPeople,
-              showProgress,
-              this._progress,
-              this.shades,
-              this._config.progress_text_color,
-              () => this._toggleDropdown(),
-              (personId) => this._selectPerson(personId),
-              false // Person section always has background
-            )}
-          </div>
-
-          <!-- Rewards List Section -->
-          <div class="rewards-section">
-            ${this._renderRewardsList()}
-          </div>
-        </div>
-
-        <!-- Modals -->
-        ${this._showConfirmModal ? this._renderConfirmModal() : ""}
-        ${this._showAddRewardModal ? this._renderAddRewardModal() : ""}
-        ${this._showEditRewardModal ? this._renderEditRewardModal() : ""}
-      </ha-card>
-    `;
-  }
-
-  /**
-   * Compute progress for selected person (for progress bar)
-   * Uses same logic as person-grouped-card: today's tasks only, dated tasks only
-   */
-  private _computeProgress(): Progress {
-    // Get all ChoreBot todo entities
-    const allStates = Object.values(this.hass!.states);
-    const todoEntities = allStates.filter((e) =>
-      e.entity_id.startsWith("todo.chorebot_")
-    ) as HassEntity[];
-
-    // Filter tasks assigned to this person (excludes dateless by default)
-    const personTasks = filterTasksByPerson(
-      todoEntities,
-      this._selectedPersonId,
-      false // Don't include dateless
-    );
-
-    // Calculate progress for dated tasks only
-    return calculateDatedTasksProgress(personTasks);
-  }
-
-  /**
-   * Get available people for dropdown
-   */
-  private _getAvailablePeople(): PersonProfile[] {
-    return getAllPeople(this.hass!);
-  }
-
-  /**
-   * Toggle dropdown open/closed
-   */
-  private _toggleDropdown() {
-    this._dropdownOpen = !this._dropdownOpen;
-  }
-
-  /**
-   * Select a person from dropdown
-   */
-  private _selectPerson(personId: string) {
-    this._selectedPersonId = personId;
-    this._dropdownOpen = false; // Close dropdown after selection
-  }
-
-  /**
-   * Render rewards list filtered by selected person
-   */
-  private _renderRewardsList() {
-    const sensor = this.hass?.states["sensor.chorebot_points"];
-    const rewards = sensor?.attributes.rewards || [];
-    const people = sensor?.attributes.people || {};
-
-    // Filter rewards by selected person
-    const personRewards = rewards.filter(
-      (r: Reward) => r.person_id === this._selectedPersonId
-    );
-
-    // Filter by enabled/disabled
-    const filteredRewards = personRewards.filter(
-      (r: Reward) => this._config!.show_disabled_rewards || r.enabled
-    );
-
-    // Sort rewards
-    const sortedRewards = this._sortRewards(filteredRewards);
-
-    // Get person's balance
-    const person = people[this._selectedPersonId];
-
-    if (
-      sortedRewards.length === 0 &&
-      !this._config!.show_add_reward_button
-    ) {
-      return html`<div class="empty-state">
-        No rewards configured yet. Use the "Add Reward" button or
-        <code>chorebot.manage_reward</code> service to create rewards.
-      </div>`;
+    // Manual config overrides everything
+    if (this._config.accent_color) {
+      accentColor = this._config.accent_color;
     }
 
+    // Set CSS variable for accent color
+    this.style.setProperty("--accent-color", accentColor);
+
+    // Get person name for default title
+    const personName = getPersonName(this.hass, this._config.person_entity);
+    const cardTitle = this._config.title || `${personName}'s Rewards`;
+
     return html`
-      <div class="rewards-grid">
-        ${sortedRewards.map((reward: Reward) =>
-          this._renderRewardCard(reward, person)
-        )}
-        ${this._config!.show_add_reward_button
-          ? this._renderAddRewardCard()
+      <ha-card
+        class="${this._config.hide_card_background ? "no-background" : ""}"
+      >
+        ${this._config.show_title
+          ? html`<div class="card-header">${cardTitle}</div>`
           : ""}
-      </div>
+        ${this._renderRewardsGrid(rewards, people)}
+      </ha-card>
+      ${this._showConfirmModal ? this._renderConfirmModal(people, rewards) : ""}
+      ${this._showAddRewardModal ? this._renderAddRewardModal() : ""}
+      ${this._showEditRewardModal ? this._renderEditRewardModal() : ""}
     `;
   }
 
-  private _renderRewardCard(reward: Reward, person: any | undefined) {
-    const canAfford = person ? person.points_balance >= reward.cost : false;
-    const isDisabled = !reward.enabled || !canAfford;
-    const parts = getPointsDisplayParts(this.hass!);
-    const hideBackground = this._config?.hide_rewards_background ?? false;
-
-    // Apply person accent color to reward cards
-    const iconBg = `#${this.shades.base}`;
-    const costColor = `#${this.shades.base}`;
-
-    return html`
-      <div
-        class="reward-card ${isDisabled ? "disabled" : ""} ${hideBackground
-          ? "no-background"
-          : ""}"
-        @click="${() => this._handleRewardClick(reward, canAfford)}"
-      >
-        <div class="reward-icon-section" style="background: ${iconBg};">
-          <div class="reward-icon">
-            <ha-icon icon="${reward.icon}"></ha-icon>
-          </div>
-        </div>
-        <div class="reward-info">
-          <div class="reward-header">
-            <div class="reward-name">${reward.name}</div>
-            <div class="reward-cost" style="color: ${costColor};">
-              ${reward.cost}
-              ${parts.icon ? html`<ha-icon icon="${parts.icon}"></ha-icon>` : ""}
-              ${parts.text ? parts.text : ""}
-            </div>
-          </div>
-          ${reward.description
-            ? html`<div class="reward-description">${reward.description}</div>`
-            : ""}
-        </div>
-      </div>
-    `;
-  }
-
-  private _renderAddRewardCard() {
-    // Use the same color shades as the rest of the card
-    const borderColor = `#${this.shades.light}`;
-    const hoverBg = `color-mix(in srgb, #${this.shades.light} 20%, var(--card-background-color))`;
-    const hoverColor = `#${this.shades.light}`;
-
-    return html`
-      <div
-        class="add-reward-card"
-        style="--button-border-color: ${borderColor}; --button-hover-bg: ${hoverBg}; --button-hover-color: ${hoverColor};"
-        @click="${this._openAddRewardModal}"
-      >
-        <div class="add-reward-icon-section">
-          <div class="add-reward-icon">
-            <ha-icon icon="mdi:plus"></ha-icon>
-          </div>
-        </div>
-        <div class="add-reward-info">
-          <div class="add-reward-text">Add Reward</div>
-        </div>
-      </div>
-    `;
-  }
-
-  private _sortRewards(rewards: Reward[]): Reward[] {
-    const sorted = [...rewards];
-    switch (this._config!.sort_by) {
-      case "name":
-        return sorted.sort((a, b) => a.name.localeCompare(b.name));
-      case "created":
-        return sorted.sort(
-          (a, b) =>
-            new Date(a.created || 0).getTime() -
-            new Date(b.created || 0).getTime()
-        );
-      case "cost":
-      default:
-        return sorted.sort((a, b) => a.cost - b.cost);
-    }
-  }
-
-  private _handleRewardClick(reward: Reward, canAfford: boolean) {
-    // Always open modal to show reward details (button will be disabled if can't redeem)
-    this._pendingRedemption = {
-      personId: this._selectedPersonId,
-      rewardId: reward.id,
-    };
-    this._showConfirmModal = true;
-  }
-
-  private _renderConfirmModal() {
+  private _renderConfirmModal(
+    people: { [key: string]: PersonPoints },
+    rewards: Reward[],
+  ) {
     if (!this._pendingRedemption || !this._config) return "";
-
-    const sensor = this.hass?.states["sensor.chorebot_points"];
-    const people = sensor?.attributes.people || {};
-    const rewards = sensor?.attributes.rewards || [];
 
     const { personId, rewardId } = this._pendingRedemption;
     const person = people[personId];
-    const reward = rewards.find((r: Reward) => r.id === rewardId);
+    const reward = rewards.find((r) => r.id === rewardId);
 
     if (!person || !reward) return "";
 
@@ -1195,15 +649,10 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     const canRedeem = reward.enabled && canAfford;
     const parts = getPointsDisplayParts(this.hass!);
 
-    // Apply person accent color to modal buttons
-    const confirmBg = `#${this.shades.base}`;
-    const confirmHoverBg = `#${this.shades.dark}`;
-
     return html`
       <div class="modal-overlay" @click="${this._cancelRedemption}">
         <div
           class="modal-content"
-          style="--modal-confirm-bg: ${confirmBg}; --modal-confirm-hover-bg: ${confirmHoverBg};"
           @click="${(e: Event) => e.stopPropagation()}"
         >
           <div class="modal-header">
@@ -1386,6 +835,120 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     `;
   }
 
+  private _renderRewardsGrid(
+    rewards: Reward[],
+    people: { [key: string]: PersonPoints },
+  ) {
+    if (!this._config) return "";
+
+    // Filter rewards by person_id
+    const personRewards = rewards.filter(
+      (r) => r.person_id === this._config!.person_entity,
+    );
+
+    // Filter by enabled/disabled
+    const filteredRewards = personRewards.filter(
+      (r) => this._config!.show_disabled_rewards || r.enabled,
+    );
+
+    // Sort rewards
+    const sortedRewards = this._sortRewards(filteredRewards);
+
+    // Get person's balance
+    const person = people[this._config.person_entity];
+
+    if (sortedRewards.length === 0 && !this._config.show_add_reward_button) {
+      return html`<div class="empty-state">
+        No rewards configured yet. Use the "Add Reward" button or
+        <code>chorebot.manage_reward</code> service to create rewards.
+      </div>`;
+    }
+
+    return html`
+      <div class="rewards-grid">
+        ${sortedRewards.map((reward) => this._renderRewardCard(reward, person))}
+        ${this._config.show_add_reward_button
+          ? this._renderAddRewardCard()
+          : ""}
+      </div>
+    `;
+  }
+
+  private _renderRewardCard(reward: Reward, person: PersonPoints | undefined) {
+    const canAfford = person ? person.points_balance >= reward.cost : false;
+    const isDisabled = !reward.enabled || !canAfford;
+    const parts = getPointsDisplayParts(this.hass!);
+
+    return html`
+      <div
+        class="reward-card ${isDisabled ? "disabled" : ""}"
+        @click="${() => this._handleRewardClick(reward, canAfford)}"
+      >
+        <div class="reward-icon-section">
+          <div class="reward-icon">
+            <ha-icon icon="${reward.icon}"></ha-icon>
+          </div>
+        </div>
+        <div class="reward-info">
+          <div class="reward-header">
+            <div class="reward-name">${reward.name}</div>
+            <div class="reward-cost">
+              ${reward.cost}
+              ${parts.icon
+                ? html`<ha-icon icon="${parts.icon}"></ha-icon>`
+                : ""}
+              ${parts.text ? parts.text : ""}
+            </div>
+          </div>
+          ${reward.description
+            ? html`<div class="reward-description">${reward.description}</div>`
+            : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  private _renderAddRewardCard() {
+    return html`
+      <div class="add-reward-card" @click="${this._openAddRewardModal}">
+        <div class="add-reward-icon-section">
+          <div class="add-reward-icon">
+            <ha-icon icon="mdi:plus"></ha-icon>
+          </div>
+        </div>
+        <div class="add-reward-info">
+          <div class="add-reward-text">Add Reward</div>
+        </div>
+      </div>
+    `;
+  }
+
+  private _sortRewards(rewards: Reward[]): Reward[] {
+    const sorted = [...rewards];
+    switch (this._config!.sort_by) {
+      case "name":
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      case "created":
+        return sorted.sort(
+          (a, b) =>
+            new Date(a.created || 0).getTime() -
+            new Date(b.created || 0).getTime(),
+        );
+      case "cost":
+      default:
+        return sorted.sort((a, b) => a.cost - b.cost);
+    }
+  }
+
+  private _handleRewardClick(reward: Reward, canAfford: boolean) {
+    // Always open modal to show reward details (button will be disabled if can't redeem)
+    this._pendingRedemption = {
+      personId: this._config!.person_entity,
+      rewardId: reward.id,
+    };
+    this._showConfirmModal = true;
+  }
+
   private _cancelRedemption() {
     this._showConfirmModal = false;
     this._pendingRedemption = null;
@@ -1436,7 +999,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
   }
 
   private _openAddRewardModal() {
-    // Reset form and prefill person_id
+    // Reset form
     this._rewardFormData = {
       name: "",
       cost: 50,
@@ -1466,7 +1029,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
         cost: Math.max(1, Math.min(10000, cost)), // Clamp between 1 and 10000
         icon: icon || "mdi:gift",
         description: description.trim(),
-        person_id: this._selectedPersonId, // Prefill with selected person
+        person_id: this._config.person_entity, // Pre-filled from config
       });
 
       // Close modal
@@ -1544,7 +1107,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
         cost: Math.max(1, Math.min(10000, cost)),
         icon: icon || "mdi:gift",
         description: description.trim(),
-        person_id: this._selectedPersonId,
+        person_id: this._config.person_entity,
       });
 
       // Close modal
@@ -1556,9 +1119,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     }
   }
 
-  getCardSize() {
-    return 3;
-  }
+
 }
 
 // Register card with Home Assistant
@@ -1575,15 +1136,15 @@ declare global {
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "chorebot-person-rewards-card",
-  name: "ChoreBot Person Rewards Card",
+  type: "chorebot-rewards-card",
+  name: "ChoreBot Rewards Card",
   description:
-    "Combined person selector and rewards list card with progress tracking",
+    "Display person-specific rewards with inline creation and redemption",
   preview: true,
 });
 
 console.info(
-  "%c CHOREBOT-PERSON-REWARDS-CARD %c v1.0.0",
-  "color: white; background: #3498db; font-weight: bold;",
-  "color: #3498db; background: white; font-weight: bold;"
+  "%c CHOREBOT-REWARDS-CARD %c v0.1.0 ",
+  "color: white; background: #9C27B0; font-weight: bold;",
+  "color: #9C27B0; background: white; font-weight: bold;",
 );
