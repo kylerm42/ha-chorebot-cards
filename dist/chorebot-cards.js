@@ -5831,7 +5831,7 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
         }
         return b `
       <div class="card-container">
-        <div class="person-section ${this._config.hide_person_background ? 'no-background' : ''}">
+        <div class="person-section ${this._config.hide_person_background ? 'no-background' : ''} ${this._dropdownOpen ? 'dropdown-open' : ''}">
           ${this._renderPersonDisplay()}
           ${this._renderPersonDropdown()}
         </div>
@@ -5888,14 +5888,13 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
      * Render person dropdown (expanded state)
      */
     _renderPersonDropdown() {
-        if (!this._dropdownOpen)
-            return b ``;
         const people = this._getAvailablePeople();
         return b `
       <div class="person-dropdown ${this._dropdownOpen ? 'open' : ''}">
         <div class="person-dropdown-inner">
           ${people.map(person => {
             const isSelected = person.entity_id === this._selectedPersonId;
+            const pointsDisplay = getPointsDisplayParts(this.hass);
             return b `
               <div 
                 class="person-dropdown-item ${isSelected ? 'selected' : ''}"
@@ -5907,7 +5906,9 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
                     ${getPersonName(this.hass, person.entity_id)}
                   </div>
                   <div class="person-dropdown-points">
-                    ${person.points_balance} ${getPointsDisplayParts(this.hass).text}
+                    ${person.points_balance}
+                    ${pointsDisplay.icon ? b `<ha-icon icon="${pointsDisplay.icon}"></ha-icon>` : ''}
+                    ${pointsDisplay.text}
                   </div>
                 </div>
                 ${isSelected ? b `<ha-icon icon="mdi:check"></ha-icon>` : ''}
@@ -6409,11 +6410,18 @@ ChoreBotPersonGroupedCard.styles = i$3 `
       background: var(--card-background-color);
       border-radius: var(--ha-card-border-radius, 12px);
       box-shadow: var(--ha-card-box-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
+      position: relative;
+      z-index: 10;
+      transition: border-radius 0.3s ease;
     }
 
     .person-section.no-background {
       background: transparent;
       box-shadow: none;
+    }
+    
+    .person-section.dropdown-open {
+      border-radius: var(--ha-card-border-radius, 12px) var(--ha-card-border-radius, 12px) 0 0;
     }
 
     /* Tasks Section Container */
@@ -6426,9 +6434,17 @@ ChoreBotPersonGroupedCard.styles = i$3 `
     /* Person Display Header (matches person-points-card) */
     .person-header {
       cursor: pointer;
-      transition: filter 0.2s ease;
+      transition: filter 0.2s ease, border-radius 0.3s ease;
       user-select: none;
       padding: 16px;
+      position: relative;
+      z-index: 2;
+      background: var(--card-background-color);
+      border-radius: var(--ha-card-border-radius, 12px);
+    }
+    
+    .dropdown-open .person-header {
+      border-radius: var(--ha-card-border-radius, 12px) var(--ha-card-border-radius, 12px) 0 0;
     }
 
     .person-header:hover {
@@ -6511,10 +6527,17 @@ ChoreBotPersonGroupedCard.styles = i$3 `
 
     /* Person Dropdown */
     .person-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card-background-color);
+      border-radius: 0 0 var(--ha-card-border-radius, 12px) var(--ha-card-border-radius, 12px);
       display: grid;
       grid-template-rows: 0fr;
       transition: grid-template-rows 0.3s ease;
       overflow: hidden;
+      z-index: 1;
     }
 
     .person-dropdown.open {
@@ -6522,8 +6545,12 @@ ChoreBotPersonGroupedCard.styles = i$3 `
     }
 
     .person-dropdown-inner {
-      overflow-y: auto;
+      overflow: hidden;
       max-height: 400px;
+    }
+    
+    .person-dropdown.open .person-dropdown-inner {
+      overflow-y: auto;
     }
 
     .person-dropdown-item {
@@ -6556,6 +6583,14 @@ ChoreBotPersonGroupedCard.styles = i$3 `
     .person-dropdown-points {
       font-size: 14px;
       opacity: 0.7;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .person-dropdown-points ha-icon {
+      --mdc-icon-size: 14px;
+      display: flex;
     }
 
     /* Person Avatar Styling */
