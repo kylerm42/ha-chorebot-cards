@@ -184,7 +184,7 @@ export class ChoreBotListCard extends LitElement {
       color: var(--secondary-text-color);
     }
     ha-dialog {
-      --mdc-dialog-min-width: 500px;
+      --mdc-dialog-min-width: min(500px, 90vw);
     }
   `;
 
