@@ -6411,7 +6411,7 @@ ChoreBotPersonGroupedCard.styles = i$3 `
       border-radius: var(--ha-card-border-radius, 12px);
       box-shadow: var(--ha-card-box-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
       position: relative;
-      z-index: 10;
+      z-index: 2;
       transition: border-radius 0.3s ease;
     }
 
@@ -6429,6 +6429,8 @@ ChoreBotPersonGroupedCard.styles = i$3 `
       background: transparent;
       box-shadow: none;
       padding: 0;
+      position: relative;
+      z-index: 1;
     }
 
     /* Person Display Header (matches person-points-card) */
@@ -6533,6 +6535,7 @@ ChoreBotPersonGroupedCard.styles = i$3 `
       right: 0;
       background: var(--card-background-color);
       border-radius: 0 0 var(--ha-card-border-radius, 12px) var(--ha-card-border-radius, 12px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
       display: grid;
       grid-template-rows: 0fr;
       transition: grid-template-rows 0.3s ease;
@@ -6559,11 +6562,17 @@ ChoreBotPersonGroupedCard.styles = i$3 `
       gap: 12px;
       padding: 12px 16px;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: filter 0.2s ease;
+      border-bottom: 1px solid var(--divider-color);
+      background: var(--card-background-color);
+    }
+    
+    .person-dropdown-item:last-child {
+      border-bottom: none;
     }
 
     .person-dropdown-item:hover {
-      background: var(--secondary-background-color);
+      filter: brightness(1.1);
     }
 
     .person-dropdown-item.selected {
