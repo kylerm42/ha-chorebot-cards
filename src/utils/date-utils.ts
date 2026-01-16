@@ -7,9 +7,13 @@ import { Task } from "./types.js";
 /**
  * Parse UTC timestamp to local date and time strings
  * @param utcString - ISO 8601 UTC timestamp
- * @returns Object with separate date and time strings in local timezone
+ * @param isAllDay - Whether this is an all-day task (affects timezone handling)
+ * @returns Object with separate date and time strings
  */
-export function parseUTCToLocal(utcString: string): {
+export function parseUTCToLocal(
+  utcString: string,
+  isAllDay: boolean = false,
+): {
   date: string | null;
   time: string | null;
 } {
@@ -17,16 +21,30 @@ export function parseUTCToLocal(utcString: string): {
     const date = new Date(utcString);
     if (isNaN(date.getTime())) return { date: null, time: null };
 
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
+    if (isAllDay) {
+      // For all-day tasks, use UTC date directly without timezone conversion
+      // This prevents "2026-01-16T00:00:00Z" from becoming "2026-01-15" in EST
+      const year = date.getUTCFullYear();
+      const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+      const day = String(date.getUTCDate()).padStart(2, "0");
 
-    return {
-      date: `${year}-${month}-${day}`,
-      time: `${hours}:${minutes}`,
-    };
+      return {
+        date: `${year}-${month}-${day}`,
+        time: "00:00", // All-day tasks always show midnight
+      };
+    } else {
+      // For timed tasks, convert to local timezone
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+
+      return {
+        date: `${year}-${month}-${day}`,
+        time: `${hours}:${minutes}`,
+      };
+    }
   } catch (e) {
     console.error("Date parsing error:", e, utcString);
     return { date: null, time: null };
@@ -146,4 +164,34 @@ export function isSameDay(date1: Date, date2: Date): boolean {
     date1.getMonth() === date2.getMonth() &&
     date1.getDate() === date2.getDate()
   );
+}
+
+/**
+ * Create an ISO string from date and optional time
+ * For all-day tasks, creates midnight UTC to avoid timezone issues
+ * For timed tasks, uses local timezone
+ * @param dateStr - Date string in YYYY-MM-DD format
+ * @param timeStr - Optional time string in HH:MM or HH:MM:SS format
+ * @param isAllDay - Whether this is an all-day task
+ * @returns ISO 8601 string in UTC (e.g., "2026-01-16T00:00:00Z")
+ */
+export function createISOString(
+  dateStr: string,
+  timeStr: string | undefined,
+  isAllDay: boolean,
+): string {
+  // Parse date components
+  const [year, month, day] = dateStr.split("-").map(Number);
+
+  if (isAllDay) {
+    // For all-day tasks, create date at midnight UTC
+    const date = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+    return date.toISOString();
+  } else {
+    // For timed tasks, use local timezone
+    const timeComponents = timeStr ? timeStr.split(":").map(Number) : [0, 0, 0];
+    const [hours, minutes, seconds = 0] = timeComponents;
+    const date = new Date(year, month - 1, day, hours, minutes, seconds);
+    return date.toISOString();
+  }
 }

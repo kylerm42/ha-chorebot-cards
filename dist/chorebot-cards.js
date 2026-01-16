@@ -1,67 +1,1038 @@
-function e(e,t,o,r){var s,i=arguments.length,a=i<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(e,t,o,r);else for(var n=e.length-1;n>=0;n--)(s=e[n])&&(a=(i<3?s(a):i>3?s(t,o,a):s(t,o))||a);return i>3&&a&&Object.defineProperty(t,o,a),a}"function"==typeof SuppressedError&&SuppressedError;
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+/* global Reflect, Promise, SuppressedError, Symbol, Iterator */
+
+
+function __decorate(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+
 /**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const t=globalThis,o=t.ShadowRoot&&(void 0===t.ShadyCSS||t.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,r=Symbol(),s=new WeakMap;let i=class{constructor(e,t,o){if(this._$cssResult$=!0,o!==r)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=e,this.t=t}get styleSheet(){let e=this.o;const t=this.t;if(o&&void 0===e){const o=void 0!==t&&1===t.length;o&&(e=s.get(t)),void 0===e&&((this.o=e=new CSSStyleSheet).replaceSync(this.cssText),o&&s.set(t,e))}return e}toString(){return this.cssText}};const a=(e,...t)=>{const o=1===e.length?e[0]:t.reduce((t,o,r)=>t+(e=>{if(!0===e._$cssResult$)return e.cssText;if("number"==typeof e)return e;throw Error("Value passed to 'css' function must be a 'css' function result: "+e+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(o)+e[r+1],e[0]);return new i(o,e,r)},n=o?e=>e:e=>e instanceof CSSStyleSheet?(e=>{let t="";for(const o of e.cssRules)t+=o.cssText;return(e=>new i("string"==typeof e?e:e+"",void 0,r))(t)})(e):e,{is:d,defineProperty:c,getOwnPropertyDescriptor:l,getOwnPropertyNames:h,getOwnPropertySymbols:p,getPrototypeOf:u}=Object,_=globalThis,g=_.trustedTypes,f=g?g.emptyScript:"",m=_.reactiveElementPolyfillSupport,w=(e,t)=>e,b={toAttribute(e,t){switch(t){case Boolean:e=e?f:null;break;case Object:case Array:e=null==e?e:JSON.stringify(e)}return e},fromAttribute(e,t){let o=e;switch(t){case Boolean:o=null!==e;break;case Number:o=null===e?null:Number(e);break;case Object:case Array:try{o=JSON.parse(e)}catch(e){o=null}}return o}},v=(e,t)=>!d(e,t),y={attribute:!0,type:String,converter:b,reflect:!1,useDefault:!1,hasChanged:v};
+const t$2=globalThis,e$2=t$2.ShadowRoot&&(void 0===t$2.ShadyCSS||t$2.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s$2=Symbol(),o$4=new WeakMap;let n$3 = class n{constructor(t,e,o){if(this._$cssResult$=true,o!==s$2)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$2&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$4.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$4.set(s,t));}return t}toString(){return this.cssText}};const r$4=t=>new n$3("string"==typeof t?t:t+"",void 0,s$2),i$3=(t,...e)=>{const o=1===t.length?t[0]:e.reduce((e,s,o)=>e+(t=>{if(true===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(s)+t[o+1],t[0]);return new n$3(o,t,s$2)},S$1=(s,o)=>{if(e$2)s.adoptedStyleSheets=o.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(const e of o){const o=document.createElement("style"),n=t$2.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$2=e$2?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$4(e)})(t):t;
+
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */Symbol.metadata??=Symbol("metadata"),_.litPropertyMetadata??=new WeakMap;let x=class extends HTMLElement{static addInitializer(e){this._$Ei(),(this.l??=[]).push(e)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(e,t=y){if(t.state&&(t.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(e)&&((t=Object.create(t)).wrapped=!0),this.elementProperties.set(e,t),!t.noAccessor){const o=Symbol(),r=this.getPropertyDescriptor(e,o,t);void 0!==r&&c(this.prototype,e,r)}}static getPropertyDescriptor(e,t,o){const{get:r,set:s}=l(this.prototype,e)??{get(){return this[t]},set(e){this[t]=e}};return{get:r,set(t){const i=r?.call(this);s?.call(this,t),this.requestUpdate(e,i,o)},configurable:!0,enumerable:!0}}static getPropertyOptions(e){return this.elementProperties.get(e)??y}static _$Ei(){if(this.hasOwnProperty(w("elementProperties")))return;const e=u(this);e.finalize(),void 0!==e.l&&(this.l=[...e.l]),this.elementProperties=new Map(e.elementProperties)}static finalize(){if(this.hasOwnProperty(w("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(w("properties"))){const e=this.properties,t=[...h(e),...p(e)];for(const o of t)this.createProperty(o,e[o])}const e=this[Symbol.metadata];if(null!==e){const t=litPropertyMetadata.get(e);if(void 0!==t)for(const[e,o]of t)this.elementProperties.set(e,o)}this._$Eh=new Map;for(const[e,t]of this.elementProperties){const o=this._$Eu(e,t);void 0!==o&&this._$Eh.set(o,e)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(e){const t=[];if(Array.isArray(e)){const o=new Set(e.flat(1/0).reverse());for(const e of o)t.unshift(n(e))}else void 0!==e&&t.push(n(e));return t}static _$Eu(e,t){const o=t.attribute;return!1===o?void 0:"string"==typeof o?o:"string"==typeof e?e.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(e=>this.enableUpdating=e),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(e=>e(this))}addController(e){(this._$EO??=new Set).add(e),void 0!==this.renderRoot&&this.isConnected&&e.hostConnected?.()}removeController(e){this._$EO?.delete(e)}_$E_(){const e=new Map,t=this.constructor.elementProperties;for(const o of t.keys())this.hasOwnProperty(o)&&(e.set(o,this[o]),delete this[o]);e.size>0&&(this._$Ep=e)}createRenderRoot(){const e=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return((e,r)=>{if(o)e.adoptedStyleSheets=r.map(e=>e instanceof CSSStyleSheet?e:e.styleSheet);else for(const o of r){const r=document.createElement("style"),s=t.litNonce;void 0!==s&&r.setAttribute("nonce",s),r.textContent=o.cssText,e.appendChild(r)}})(e,this.constructor.elementStyles),e}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach(e=>e.hostConnected?.())}enableUpdating(e){}disconnectedCallback(){this._$EO?.forEach(e=>e.hostDisconnected?.())}attributeChangedCallback(e,t,o){this._$AK(e,o)}_$ET(e,t){const o=this.constructor.elementProperties.get(e),r=this.constructor._$Eu(e,o);if(void 0!==r&&!0===o.reflect){const s=(void 0!==o.converter?.toAttribute?o.converter:b).toAttribute(t,o.type);this._$Em=e,null==s?this.removeAttribute(r):this.setAttribute(r,s),this._$Em=null}}_$AK(e,t){const o=this.constructor,r=o._$Eh.get(e);if(void 0!==r&&this._$Em!==r){const e=o.getPropertyOptions(r),s="function"==typeof e.converter?{fromAttribute:e.converter}:void 0!==e.converter?.fromAttribute?e.converter:b;this._$Em=r;const i=s.fromAttribute(t,e.type);this[r]=i??this._$Ej?.get(r)??i,this._$Em=null}}requestUpdate(e,t,o,r=!1,s){if(void 0!==e){const i=this.constructor;if(!1===r&&(s=this[e]),o??=i.getPropertyOptions(e),!((o.hasChanged??v)(s,t)||o.useDefault&&o.reflect&&s===this._$Ej?.get(e)&&!this.hasAttribute(i._$Eu(e,o))))return;this.C(e,t,o)}!1===this.isUpdatePending&&(this._$ES=this._$EP())}C(e,t,{useDefault:o,reflect:r,wrapped:s},i){o&&!(this._$Ej??=new Map).has(e)&&(this._$Ej.set(e,i??t??this[e]),!0!==s||void 0!==i)||(this._$AL.has(e)||(this.hasUpdated||o||(t=void 0),this._$AL.set(e,t)),!0===r&&this._$Em!==e&&(this._$Eq??=new Set).add(e))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(e){Promise.reject(e)}const e=this.scheduleUpdate();return null!=e&&await e,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[e,t]of this._$Ep)this[e]=t;this._$Ep=void 0}const e=this.constructor.elementProperties;if(e.size>0)for(const[t,o]of e){const{wrapped:e}=o,r=this[t];!0!==e||this._$AL.has(t)||void 0===r||this.C(t,void 0,o,r)}}let e=!1;const t=this._$AL;try{e=this.shouldUpdate(t),e?(this.willUpdate(t),this._$EO?.forEach(e=>e.hostUpdate?.()),this.update(t)):this._$EM()}catch(t){throw e=!1,this._$EM(),t}e&&this._$AE(t)}willUpdate(e){}_$AE(e){this._$EO?.forEach(e=>e.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(e)),this.updated(e)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(e){return!0}update(e){this._$Eq&&=this._$Eq.forEach(e=>this._$ET(e,this[e])),this._$EM()}updated(e){}firstUpdated(e){}};x.elementStyles=[],x.shadowRootOptions={mode:"open"},x[w("elementProperties")]=new Map,x[w("finalized")]=new Map,m?.({ReactiveElement:x}),(_.reactiveElementVersions??=[]).push("2.1.2");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-const k=globalThis,$=e=>e,T=k.trustedTypes,C=T?T.createPolicy("lit-html",{createHTML:e=>e}):void 0,A="$lit$",S=`lit$${Math.random().toFixed(9).slice(2)}$`,R="?"+S,M=`<${R}>`,D=document,E=()=>D.createComment(""),P=e=>null===e||"object"!=typeof e&&"function"!=typeof e,z=Array.isArray,O="[ \t\n\f\r]",I=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,F=/-->/g,B=/>/g,U=RegExp(`>|${O}(?:([^\\s"'>=/]+)(${O}*=${O}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),H=/'/g,N=/"/g,j=/^(?:script|style|textarea|title)$/i,L=(e=>(t,...o)=>({_$litType$:e,strings:t,values:o}))(1),q=Symbol.for("lit-noChange"),Y=Symbol.for("lit-nothing"),W=new WeakMap,G=D.createTreeWalker(D,129);function V(e,t){if(!z(e)||!e.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==C?C.createHTML(t):t}const Z=(e,t)=>{const o=e.length-1,r=[];let s,i=2===t?"<svg>":3===t?"<math>":"",a=I;for(let t=0;t<o;t++){const o=e[t];let n,d,c=-1,l=0;for(;l<o.length&&(a.lastIndex=l,d=a.exec(o),null!==d);)l=a.lastIndex,a===I?"!--"===d[1]?a=F:void 0!==d[1]?a=B:void 0!==d[2]?(j.test(d[2])&&(s=RegExp("</"+d[2],"g")),a=U):void 0!==d[3]&&(a=U):a===U?">"===d[0]?(a=s??I,c=-1):void 0===d[1]?c=-2:(c=a.lastIndex-d[2].length,n=d[1],a=void 0===d[3]?U:'"'===d[3]?N:H):a===N||a===H?a=U:a===F||a===B?a=I:(a=U,s=void 0);const h=a===U&&e[t+1].startsWith("/>")?" ":"";i+=a===I?o+M:c>=0?(r.push(n),o.slice(0,c)+A+o.slice(c)+S+h):o+S+(-2===c?t:h)}return[V(e,i+(e[o]||"<?>")+(2===t?"</svg>":3===t?"</math>":"")),r]};class K{constructor({strings:e,_$litType$:t},o){let r;this.parts=[];let s=0,i=0;const a=e.length-1,n=this.parts,[d,c]=Z(e,t);if(this.el=K.createElement(d,o),G.currentNode=this.el.content,2===t||3===t){const e=this.el.content.firstChild;e.replaceWith(...e.childNodes)}for(;null!==(r=G.nextNode())&&n.length<a;){if(1===r.nodeType){if(r.hasAttributes())for(const e of r.getAttributeNames())if(e.endsWith(A)){const t=c[i++],o=r.getAttribute(e).split(S),a=/([.?@])?(.*)/.exec(t);n.push({type:1,index:s,name:a[2],strings:o,ctor:"."===a[1]?te:"?"===a[1]?oe:"@"===a[1]?re:ee}),r.removeAttribute(e)}else e.startsWith(S)&&(n.push({type:6,index:s}),r.removeAttribute(e));if(j.test(r.tagName)){const e=r.textContent.split(S),t=e.length-1;if(t>0){r.textContent=T?T.emptyScript:"";for(let o=0;o<t;o++)r.append(e[o],E()),G.nextNode(),n.push({type:2,index:++s});r.append(e[t],E())}}}else if(8===r.nodeType)if(r.data===R)n.push({type:2,index:s});else{let e=-1;for(;-1!==(e=r.data.indexOf(S,e+1));)n.push({type:7,index:s}),e+=S.length-1}s++}}static createElement(e,t){const o=D.createElement("template");return o.innerHTML=e,o}}function X(e,t,o=e,r){if(t===q)return t;let s=void 0!==r?o._$Co?.[r]:o._$Cl;const i=P(t)?void 0:t._$litDirective$;return s?.constructor!==i&&(s?._$AO?.(!1),void 0===i?s=void 0:(s=new i(e),s._$AT(e,o,r)),void 0!==r?(o._$Co??=[])[r]=s:o._$Cl=s),void 0!==s&&(t=X(e,s._$AS(e,t.values),s,r)),t}class J{constructor(e,t){this._$AV=[],this._$AN=void 0,this._$AD=e,this._$AM=t}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(e){const{el:{content:t},parts:o}=this._$AD,r=(e?.creationScope??D).importNode(t,!0);G.currentNode=r;let s=G.nextNode(),i=0,a=0,n=o[0];for(;void 0!==n;){if(i===n.index){let t;2===n.type?t=new Q(s,s.nextSibling,this,e):1===n.type?t=new n.ctor(s,n.name,n.strings,this,e):6===n.type&&(t=new se(s,this,e)),this._$AV.push(t),n=o[++a]}i!==n?.index&&(s=G.nextNode(),i++)}return G.currentNode=D,r}p(e){let t=0;for(const o of this._$AV)void 0!==o&&(void 0!==o.strings?(o._$AI(e,o,t),t+=o.strings.length-2):o._$AI(e[t])),t++}}class Q{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(e,t,o,r){this.type=2,this._$AH=Y,this._$AN=void 0,this._$AA=e,this._$AB=t,this._$AM=o,this.options=r,this._$Cv=r?.isConnected??!0}get parentNode(){let e=this._$AA.parentNode;const t=this._$AM;return void 0!==t&&11===e?.nodeType&&(e=t.parentNode),e}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(e,t=this){e=X(this,e,t),P(e)?e===Y||null==e||""===e?(this._$AH!==Y&&this._$AR(),this._$AH=Y):e!==this._$AH&&e!==q&&this._(e):void 0!==e._$litType$?this.$(e):void 0!==e.nodeType?this.T(e):(e=>z(e)||"function"==typeof e?.[Symbol.iterator])(e)?this.k(e):this._(e)}O(e){return this._$AA.parentNode.insertBefore(e,this._$AB)}T(e){this._$AH!==e&&(this._$AR(),this._$AH=this.O(e))}_(e){this._$AH!==Y&&P(this._$AH)?this._$AA.nextSibling.data=e:this.T(D.createTextNode(e)),this._$AH=e}$(e){const{values:t,_$litType$:o}=e,r="number"==typeof o?this._$AC(e):(void 0===o.el&&(o.el=K.createElement(V(o.h,o.h[0]),this.options)),o);if(this._$AH?._$AD===r)this._$AH.p(t);else{const e=new J(r,this),o=e.u(this.options);e.p(t),this.T(o),this._$AH=e}}_$AC(e){let t=W.get(e.strings);return void 0===t&&W.set(e.strings,t=new K(e)),t}k(e){z(this._$AH)||(this._$AH=[],this._$AR());const t=this._$AH;let o,r=0;for(const s of e)r===t.length?t.push(o=new Q(this.O(E()),this.O(E()),this,this.options)):o=t[r],o._$AI(s),r++;r<t.length&&(this._$AR(o&&o._$AB.nextSibling,r),t.length=r)}_$AR(e=this._$AA.nextSibling,t){for(this._$AP?.(!1,!0,t);e!==this._$AB;){const t=$(e).nextSibling;$(e).remove(),e=t}}setConnected(e){void 0===this._$AM&&(this._$Cv=e,this._$AP?.(e))}}class ee{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(e,t,o,r,s){this.type=1,this._$AH=Y,this._$AN=void 0,this.element=e,this.name=t,this._$AM=r,this.options=s,o.length>2||""!==o[0]||""!==o[1]?(this._$AH=Array(o.length-1).fill(new String),this.strings=o):this._$AH=Y}_$AI(e,t=this,o,r){const s=this.strings;let i=!1;if(void 0===s)e=X(this,e,t,0),i=!P(e)||e!==this._$AH&&e!==q,i&&(this._$AH=e);else{const r=e;let a,n;for(e=s[0],a=0;a<s.length-1;a++)n=X(this,r[o+a],t,a),n===q&&(n=this._$AH[a]),i||=!P(n)||n!==this._$AH[a],n===Y?e=Y:e!==Y&&(e+=(n??"")+s[a+1]),this._$AH[a]=n}i&&!r&&this.j(e)}j(e){e===Y?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,e??"")}}class te extends ee{constructor(){super(...arguments),this.type=3}j(e){this.element[this.name]=e===Y?void 0:e}}class oe extends ee{constructor(){super(...arguments),this.type=4}j(e){this.element.toggleAttribute(this.name,!!e&&e!==Y)}}class re extends ee{constructor(e,t,o,r,s){super(e,t,o,r,s),this.type=5}_$AI(e,t=this){if((e=X(this,e,t,0)??Y)===q)return;const o=this._$AH,r=e===Y&&o!==Y||e.capture!==o.capture||e.once!==o.once||e.passive!==o.passive,s=e!==Y&&(o===Y||r);r&&this.element.removeEventListener(this.name,this,o),s&&this.element.addEventListener(this.name,this,e),this._$AH=e}handleEvent(e){"function"==typeof this._$AH?this._$AH.call(this.options?.host??this.element,e):this._$AH.handleEvent(e)}}class se{constructor(e,t,o){this.element=e,this.type=6,this._$AN=void 0,this._$AM=t,this.options=o}get _$AU(){return this._$AM._$AU}_$AI(e){X(this,e)}}const ie=k.litHtmlPolyfillSupport;ie?.(K,Q),(k.litHtmlVersions??=[]).push("3.3.2");const ae=globalThis;
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */class ne extends x{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){const e=super.createRenderRoot();return this.renderOptions.renderBefore??=e.firstChild,e}update(e){const t=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(e),this._$Do=((e,t,o)=>{const r=o?.renderBefore??t;let s=r._$litPart$;if(void 0===s){const e=o?.renderBefore??null;r._$litPart$=s=new Q(t.insertBefore(E(),e),e,void 0,o??{})}return s._$AI(e),s})(t,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return q}}ne._$litElement$=!0,ne.finalized=!0,ae.litElementHydrateSupport?.({LitElement:ne});const de=ae.litElementPolyfillSupport;de?.({LitElement:ne}),(ae.litElementVersions??=[]).push("4.2.2");
+ */const{is:i$2,defineProperty:e$1,getOwnPropertyDescriptor:h$1,getOwnPropertyNames:r$3,getOwnPropertySymbols:o$3,getPrototypeOf:n$2}=Object,a$1=globalThis,c$1=a$1.trustedTypes,l$1=c$1?c$1.emptyScript:"",p$1=a$1.reactiveElementPolyfillSupport,d$1=(t,s)=>t,u$1={toAttribute(t,s){switch(s){case Boolean:t=t?l$1:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,s){let i=t;switch(s){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t);}catch(t){i=null;}}return i}},f$1=(t,s)=>!i$2(t,s),b$1={attribute:true,type:String,converter:u$1,reflect:false,useDefault:false,hasChanged:f$1};Symbol.metadata??=Symbol("metadata"),a$1.litPropertyMetadata??=new WeakMap;let y$1 = class y extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t);}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,s=b$1){if(s.state&&(s.attribute=false),this._$Ei(),this.prototype.hasOwnProperty(t)&&((s=Object.create(s)).wrapped=true),this.elementProperties.set(t,s),!s.noAccessor){const i=Symbol(),h=this.getPropertyDescriptor(t,i,s);void 0!==h&&e$1(this.prototype,t,h);}}static getPropertyDescriptor(t,s,i){const{get:e,set:r}=h$1(this.prototype,t)??{get(){return this[s]},set(t){this[s]=t;}};return {get:e,set(s){const h=e?.call(this);r?.call(this,s),this.requestUpdate(t,h,i);},configurable:true,enumerable:true}}static getPropertyOptions(t){return this.elementProperties.get(t)??b$1}static _$Ei(){if(this.hasOwnProperty(d$1("elementProperties")))return;const t=n$2(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties);}static finalize(){if(this.hasOwnProperty(d$1("finalized")))return;if(this.finalized=true,this._$Ei(),this.hasOwnProperty(d$1("properties"))){const t=this.properties,s=[...r$3(t),...o$3(t)];for(const i of s)this.createProperty(i,t[i]);}const t=this[Symbol.metadata];if(null!==t){const s=litPropertyMetadata.get(t);if(void 0!==s)for(const[t,i]of s)this.elementProperties.set(t,i);}this._$Eh=new Map;for(const[t,s]of this.elementProperties){const i=this._$Eu(t,s);void 0!==i&&this._$Eh.set(i,t);}this.elementStyles=this.finalizeStyles(this.styles);}static finalizeStyles(s){const i=[];if(Array.isArray(s)){const e=new Set(s.flat(1/0).reverse());for(const s of e)i.unshift(c$2(s));}else void 0!==s&&i.push(c$2(s));return i}static _$Eu(t,s){const i=s.attribute;return  false===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=false,this.hasUpdated=false,this._$Em=null,this._$Ev();}_$Ev(){this._$ES=new Promise(t=>this.enableUpdating=t),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(t=>t(this));}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.();}removeController(t){this._$EO?.delete(t);}_$E_(){const t=new Map,s=this.constructor.elementProperties;for(const i of s.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t);}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return S$1(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(true),this._$EO?.forEach(t=>t.hostConnected?.());}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach(t=>t.hostDisconnected?.());}attributeChangedCallback(t,s,i){this._$AK(t,i);}_$ET(t,s){const i=this.constructor.elementProperties.get(t),e=this.constructor._$Eu(t,i);if(void 0!==e&&true===i.reflect){const h=(void 0!==i.converter?.toAttribute?i.converter:u$1).toAttribute(s,i.type);this._$Em=t,null==h?this.removeAttribute(e):this.setAttribute(e,h),this._$Em=null;}}_$AK(t,s){const i=this.constructor,e=i._$Eh.get(t);if(void 0!==e&&this._$Em!==e){const t=i.getPropertyOptions(e),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:u$1;this._$Em=e;const r=h.fromAttribute(s,t.type);this[e]=r??this._$Ej?.get(e)??r,this._$Em=null;}}requestUpdate(t,s,i,e=false,h){if(void 0!==t){const r=this.constructor;if(false===e&&(h=this[t]),i??=r.getPropertyOptions(t),!((i.hasChanged??f$1)(h,s)||i.useDefault&&i.reflect&&h===this._$Ej?.get(t)&&!this.hasAttribute(r._$Eu(t,i))))return;this.C(t,s,i);} false===this.isUpdatePending&&(this._$ES=this._$EP());}C(t,s,{useDefault:i,reflect:e,wrapped:h},r){i&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,r??s??this[t]),true!==h||void 0!==r)||(this._$AL.has(t)||(this.hasUpdated||i||(s=void 0),this._$AL.set(t,s)),true===e&&this._$Em!==t&&(this._$Eq??=new Set).add(t));}async _$EP(){this.isUpdatePending=true;try{await this._$ES;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,s]of this._$Ep)this[t]=s;this._$Ep=void 0;}const t=this.constructor.elementProperties;if(t.size>0)for(const[s,i]of t){const{wrapped:t}=i,e=this[s];true!==t||this._$AL.has(s)||void 0===e||this.C(s,void 0,i,e);}}let t=false;const s=this._$AL;try{t=this.shouldUpdate(s),t?(this.willUpdate(s),this._$EO?.forEach(t=>t.hostUpdate?.()),this.update(s)):this._$EM();}catch(s){throw t=false,this._$EM(),s}t&&this._$AE(s);}willUpdate(t){}_$AE(t){this._$EO?.forEach(t=>t.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=true,this.firstUpdated(t)),this.updated(t);}_$EM(){this._$AL=new Map,this.isUpdatePending=false;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return  true}update(t){this._$Eq&&=this._$Eq.forEach(t=>this._$ET(t,this[t])),this._$EM();}updated(t){}firstUpdated(t){}};y$1.elementStyles=[],y$1.shadowRootOptions={mode:"open"},y$1[d$1("elementProperties")]=new Map,y$1[d$1("finalized")]=new Map,p$1?.({ReactiveElement:y$1}),(a$1.reactiveElementVersions??=[]).push("2.1.2");
+
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}):customElements.define(e,t)},le={attribute:!0,type:String,converter:b,reflect:!1,hasChanged:v},he=(e=le,t,o)=>{const{kind:r,metadata:s}=o;let i=globalThis.litPropertyMetadata.get(s);if(void 0===i&&globalThis.litPropertyMetadata.set(s,i=new Map),"setter"===r&&((e=Object.create(e)).wrapped=!0),i.set(o.name,e),"accessor"===r){const{name:r}=o;return{set(o){const s=t.get.call(this);t.set.call(this,o),this.requestUpdate(r,s,e,!0,o)},init(t){return void 0!==t&&this.C(r,void 0,e,t),t}}}if("setter"===r){const{name:r}=o;return function(o){const s=this[r];t.call(this,o),this.requestUpdate(r,s,e,!0,o)}}throw Error("Unsupported decorator location: "+r)};
+const t$1=globalThis,i$1=t=>t,s$1=t$1.trustedTypes,e=s$1?s$1.createPolicy("lit-html",{createHTML:t=>t}):void 0,h="$lit$",o$2=`lit$${Math.random().toFixed(9).slice(2)}$`,n$1="?"+o$2,r$2=`<${n$1}>`,l=document,c=()=>l.createComment(""),a=t=>null===t||"object"!=typeof t&&"function"!=typeof t,u=Array.isArray,d=t=>u(t)||"function"==typeof t?.[Symbol.iterator],f="[ \t\n\f\r]",v=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,_=/-->/g,m=/>/g,p=RegExp(`>|${f}(?:([^\\s"'>=/]+)(${f}*=${f}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),g=/'/g,$=/"/g,y=/^(?:script|style|textarea|title)$/i,x=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),b=x(1),E=Symbol.for("lit-noChange"),A=Symbol.for("lit-nothing"),C=new WeakMap,P=l.createTreeWalker(l,129);function V(t,i){if(!u(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==e?e.createHTML(i):i}const N=(t,i)=>{const s=t.length-1,e=[];let n,l=2===i?"<svg>":3===i?"<math>":"",c=v;for(let i=0;i<s;i++){const s=t[i];let a,u,d=-1,f=0;for(;f<s.length&&(c.lastIndex=f,u=c.exec(s),null!==u);)f=c.lastIndex,c===v?"!--"===u[1]?c=_:void 0!==u[1]?c=m:void 0!==u[2]?(y.test(u[2])&&(n=RegExp("</"+u[2],"g")),c=p):void 0!==u[3]&&(c=p):c===p?">"===u[0]?(c=n??v,d=-1):void 0===u[1]?d=-2:(d=c.lastIndex-u[2].length,a=u[1],c=void 0===u[3]?p:'"'===u[3]?$:g):c===$||c===g?c=p:c===_||c===m?c=v:(c=p,n=void 0);const x=c===p&&t[i+1].startsWith("/>")?" ":"";l+=c===v?s+r$2:d>=0?(e.push(a),s.slice(0,d)+h+s.slice(d)+o$2+x):s+o$2+(-2===d?i:x);}return [V(t,l+(t[s]||"<?>")+(2===i?"</svg>":3===i?"</math>":"")),e]};class S{constructor({strings:t,_$litType$:i},e){let r;this.parts=[];let l=0,a=0;const u=t.length-1,d=this.parts,[f,v]=N(t,i);if(this.el=S.createElement(f,e),P.currentNode=this.el.content,2===i||3===i){const t=this.el.content.firstChild;t.replaceWith(...t.childNodes);}for(;null!==(r=P.nextNode())&&d.length<u;){if(1===r.nodeType){if(r.hasAttributes())for(const t of r.getAttributeNames())if(t.endsWith(h)){const i=v[a++],s=r.getAttribute(t).split(o$2),e=/([.?@])?(.*)/.exec(i);d.push({type:1,index:l,name:e[2],strings:s,ctor:"."===e[1]?I:"?"===e[1]?L:"@"===e[1]?z:H}),r.removeAttribute(t);}else t.startsWith(o$2)&&(d.push({type:6,index:l}),r.removeAttribute(t));if(y.test(r.tagName)){const t=r.textContent.split(o$2),i=t.length-1;if(i>0){r.textContent=s$1?s$1.emptyScript:"";for(let s=0;s<i;s++)r.append(t[s],c()),P.nextNode(),d.push({type:2,index:++l});r.append(t[i],c());}}}else if(8===r.nodeType)if(r.data===n$1)d.push({type:2,index:l});else {let t=-1;for(;-1!==(t=r.data.indexOf(o$2,t+1));)d.push({type:7,index:l}),t+=o$2.length-1;}l++;}}static createElement(t,i){const s=l.createElement("template");return s.innerHTML=t,s}}function M(t,i,s=t,e){if(i===E)return i;let h=void 0!==e?s._$Co?.[e]:s._$Cl;const o=a(i)?void 0:i._$litDirective$;return h?.constructor!==o&&(h?._$AO?.(false),void 0===o?h=void 0:(h=new o(t),h._$AT(t,s,e)),void 0!==e?(s._$Co??=[])[e]=h:s._$Cl=h),void 0!==h&&(i=M(t,h._$AS(t,i.values),h,e)),i}class R{constructor(t,i){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){const{el:{content:i},parts:s}=this._$AD,e=(t?.creationScope??l).importNode(i,true);P.currentNode=e;let h=P.nextNode(),o=0,n=0,r=s[0];for(;void 0!==r;){if(o===r.index){let i;2===r.type?i=new k(h,h.nextSibling,this,t):1===r.type?i=new r.ctor(h,r.name,r.strings,this,t):6===r.type&&(i=new Z(h,this,t)),this._$AV.push(i),r=s[++n];}o!==r?.index&&(h=P.nextNode(),o++);}return P.currentNode=l,e}p(t){let i=0;for(const s of this._$AV) void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class k{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(t,i,s,e){this.type=2,this._$AH=A,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cv=e?.isConnected??true;}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t?.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=M(this,t,i),a(t)?t===A||null==t||""===t?(this._$AH!==A&&this._$AR(),this._$AH=A):t!==this._$AH&&t!==E&&this._(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):d(t)?this.k(t):this._(t);}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t));}_(t){this._$AH!==A&&a(this._$AH)?this._$AA.nextSibling.data=t:this.T(l.createTextNode(t)),this._$AH=t;}$(t){const{values:i,_$litType$:s}=t,e="number"==typeof s?this._$AC(t):(void 0===s.el&&(s.el=S.createElement(V(s.h,s.h[0]),this.options)),s);if(this._$AH?._$AD===e)this._$AH.p(i);else {const t=new R(e,this),s=t.u(this.options);t.p(i),this.T(s),this._$AH=t;}}_$AC(t){let i=C.get(t.strings);return void 0===i&&C.set(t.strings,i=new S(t)),i}k(t){u(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const h of t)e===i.length?i.push(s=new k(this.O(c()),this.O(c()),this,this.options)):s=i[e],s._$AI(h),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,s){for(this._$AP?.(false,true,s);t!==this._$AB;){const s=i$1(t).nextSibling;i$1(t).remove(),t=s;}}setConnected(t){ void 0===this._$AM&&(this._$Cv=t,this._$AP?.(t));}}class H{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,i,s,e,h){this.type=1,this._$AH=A,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=h,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=A;}_$AI(t,i=this,s,e){const h=this.strings;let o=false;if(void 0===h)t=M(this,t,i,0),o=!a(t)||t!==this._$AH&&t!==E,o&&(this._$AH=t);else {const e=t;let n,r;for(t=h[0],n=0;n<h.length-1;n++)r=M(this,e[s+n],i,n),r===E&&(r=this._$AH[n]),o||=!a(r)||r!==this._$AH[n],r===A?t=A:t!==A&&(t+=(r??"")+h[n+1]),this._$AH[n]=r;}o&&!e&&this.j(t);}j(t){t===A?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"");}}class I extends H{constructor(){super(...arguments),this.type=3;}j(t){this.element[this.name]=t===A?void 0:t;}}class L extends H{constructor(){super(...arguments),this.type=4;}j(t){this.element.toggleAttribute(this.name,!!t&&t!==A);}}class z extends H{constructor(t,i,s,e,h){super(t,i,s,e,h),this.type=5;}_$AI(t,i=this){if((t=M(this,t,i,0)??A)===E)return;const s=this._$AH,e=t===A&&s!==A||t.capture!==s.capture||t.once!==s.once||t.passive!==s.passive,h=t!==A&&(s===A||e);e&&this.element.removeEventListener(this.name,this,s),h&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){"function"==typeof this._$AH?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t);}}class Z{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){M(this,t);}}const B=t$1.litHtmlPolyfillSupport;B?.(S,k),(t$1.litHtmlVersions??=[]).push("3.3.2");const D=(t,i,s)=>{const e=s?.renderBefore??i;let h=e._$litPart$;if(void 0===h){const t=s?.renderBefore??null;e._$litPart$=h=new k(i.insertBefore(c(),t),t,void 0,s??{});}return h._$AI(t),h};
+
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */function pe(e){return(t,o)=>"object"==typeof o?he(e,t,o):((e,t,o)=>{const r=t.hasOwnProperty(o);return t.constructor.createProperty(o,e),r?Object.getOwnPropertyDescriptor(t,o):void 0})(e,t,o)}
+ */const s=globalThis;class i extends y$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){const t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){const r=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=D(r,this.renderRoot,this.renderOptions);}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(true);}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(false);}render(){return E}}i._$litElement$=true,i["finalized"]=true,s.litElementHydrateSupport?.({LitElement:i});const o$1=s.litElementPolyfillSupport;o$1?.({LitElement:i});(s.litElementVersions??=[]).push("4.2.2");
+
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */function ue(e){return pe({...e,state:!0,attribute:!1})}function _e(e){try{const t=new Date(e);if(isNaN(t.getTime()))return{date:null,time:null};const o=t.getFullYear(),r=String(t.getMonth()+1).padStart(2,"0"),s=String(t.getDate()).padStart(2,"0"),i=String(t.getHours()).padStart(2,"0");return{date:`${o}-${r}-${s}`,time:`${i}:${String(t.getMinutes()).padStart(2,"0")}`}}catch(t){return console.error("Date parsing error:",t,e),{date:null,time:null}}}function ge(e,t){if(t?.is_all_day||!1){const t=new Date,o=Date.UTC(t.getFullYear(),t.getMonth(),t.getDate()),r=Date.UTC(e.getUTCFullYear(),e.getUTCMonth(),e.getUTCDate())-o,s=Math.round(r/864e5);return 0===s?"Today":-1===s?"Yesterday":1===s?"Tomorrow":s<-1?`${Math.abs(s)} days ago`:`In ${s} days`}const o=new Date;o.setHours(0,0,0,0);const r=new Date(e);r.setHours(0,0,0,0);const s=r.getTime()-o.getTime(),i=Math.round(s/864e5);if(0===i){return new Date(e).toLocaleTimeString(void 0,{hour:"numeric",minute:"2-digit"})}return-1===i?"Yesterday":1===i?"Tomorrow":i<-1?`${Math.abs(i)} days ago`:`In ${i} days`}function fe(e){if(!e.due||"completed"===e.status)return!1;const t=e.is_all_day||!1,o=new Date(e.due);if(t){const e=new Date,t=Date.UTC(e.getFullYear(),e.getMonth(),e.getDate());return Date.UTC(o.getUTCFullYear(),o.getUTCMonth(),o.getUTCDate())<t}{const e=new Date;return e.setHours(0,0,0,0),o.setHours(0,0,0,0),o<e}}function me(e,t){return e.getFullYear()===t.getFullYear()&&e.getMonth()===t.getMonth()&&e.getDate()===t.getDate()}function we(e,t=!0,o){const r=e.attributes.chorebot_tasks||[],s=new Date;s.setHours(0,0,0,0);let i=r.filter(e=>{const o=!!e.due,r="completed"===e.status;if(!o)return t;const i=new Date(e.due);i.setHours(0,0,0,0);const a=me(i,s),n=i<s;if(r&&e.last_completed){return!!me(new Date(e.last_completed),new Date)}return!!a||!(!n||r)});if(o){const t=e.attributes.chorebot_sections||[],r=o,s=t.find(e=>e.name===r),a=s?s.id:r;i=i.filter(e=>e.section_id===a)}return i}function be(e){const t=e.filter(e=>"completed"===e.status).length;return{completed:t,total:e.length}}function ve(e){const t=e.filter(e=>!!e.due),o=t.filter(e=>"completed"===e.status).length;return{completed:o,total:t.length}}function ye(e,t,o="Untagged",r="Upcoming"){return e.sort((e,s)=>{if(e.name===r)return 1;if(s.name===r)return-1;if(!t||0===t.length)return e.name===o?1:s.name===o?-1:e.name.localeCompare(s.name);const i=t.indexOf(e.name),a=t.indexOf(s.name);return-1!==i&&-1!==a?i-a:-1!==i?-1:-1!==a||e.name===o?1:s.name===o?-1:e.name.localeCompare(s.name)})}function xe(e,t,o=!1){const r=[],s=e.filter(e=>e.entity_id.startsWith("todo.chorebot_"));for(const e of s){const s=we(e,o).filter(e=>e.computed_person_id===t);r.push(...s)}return r}function ke(e,t=!0,o=!1,r="Untagged",s="Upcoming",i,a){const n=e.attributes.chorebot_tasks||[],d=new Date;d.setHours(0,0,0,0);const c=new Date(d);c.setHours(23,59,59,999);const l=new Map,h=[];let p;if(i){const t=(e.attributes.chorebot_sections||[]).find(e=>e.name===i);p=t?t.id:i}for(const e of n){if(p&&e.section_id!==p)continue;if(a&&e.computed_person_id!==a)continue;const s=!!e.due,i="completed"===e.status;let n=!1,u=!1;if(s){if(e.due){const t=new Date(e.due);if(o&&t>c)u=!0;else{const o=new Date(t);o.setHours(0,0,0,0);const r=me(o,d),s=o<d;i?e.last_completed&&me(new Date(e.last_completed),new Date)&&(n=!0):(r||s)&&(n=!0)}}}else n=t;if(n){const t=e.tags||[];if(0===t.length)l.has(r)||l.set(r,[]),l.get(r).push(e);else for(const o of t)l.has(o)||l.set(o,[]),l.get(o).push(e)}else u&&h.push(e)}h.sort((e,t)=>new Date(e.due).getTime()-new Date(t.due).getTime());const u=Array.from(l.entries()).map(([e,t])=>({name:e,tasks:t,isCollapsed:!1}));return o&&h.length>0&&u.push({name:s,tasks:h,isCollapsed:!1}),u}function $e(e){if(!e||!e.has_recurrence)return null;const{recurrence_frequency:t,recurrence_interval:o,recurrence_byweekday:r,recurrence_bymonthday:s}=e;if(!t)return null;let i=`FREQ=${t};INTERVAL=${o||1}`;if("WEEKLY"===t&&r&&r.length>0)i+=`;BYDAY=${r.join(",").toUpperCase()}`;else if("MONTHLY"===t&&s){i+=`;BYMONTHDAY=${Math.max(1,Math.min(31,s))}`}return i}function Te(e){const t=e.states["sensor.chorebot_points"],o=t?.attributes.points_display;return o?{icon:o.icon??"",text:o.text??"points"}:{icon:"",text:"points"}}function Ce(e){const t=Te(e);return t.text?t.text.toLowerCase():""}function Ae(e,t){const o={...e,is_all_day:e.is_all_day||!1,tags:e.tags||[],section_id:e.section_id,points_value:e.points_value||0,streak_bonus_points:e.streak_bonus_points||0,streak_bonus_interval:e.streak_bonus_interval||0};if(e.due){const t=_e(e.due);o.due_date=t.date??void 0,o.due_time=t.time??void 0,o.has_due_date=!0}else o.has_due_date=!1;let r=e.rrule;if(e.parent_uid&&t){const s=t.find(t=>t.uid===e.parent_uid);s&&(r=s.rrule,o.streak_bonus_points=s.streak_bonus_points||0,o.streak_bonus_interval=s.streak_bonus_interval||0)}const s=function(e){if(!e)return null;try{const t=e.split(";");let o=null,r=1;const s=[];let i=null;for(const e of t){const[t,a]=e.split("=");if("FREQ"===t)"DAILY"!==a&&"WEEKLY"!==a&&"MONTHLY"!==a||(o=a);else if("INTERVAL"===t){const e=parseInt(a,10);!isNaN(e)&&e>0&&(r=e)}else if("BYDAY"===t)s.push(...a.split(","));else if("BYMONTHDAY"===t){const e=parseInt(a,10);!isNaN(e)&&e>=1&&e<=31&&(i=e)}}return o?{frequency:o,interval:r,byweekday:s,bymonthday:i}:null}catch(t){return console.error("rrule parsing error:",t,e),null}}(r);return s?(o.has_recurrence=!0,o.recurrence_frequency=s.frequency,o.recurrence_interval=s.interval,o.recurrence_byweekday=s.byweekday,o.recurrence_bymonthday=s.bymonthday||1):(o.has_recurrence=!1,o.recurrence_frequency="DAILY",o.recurrence_interval=1,o.recurrence_byweekday=[],o.recurrence_bymonthday=1),o}function Se(e){const t=function(e){const t=Te(e);return t.text?t.text.charAt(0).toUpperCase()+t.text.slice(1):""}(e)||"Points";return function(e){return{summary:"Task Name",has_due_date:"Has Due Date",is_all_day:"All Day",due_date:"Date",due_time:"Time",description:"Description",section_id:"Section",tags:"Tags",has_recurrence:"Recurring Task",recurrence_frequency:"Frequency",recurrence_interval:"Repeat Every",recurrence_byweekday:"Days of Week",recurrence_bymonthday:"Day of Month",points_value:`${t} Value`,streak_bonus_points:`Streak Bonus ${t}`,streak_bonus_interval:"Bonus Every X Days (0 = no bonus)"}[e.name]||e.name}}function Re(e,t,o,r,s,i,a,n,d,c,l="Edit Task",h=!0){if(!e||!t)return L``;const p=function(e,t,o){const r=void 0!==e.has_due_date?e.has_due_date:!!e.due,s=void 0!==e.is_all_day&&e.is_all_day,i=[{name:"summary",required:!0,selector:{text:{}}},{name:"description",selector:{text:{multiline:!0}}}];if(t.length>0&&i.push({name:"section_id",selector:{select:{options:t.sort((e,t)=>t.sort_order-e.sort_order).map(e=>({label:e.name,value:e.id}))}}}),i.push({name:"tags",selector:{select:{multiple:!0,custom_value:!0,options:o.map(e=>({label:e,value:e}))}}}),i.push({name:"has_due_date",selector:{boolean:{}}}),r&&(i.push({name:"due_date",selector:{date:{}}}),s||i.push({name:"due_time",selector:{time:{}}}),i.push({name:"is_all_day",selector:{boolean:{}}})),r){const t=void 0!==e.has_recurrence&&e.has_recurrence,o=e.recurrence_frequency||"DAILY";i.push({name:"has_recurrence",selector:{boolean:{}}}),t&&(i.push({name:"recurrence_frequency",selector:{select:{options:[{label:"Daily",value:"DAILY"},{label:"Weekly",value:"WEEKLY"},{label:"Monthly",value:"MONTHLY"}]}}}),i.push({name:"recurrence_interval",selector:{number:{min:1,max:999,mode:"box"}}}),"WEEKLY"===o?i.push({name:"recurrence_byweekday",selector:{select:{multiple:!0,options:[{label:"Monday",value:"MO"},{label:"Tuesday",value:"TU"},{label:"Wednesday",value:"WE"},{label:"Thursday",value:"TH"},{label:"Friday",value:"FR"},{label:"Saturday",value:"SA"},{label:"Sunday",value:"SU"}]}}}):"MONTHLY"===o&&i.push({name:"recurrence_bymonthday",selector:{number:{min:1,max:31,mode:"box"}}}))}return i.push({name:"points_value",selector:{number:{min:0,max:1e4,mode:"box"}}}),r&&e.has_recurrence&&(i.push({name:"streak_bonus_points",selector:{number:{min:0,max:1e4,mode:"box"}}}),i.push({name:"streak_bonus_interval",selector:{number:{min:0,max:999,mode:"box"}}})),i}(t,r,s),u=function(e,t){const o=void 0!==e.has_due_date?e.has_due_date:!!e.due,r=void 0!==e.is_all_day&&e.is_all_day;let s=e.due_date||null,i=e.due_time||null;if(!s&&e.due){const t=_e(e.due);s=t.date,i=t.time}return{summary:e.summary||"",has_due_date:o,is_all_day:r,due_date:s||null,due_time:i||"00:00",description:e.description||"",section_id:e.section_id||(t.length>0?t.sort((e,t)=>t.sort_order-e.sort_order)[0].id:void 0),tags:e.tags||[],has_recurrence:o&&e.has_recurrence||!1,recurrence_frequency:e.recurrence_frequency||"DAILY",recurrence_interval:e.recurrence_interval||1,recurrence_byweekday:e.recurrence_byweekday||[],recurrence_bymonthday:e.recurrence_bymonthday||1,points_value:e.points_value||0,streak_bonus_points:e.streak_bonus_points||0,streak_bonus_interval:e.streak_bonus_interval||0}}(t,r),_=Se(o);return L`
-    <ha-dialog open @closed=${a} .heading=${l}>
+ */
+const t=t=>(e,o)=>{ void 0!==o?o.addInitializer(()=>{customElements.define(t,e);}):customElements.define(t,e);};
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */const o={attribute:true,type:String,converter:u$1,reflect:false,hasChanged:f$1},r$1=(t=o,e,r)=>{const{kind:n,metadata:i}=r;let s=globalThis.litPropertyMetadata.get(i);if(void 0===s&&globalThis.litPropertyMetadata.set(i,s=new Map),"setter"===n&&((t=Object.create(t)).wrapped=true),s.set(r.name,t),"accessor"===n){const{name:o}=r;return {set(r){const n=e.get.call(this);e.set.call(this,r),this.requestUpdate(o,n,t,true,r);},init(e){return void 0!==e&&this.C(o,void 0,t,e),e}}}if("setter"===n){const{name:o}=r;return function(r){const n=this[o];e.call(this,r),this.requestUpdate(o,n,t,true,r);}}throw Error("Unsupported decorator location: "+n)};function n(t){return (e,o)=>"object"==typeof o?r$1(t,e,o):((t,e,o)=>{const r=e.hasOwnProperty(o);return e.constructor.createProperty(o,t),r?Object.getOwnPropertyDescriptor(e,o):void 0})(t,e,o)}
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */function r(r){return n({...r,state:true,attribute:false})}
+
+// ============================================================================
+// Date/Time Utility Functions for ChoreBot Cards
+// ============================================================================
+/**
+ * Parse UTC timestamp to local date and time strings
+ * @param utcString - ISO 8601 UTC timestamp
+ * @param isAllDay - Whether this is an all-day task (affects timezone handling)
+ * @returns Object with separate date and time strings
+ */
+function parseUTCToLocal(utcString, isAllDay = false) {
+    try {
+        const date = new Date(utcString);
+        if (isNaN(date.getTime()))
+            return { date: null, time: null };
+        if (isAllDay) {
+            // For all-day tasks, use UTC date directly without timezone conversion
+            // This prevents "2026-01-16T00:00:00Z" from becoming "2026-01-15" in EST
+            const year = date.getUTCFullYear();
+            const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+            const day = String(date.getUTCDate()).padStart(2, "0");
+            return {
+                date: `${year}-${month}-${day}`,
+                time: "00:00", // All-day tasks always show midnight
+            };
+        }
+        else {
+            // For timed tasks, convert to local timezone
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            const hours = String(date.getHours()).padStart(2, "0");
+            const minutes = String(date.getMinutes()).padStart(2, "0");
+            return {
+                date: `${year}-${month}-${day}`,
+                time: `${hours}:${minutes}`,
+            };
+        }
+    }
+    catch (e) {
+        console.error("Date parsing error:", e, utcString);
+        return { date: null, time: null };
+    }
+}
+/**
+ * Format a date relative to today (e.g., "Today", "Tomorrow", "2 days ago")
+ * @param date - The date to format
+ * @param task - Optional task object to check for all-day flag
+ * @returns Human-readable relative date string
+ */
+function formatRelativeDate(date, task) {
+    const isAllDay = task?.is_all_day || false;
+    // For all-day tasks, compare dates in UTC to avoid timezone issues
+    if (isAllDay) {
+        const today = new Date();
+        const todayUTC = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+        const targetUTC = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+        const diffTime = targetUTC - todayUTC;
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays === 0) {
+            return "Today";
+        }
+        else if (diffDays === -1) {
+            return "Yesterday";
+        }
+        else if (diffDays === 1) {
+            return "Tomorrow";
+        }
+        else if (diffDays < -1) {
+            return `${Math.abs(diffDays)} days ago`;
+        }
+        else {
+            return `In ${diffDays} days`;
+        }
+    }
+    // For timed tasks, use local time comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+    const diffTime = targetDate.getTime() - today.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) {
+        const originalDate = new Date(date);
+        return originalDate.toLocaleTimeString(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+        });
+    }
+    else if (diffDays === -1) {
+        return "Yesterday";
+    }
+    else if (diffDays === 1) {
+        return "Tomorrow";
+    }
+    else if (diffDays < -1) {
+        return `${Math.abs(diffDays)} days ago`;
+    }
+    else {
+        return `In ${diffDays} days`;
+    }
+}
+/**
+ * Check if a task is overdue
+ * @param task - Task to check
+ * @returns True if task is overdue and not completed
+ */
+function isOverdue(task) {
+    if (!task.due || task.status === "completed") {
+        return false;
+    }
+    const isAllDay = task.is_all_day || false;
+    const dueDate = new Date(task.due);
+    if (isAllDay) {
+        // For all-day tasks, compare dates in UTC to avoid timezone issues
+        const today = new Date();
+        const todayUTC = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+        const dueUTC = Date.UTC(dueDate.getUTCFullYear(), dueDate.getUTCMonth(), dueDate.getUTCDate());
+        return dueUTC < todayUTC;
+    }
+    else {
+        // For timed tasks, use local time comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        dueDate.setHours(0, 0, 0, 0);
+        return dueDate < today;
+    }
+}
+/**
+ * Check if two dates are the same day
+ * @param date1 - First date
+ * @param date2 - Second date
+ * @returns True if dates are on the same day
+ */
+function isSameDay(date1, date2) {
+    return (date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate());
+}
+/**
+ * Create an ISO string from date and optional time
+ * For all-day tasks, creates midnight UTC to avoid timezone issues
+ * For timed tasks, uses local timezone
+ * @param dateStr - Date string in YYYY-MM-DD format
+ * @param timeStr - Optional time string in HH:MM or HH:MM:SS format
+ * @param isAllDay - Whether this is an all-day task
+ * @returns ISO 8601 string in UTC (e.g., "2026-01-16T00:00:00Z")
+ */
+function createISOString(dateStr, timeStr, isAllDay) {
+    // Parse date components
+    const [year, month, day] = dateStr.split("-").map(Number);
+    if (isAllDay) {
+        // For all-day tasks, create date at midnight UTC
+        const date = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+        return date.toISOString();
+    }
+    else {
+        // For timed tasks, use local timezone
+        const timeComponents = timeStr ? timeStr.split(":").map(Number) : [0, 0, 0];
+        const [hours, minutes, seconds = 0] = timeComponents;
+        const date = new Date(year, month - 1, day, hours, minutes, seconds);
+        return date.toISOString();
+    }
+}
+
+// ============================================================================
+// Task Utility Functions for ChoreBot Cards
+// ============================================================================
+/**
+ * Filter tasks for today-focused view
+ * Shows: incomplete tasks due today, incomplete overdue tasks, tasks completed today, and dateless tasks
+ * @param entity - Home Assistant entity containing tasks
+ * @param showDatelessTasks - Whether to show tasks without due dates
+ * @param filterSectionId - Optional section ID to filter by
+ * @returns Filtered array of tasks
+ */
+function filterTodayTasks(entity, showDatelessTasks = true, filterSectionId) {
+    const tasks = entity.attributes.chorebot_tasks || [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // Apply date/status filtering
+    let filteredTasks = tasks.filter((task) => {
+        const hasDueDate = !!task.due;
+        const isCompleted = task.status === "completed";
+        // Handle dateless tasks
+        if (!hasDueDate) {
+            return showDatelessTasks;
+        }
+        const dueDate = new Date(task.due);
+        dueDate.setHours(0, 0, 0, 0);
+        const isToday = isSameDay(dueDate, today);
+        const isOverdue = dueDate < today;
+        // If task is completed, check if it was completed today
+        if (isCompleted) {
+            if (task.last_completed) {
+                const completedDate = new Date(task.last_completed);
+                if (isSameDay(completedDate, new Date())) {
+                    return true; // Show if completed today (regardless of due date)
+                }
+                // If completed but not today, hide it
+                return false;
+            }
+        }
+        // Show incomplete tasks due today
+        if (isToday) {
+            return true;
+        }
+        // Show incomplete overdue tasks
+        if (isOverdue && !isCompleted) {
+            return true;
+        }
+        return false;
+    });
+    // Apply section filtering if configured
+    if (filterSectionId) {
+        // Resolve section name to section ID
+        const sections = entity.attributes.chorebot_sections || [];
+        const filterValue = filterSectionId;
+        // Try to find section by name first
+        const sectionByName = sections.find((section) => section.name === filterValue);
+        // Use the section ID if found by name, otherwise use the filter value as-is (for backward compatibility)
+        const sectionIdToMatch = sectionByName ? sectionByName.id : filterValue;
+        filteredTasks = filteredTasks.filter((task) => task.section_id === sectionIdToMatch);
+    }
+    return filteredTasks;
+}
+/**
+ * Calculate progress (completed vs total tasks)
+ * @param tasks - Array of tasks to calculate progress for
+ * @returns Object with completed and total counts
+ */
+function calculateProgress(tasks) {
+    const completed = tasks.filter((t) => t.status === "completed").length;
+    return {
+        completed,
+        total: tasks.length,
+    };
+}
+/**
+ * Calculate progress for only tasks with due dates (excludes dateless tasks)
+ * @param tasks - Array of tasks to calculate progress for
+ * @returns Object with completed and total counts for dated tasks only
+ */
+function calculateDatedTasksProgress(tasks) {
+    // Filter to only tasks with due dates
+    const datedTasks = tasks.filter((t) => !!t.due);
+    const completed = datedTasks.filter((t) => t.status === "completed").length;
+    return {
+        completed,
+        total: datedTasks.length,
+    };
+}
+/**
+ * Group tasks by their tags
+ * Tasks with multiple tags will appear in each tag group
+ * @param tasks - Array of tasks to group
+ * @param untaggedHeader - Header text for tasks without tags
+ * @returns Map of tag name to array of tasks
+ */
+function groupTasksByTag(tasks, untaggedHeader = "Untagged") {
+    const groups = new Map();
+    for (const task of tasks) {
+        const tags = task.tags || [];
+        if (tags.length === 0) {
+            // Task has no tags - add to untagged group
+            if (!groups.has(untaggedHeader)) {
+                groups.set(untaggedHeader, []);
+            }
+            groups.get(untaggedHeader).push(task);
+        }
+        else {
+            // Task has tags - add to each tag group
+            for (const tag of tags) {
+                if (!groups.has(tag)) {
+                    groups.set(tag, []);
+                }
+                groups.get(tag).push(task);
+            }
+        }
+    }
+    return groups;
+}
+/**
+ * Sort groups by custom order (works with GroupState[])
+ * @param groups - Array of GroupState objects
+ * @param tagOrder - Optional array specifying desired tag order
+ * @param untaggedHeader - Header text for untagged tasks (placed last if not in tagOrder)
+ * @param upcomingHeader - Header text for upcoming tasks (always placed last)
+ * @returns Sorted array of GroupState objects
+ */
+function sortGroups(groups, tagOrder, untaggedHeader = "Untagged", upcomingHeader = "Upcoming") {
+    return groups.sort((a, b) => {
+        // Always put Upcoming at the end
+        if (a.name === upcomingHeader)
+            return 1;
+        if (b.name === upcomingHeader)
+            return -1;
+        if (!tagOrder || tagOrder.length === 0) {
+            // No custom order - sort alphabetically, with untagged last
+            if (a.name === untaggedHeader)
+                return 1;
+            if (b.name === untaggedHeader)
+                return -1;
+            return a.name.localeCompare(b.name);
+        }
+        // Sort by custom order
+        const indexA = tagOrder.indexOf(a.name);
+        const indexB = tagOrder.indexOf(b.name);
+        // If both are in the order list, sort by their position
+        if (indexA !== -1 && indexB !== -1) {
+            return indexA - indexB;
+        }
+        // If only one is in the order list, it comes first
+        if (indexA !== -1)
+            return -1;
+        if (indexB !== -1)
+            return 1;
+        // If neither is in the order list, put untagged last and sort others alphabetically
+        if (a.name === untaggedHeader)
+            return 1;
+        if (b.name === untaggedHeader)
+            return -1;
+        return a.name.localeCompare(b.name);
+    });
+}
+/**
+ * Filter tasks assigned to a specific person across all ChoreBot lists
+ * Uses pre-computed person_id from backend (eliminates manual section/list lookups)
+ * @param entities - All Home Assistant entities (will filter to todo.chorebot_*)
+ * @param personEntityId - Person entity ID (e.g., "person.kyle")
+ * @param includeDateless - Whether to include dateless tasks (default: false)
+ * @returns Array of tasks assigned to this person (already filtered by today/overdue)
+ */
+function filterTasksByPerson(entities, personEntityId, includeDateless = false) {
+    const allPersonTasks = [];
+    // Filter to only ChoreBot todo entities
+    const choreботEntities = entities.filter((e) => e.entity_id.startsWith("todo.chorebot_"));
+    for (const entity of choreботEntities) {
+        // Get today's tasks from this entity
+        const todayTasks = filterTodayTasks(entity, includeDateless);
+        // Filter to tasks assigned to this person using pre-computed person_id
+        // Backend resolves: section.person_id → list.person_id → null
+        const personTasks = todayTasks.filter((task) => task.computed_person_id === personEntityId);
+        allPersonTasks.push(...personTasks);
+    }
+    return allPersonTasks;
+}
+/**
+ * Filter and group tasks in a single pass for efficiency
+ * Returns array of GroupState objects including tag groups and optional Upcoming group
+ * @param entity - Home Assistant entity containing tasks
+ * @param showDatelessTasks - Whether to show tasks without due dates
+ * @param showFutureTasks - Whether to include future tasks in Upcoming group
+ * @param untaggedHeader - Header text for tasks without tags
+ * @param upcomingHeader - Header text for future tasks group
+ * @param filterSectionId - Optional section ID to filter by
+ * @param filterPersonId - Optional person entity ID to filter by
+ * @returns Array of GroupState objects with tasks grouped
+ */
+function filterAndGroupTasks(entity, showDatelessTasks = true, showFutureTasks = false, untaggedHeader = "Untagged", upcomingHeader = "Upcoming", filterSectionId, filterPersonId) {
+    const allTasks = entity.attributes.chorebot_tasks || [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endOfToday = new Date(today);
+    endOfToday.setHours(23, 59, 59, 999);
+    const tagGroups = new Map();
+    const futureTasks = [];
+    // Resolve section filter once
+    let sectionIdToMatch;
+    if (filterSectionId) {
+        const sections = entity.attributes.chorebot_sections || [];
+        const sectionByName = sections.find((s) => s.name === filterSectionId);
+        sectionIdToMatch = sectionByName ? sectionByName.id : filterSectionId;
+    }
+    // Single pass through all tasks
+    for (const task of allTasks) {
+        // Apply section filter first (if applicable)
+        if (sectionIdToMatch) {
+            if (task.section_id !== sectionIdToMatch) {
+                continue; // Skip this task
+            }
+        }
+        // Apply person filter (uses pre-computed person_id from backend)
+        if (filterPersonId && task.computed_person_id !== filterPersonId) {
+            continue; // Skip this task
+        }
+        const hasDueDate = !!task.due;
+        const isCompleted = task.status === "completed";
+        // Determine which group this task belongs to
+        let isTodayTask = false;
+        let isFutureTask = false;
+        if (!hasDueDate) {
+            // Dateless task
+            isTodayTask = showDatelessTasks;
+        }
+        else if (task.due) {
+            const dueDate = new Date(task.due);
+            // Check if future task (after end of today)
+            if (showFutureTasks && dueDate > endOfToday) {
+                isFutureTask = true;
+            }
+            else {
+                // Check if today task
+                const dueDateOnly = new Date(dueDate);
+                dueDateOnly.setHours(0, 0, 0, 0);
+                const isToday = isSameDay(dueDateOnly, today);
+                const isOverdue = dueDateOnly < today;
+                if (isCompleted) {
+                    if (task.last_completed) {
+                        if (isSameDay(new Date(task.last_completed), new Date())) {
+                            isTodayTask = true; // Show if completed today (regardless of due date)
+                        }
+                    }
+                }
+                else if (isToday || isOverdue) {
+                    isTodayTask = true;
+                }
+            }
+        }
+        // Add to appropriate group
+        if (isTodayTask) {
+            // Add to tag groups
+            const tags = task.tags || [];
+            if (tags.length === 0) {
+                if (!tagGroups.has(untaggedHeader)) {
+                    tagGroups.set(untaggedHeader, []);
+                }
+                tagGroups.get(untaggedHeader).push(task);
+            }
+            else {
+                for (const tag of tags) {
+                    if (!tagGroups.has(tag)) {
+                        tagGroups.set(tag, []);
+                    }
+                    tagGroups.get(tag).push(task);
+                }
+            }
+        }
+        else if (isFutureTask) {
+            futureTasks.push(task);
+        }
+    }
+    // Sort future tasks by due date (earliest first)
+    futureTasks.sort((a, b) => {
+        const dateA = new Date(a.due).getTime();
+        const dateB = new Date(b.due).getTime();
+        return dateA - dateB;
+    });
+    // Convert Map to GroupState array
+    const groups = Array.from(tagGroups.entries()).map(([name, tasks]) => ({
+        name,
+        tasks,
+        isCollapsed: false, // Default collapsed state (will be overridden by component)
+    }));
+    // Add Upcoming group if enabled and has tasks
+    if (showFutureTasks && futureTasks.length > 0) {
+        groups.push({
+            name: upcomingHeader,
+            tasks: futureTasks,
+            isCollapsed: false, // Default collapsed state (will be overridden by component)
+        });
+    }
+    return groups;
+}
+
+// ============================================================================
+// Recurrence Rule (rrule) Utility Functions for ChoreBot Cards
+// ============================================================================
+/**
+ * Parse an rrule string into component parts
+ * @param rrule - rrule string (e.g., "FREQ=DAILY;INTERVAL=1")
+ * @returns Parsed rrule object or null if invalid
+ */
+function parseRrule(rrule) {
+    if (!rrule) {
+        return null;
+    }
+    try {
+        const parts = rrule.split(";");
+        let frequency = null;
+        let interval = 1;
+        const byweekday = [];
+        let bymonthday = null;
+        for (const part of parts) {
+            const [key, value] = part.split("=");
+            if (key === "FREQ") {
+                if (value === "DAILY" || value === "WEEKLY" || value === "MONTHLY") {
+                    frequency = value;
+                }
+            }
+            else if (key === "INTERVAL") {
+                const parsedInterval = parseInt(value, 10);
+                if (!isNaN(parsedInterval) && parsedInterval > 0) {
+                    interval = parsedInterval;
+                }
+            }
+            else if (key === "BYDAY") {
+                byweekday.push(...value.split(","));
+            }
+            else if (key === "BYMONTHDAY") {
+                const parsedDay = parseInt(value, 10);
+                if (!isNaN(parsedDay) && parsedDay >= 1 && parsedDay <= 31) {
+                    bymonthday = parsedDay;
+                }
+            }
+        }
+        if (!frequency) {
+            return null;
+        }
+        return { frequency, interval, byweekday, bymonthday };
+    }
+    catch (e) {
+        console.error("rrule parsing error:", e, rrule);
+        return null;
+    }
+}
+/**
+ * Build an rrule string from editing task data
+ * @param editingTask - Task being edited with recurrence fields
+ * @returns rrule string or null if recurrence disabled
+ */
+function buildRrule(editingTask) {
+    if (!editingTask || !editingTask.has_recurrence) {
+        return null;
+    }
+    const { recurrence_frequency, recurrence_interval, recurrence_byweekday, recurrence_bymonthday, } = editingTask;
+    if (!recurrence_frequency) {
+        return null;
+    }
+    const interval = recurrence_interval || 1;
+    let rrule = `FREQ=${recurrence_frequency};INTERVAL=${interval}`;
+    if (recurrence_frequency === "WEEKLY" &&
+        recurrence_byweekday &&
+        recurrence_byweekday.length > 0) {
+        rrule += `;BYDAY=${recurrence_byweekday.join(",").toUpperCase()}`;
+    }
+    else if (recurrence_frequency === "MONTHLY" && recurrence_bymonthday) {
+        const day = Math.max(1, Math.min(31, recurrence_bymonthday));
+        rrule += `;BYMONTHDAY=${day}`;
+    }
+    return rrule;
+}
+
+// ============================================================================
+// Points Display Utilities for ChoreBot Cards
+// ============================================================================
+/**
+ * Get points display configuration from sensor.
+ * Returns { icon, text } where icon is MDI icon string (e.g., "mdi:star")
+ * and text is display term (e.g., "stars", "coins", "points").
+ *
+ * Falls back to { icon: "", text: "points" } if sensor is missing or
+ * attribute is undefined.
+ *
+ * Respects empty strings: If backend sends text="" with an icon, that's
+ * intentional (icon-only mode) and won't be overridden with "points".
+ *
+ * @param hass - Home Assistant instance
+ * @returns Object with icon and text properties
+ */
+function getPointsDisplayParts(hass) {
+    const sensor = hass.states["sensor.chorebot_points"];
+    const config = sensor?.attributes.points_display;
+    // If sensor or attribute missing entirely, use defaults
+    if (!config) {
+        return {
+            icon: "",
+            text: "points",
+        };
+    }
+    // Otherwise respect exact values from backend (including empty strings)
+    return {
+        icon: config.icon ?? "",
+        text: config.text ?? "points",
+    };
+}
+/**
+ * Get capitalized points term for use in field labels.
+ * Example: "Stars", "Coins", "Points"
+ *
+ * Falls back to "Points" if sensor is missing or attribute is undefined.
+ * Returns empty string if text is intentionally empty (icon-only mode).
+ *
+ * @param hass - Home Assistant instance
+ * @returns Capitalized term string or empty string
+ */
+function getPointsTermCapitalized(hass) {
+    const parts = getPointsDisplayParts(hass);
+    if (!parts.text) {
+        return "";
+    }
+    return parts.text.charAt(0).toUpperCase() + parts.text.slice(1);
+}
+/**
+ * Get lowercase points term for use in helper text.
+ * Example: "stars", "coins", "points"
+ *
+ * Falls back to "points" if sensor is missing or attribute is undefined.
+ * Returns empty string if text is intentionally empty (icon-only mode).
+ *
+ * @param hass - Home Assistant instance
+ * @returns Lowercase term string or empty string
+ */
+function getPointsTermLowercase(hass) {
+    const parts = getPointsDisplayParts(hass);
+    if (!parts.text) {
+        return "";
+    }
+    return parts.text.toLowerCase();
+}
+
+// ============================================================================
+// Dialog Utility Functions for ChoreBot Cards
+// ============================================================================
+/**
+ * Prepare a task for editing by flattening custom fields and parsing dates/rrule
+ * @param task - Task to prepare for editing
+ * @param templates - Optional array of templates (for looking up recurring task templates)
+ * @returns EditingTask with flattened fields
+ */
+function prepareTaskForEditing(task, templates) {
+    const flatTask = {
+        ...task,
+        is_all_day: task.is_all_day || false,
+        tags: task.tags || [],
+        section_id: task.section_id,
+        points_value: task.points_value || 0,
+        streak_bonus_points: task.streak_bonus_points || 0,
+        streak_bonus_interval: task.streak_bonus_interval || 0,
+    };
+    // Extract due date/time if present
+    if (task.due) {
+        const isAllDay = task.is_all_day || false;
+        const parsed = parseUTCToLocal(task.due, isAllDay);
+        flatTask.due_date = parsed.date ?? undefined;
+        flatTask.due_time = parsed.time ?? undefined;
+        flatTask.has_due_date = true;
+    }
+    else {
+        flatTask.has_due_date = false;
+    }
+    // For recurring instances, look up the template to get rrule and bonus fields
+    let rruleToUse = task.rrule;
+    if (task.parent_uid && templates) {
+        const template = templates.find((t) => t.uid === task.parent_uid);
+        if (template) {
+            rruleToUse = template.rrule;
+            // Also use template's bonus fields if instance doesn't have them
+            flatTask.streak_bonus_points = template.streak_bonus_points || 0;
+            flatTask.streak_bonus_interval = template.streak_bonus_interval || 0;
+        }
+    }
+    // Parse existing rrule if present
+    const parsedRrule = parseRrule(rruleToUse);
+    if (parsedRrule) {
+        flatTask.has_recurrence = true;
+        flatTask.recurrence_frequency = parsedRrule.frequency;
+        flatTask.recurrence_interval = parsedRrule.interval;
+        flatTask.recurrence_byweekday = parsedRrule.byweekday;
+        flatTask.recurrence_bymonthday = parsedRrule.bymonthday || 1;
+    }
+    else {
+        flatTask.has_recurrence = false;
+        flatTask.recurrence_frequency = "DAILY";
+        flatTask.recurrence_interval = 1;
+        flatTask.recurrence_byweekday = [];
+        flatTask.recurrence_bymonthday = 1;
+    }
+    return flatTask;
+}
+/**
+ * Build the schema for the edit dialog form
+ * @param task - Task being edited
+ * @param sections - Available sections from entity
+ * @param availableTags - Available tags from entity
+ * @returns Array of form schema objects
+ */
+function buildEditDialogSchema(task, sections, availableTags) {
+    const hasDueDate = task.has_due_date !== undefined ? task.has_due_date : !!task.due;
+    const isAllDay = task.is_all_day !== undefined ? task.is_all_day : false;
+    const schema = [
+        {
+            name: "summary",
+            required: true,
+            selector: { text: {} },
+        },
+        {
+            name: "description",
+            selector: { text: { multiline: true } },
+        },
+    ];
+    // Add section dropdown if sections are available
+    if (sections.length > 0) {
+        schema.push({
+            name: "section_id",
+            selector: {
+                select: {
+                    options: sections
+                        .sort((a, b) => b.sort_order - a.sort_order)
+                        .map((section) => ({
+                        label: section.name,
+                        value: section.id,
+                    })),
+                },
+            },
+        });
+    }
+    // Add tags multi-select
+    schema.push({
+        name: "tags",
+        selector: {
+            select: {
+                multiple: true,
+                custom_value: true,
+                options: availableTags.map((tag) => ({
+                    label: tag,
+                    value: tag,
+                })),
+            },
+        },
+    });
+    schema.push({
+        name: "has_due_date",
+        selector: { boolean: {} },
+    });
+    if (hasDueDate) {
+        schema.push({
+            name: "due_date",
+            selector: { date: {} },
+        });
+        if (!isAllDay) {
+            schema.push({
+                name: "due_time",
+                selector: { time: {} },
+            });
+        }
+        schema.push({
+            name: "is_all_day",
+            selector: { boolean: {} },
+        });
+    }
+    // Recurrence section - only show if task has a due date
+    if (hasDueDate) {
+        const hasRecurrence = task.has_recurrence !== undefined ? task.has_recurrence : false;
+        const recurrenceFrequency = task.recurrence_frequency || "DAILY";
+        // Add recurrence toggle
+        schema.push({
+            name: "has_recurrence",
+            selector: { boolean: {} },
+        });
+        // If recurrence is enabled, add recurrence fields
+        if (hasRecurrence) {
+            schema.push({
+                name: "recurrence_frequency",
+                selector: {
+                    select: {
+                        options: [
+                            { label: "Daily", value: "DAILY" },
+                            { label: "Weekly", value: "WEEKLY" },
+                            { label: "Monthly", value: "MONTHLY" },
+                        ],
+                    },
+                },
+            });
+            schema.push({
+                name: "recurrence_interval",
+                selector: {
+                    number: {
+                        min: 1,
+                        max: 999,
+                        mode: "box",
+                    },
+                },
+            });
+            // Frequency-specific fields
+            if (recurrenceFrequency === "WEEKLY") {
+                schema.push({
+                    name: "recurrence_byweekday",
+                    selector: {
+                        select: {
+                            multiple: true,
+                            options: [
+                                { label: "Monday", value: "MO" },
+                                { label: "Tuesday", value: "TU" },
+                                { label: "Wednesday", value: "WE" },
+                                { label: "Thursday", value: "TH" },
+                                { label: "Friday", value: "FR" },
+                                { label: "Saturday", value: "SA" },
+                                { label: "Sunday", value: "SU" },
+                            ],
+                        },
+                    },
+                });
+            }
+            else if (recurrenceFrequency === "MONTHLY") {
+                schema.push({
+                    name: "recurrence_bymonthday",
+                    selector: {
+                        number: {
+                            min: 1,
+                            max: 31,
+                            mode: "box",
+                        },
+                    },
+                });
+            }
+        }
+    }
+    // Points section
+    schema.push({
+        name: "points_value",
+        selector: {
+            number: {
+                min: 0,
+                max: 10000,
+                mode: "box",
+            },
+        },
+    });
+    // Streak bonus section (only for recurring tasks)
+    if (hasDueDate && task.has_recurrence) {
+        schema.push({
+            name: "streak_bonus_points",
+            selector: {
+                number: {
+                    min: 0,
+                    max: 10000,
+                    mode: "box",
+                },
+            },
+        });
+        schema.push({
+            name: "streak_bonus_interval",
+            selector: {
+                number: {
+                    min: 0,
+                    max: 999,
+                    mode: "box",
+                },
+            },
+        });
+    }
+    return schema;
+}
+/**
+ * Build the initial data object for the edit dialog form
+ * @param task - Task being edited
+ * @param sections - Available sections from entity
+ * @returns Data object for form initialization
+ */
+function buildEditDialogData(task, sections) {
+    const hasDueDate = task.has_due_date !== undefined ? task.has_due_date : !!task.due;
+    const isAllDay = task.is_all_day !== undefined ? task.is_all_day : false;
+    let dateValue = task.due_date || null;
+    let timeValue = task.due_time || null;
+    if (!dateValue && task.due) {
+        const parsed = parseUTCToLocal(task.due, isAllDay);
+        dateValue = parsed.date;
+        timeValue = parsed.time;
+    }
+    return {
+        summary: task.summary || "",
+        has_due_date: hasDueDate,
+        is_all_day: isAllDay,
+        due_date: dateValue || null,
+        due_time: timeValue || "00:00",
+        description: task.description || "",
+        section_id: task.section_id ||
+            (sections.length > 0
+                ? sections.sort((a, b) => b.sort_order - a.sort_order)[0].id
+                : undefined),
+        tags: task.tags || [],
+        has_recurrence: hasDueDate ? task.has_recurrence || false : false,
+        recurrence_frequency: task.recurrence_frequency || "DAILY",
+        recurrence_interval: task.recurrence_interval || 1,
+        recurrence_byweekday: task.recurrence_byweekday || [],
+        recurrence_bymonthday: task.recurrence_bymonthday || 1,
+        points_value: task.points_value || 0,
+        streak_bonus_points: task.streak_bonus_points || 0,
+        streak_bonus_interval: task.streak_bonus_interval || 0,
+    };
+}
+/**
+ * Get label text for form fields (factory function that accepts hass for dynamic labels)
+ * @param hass - Home Assistant instance for dynamic points terminology
+ * @returns Function that computes labels for form fields
+ */
+function getFieldLabels(hass) {
+    const pointsTerm = getPointsTermCapitalized(hass) || "Points";
+    return function computeLabel(schema) {
+        const labels = {
+            summary: "Task Name",
+            has_due_date: "Has Due Date",
+            is_all_day: "All Day",
+            due_date: "Date",
+            due_time: "Time",
+            description: "Description",
+            section_id: "Section",
+            tags: "Tags",
+            has_recurrence: "Recurring Task",
+            recurrence_frequency: "Frequency",
+            recurrence_interval: "Repeat Every",
+            recurrence_byweekday: "Days of Week",
+            recurrence_bymonthday: "Day of Month",
+            points_value: `${pointsTerm} Value`,
+            streak_bonus_points: `Streak Bonus ${pointsTerm}`,
+            streak_bonus_interval: "Bonus Every X Days (0 = no bonus)",
+        };
+        return labels[schema.name] || schema.name;
+    };
+}
+/**
+ * Render the task dialog (for editing or creating tasks)
+ * @param isOpen - Whether dialog is open
+ * @param task - Task being edited/created
+ * @param hass - Home Assistant instance
+ * @param sections - Available sections
+ * @param availableTags - Available tags from entity
+ * @param saving - Whether save is in progress
+ * @param onClose - Callback when dialog closes
+ * @param onValueChanged - Callback when form values change
+ * @param onSave - Callback when save is clicked
+ * @param onDelete - Optional callback when delete is clicked
+ * @param dialogTitle - Optional dialog title (defaults to "Edit Task")
+ * @param showDelete - Whether to show delete button (defaults to true for existing tasks)
+ * @returns Lit HTML template
+ */
+function renderTaskDialog(isOpen, task, hass, sections, availableTags, saving, onClose, onValueChanged, onSave, onDelete, dialogTitle = "Edit Task", showDelete = true) {
+    if (!isOpen || !task) {
+        return b ``;
+    }
+    const schema = buildEditDialogSchema(task, sections, availableTags);
+    const data = buildEditDialogData(task, sections);
+    const computeLabel = getFieldLabels(hass);
+    return b `
+    <ha-dialog open @closed=${onClose} .heading=${dialogTitle}>
       <ha-form
-        .hass=${o}
-        .schema=${p}
-        .data=${u}
-        .computeLabel=${_}
-        @value-changed=${n}
+        .hass=${hass}
+        .schema=${schema}
+        .data=${data}
+        .computeLabel=${computeLabel}
+        @value-changed=${onValueChanged}
       ></ha-form>
 
       <!-- Delete button (bottom-left positioning via CSS) -->
-      ${h&&c&&t?.uid?L`
+      ${showDelete && onDelete && task?.uid
+        ? b `
             <ha-button
               slot="primaryAction"
-              @click=${c}
-              .disabled=${i}
+              @click=${onDelete}
+              .disabled=${saving}
               class="delete-button"
             >
               Delete
             </ha-button>
-          `:""}
+          `
+        : ""}
 
-      <ha-button slot="primaryAction" @click=${d} .disabled=${i}>
-        ${i?"Saving...":"Save"}
+      <ha-button slot="primaryAction" @click=${onSave} .disabled=${saving}>
+        ${saving ? "Saving..." : "Save"}
       </ha-button>
-      <ha-button slot="secondaryAction" @click=${a} .disabled=${i}>
+      <ha-button slot="secondaryAction" @click=${onClose} .disabled=${saving}>
         Cancel
       </ha-button>
 
@@ -75,90 +1046,1887 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
         }
       </style>
     </ha-dialog>
-  `}function Me(e,t){if(e.startsWith("var(")){const t=getComputedStyle(document.documentElement).getPropertyValue(e.slice(4,-1).trim());if(!t)return e;e=t.trim()}let o,r,s;if(e.startsWith("#")){const t=e.replace("#","");o=parseInt(t.substring(0,2),16),r=parseInt(t.substring(2,4),16),s=parseInt(t.substring(4,6),16)}else{if(!e.startsWith("rgb"))return e;{const t=e.match(/\d+/g);if(!t)return e;[o,r,s]=t.map(Number)}}o/=255,r/=255,s/=255;const i=Math.max(o,r,s),a=Math.min(o,r,s);let n=0,d=0,c=(i+a)/2;if(i!==a){const e=i-a;switch(d=c>.5?e/(2-i-a):e/(i+a),i){case o:n=((r-s)/e+(r<s?6:0))/6;break;case r:n=((s-o)/e+2)/6;break;case s:n=((o-r)/e+4)/6}}c=t>0?Math.max(0,Math.min(.95,c+t/100*(1-c))):Math.max(.05,c+t/100*c);const l=(e,t,o)=>(o<0&&(o+=1),o>1&&(o-=1),o<1/6?e+6*(t-e)*o:o<.5?t:o<2/3?e+(t-e)*(2/3-o)*6:e);let h,p,u;if(0===d)h=p=u=c;else{const e=c<.5?c*(1+d):c+d-c*d,t=2*c-e;h=l(t,e,n+1/3),p=l(t,e,n),u=l(t,e,n-1/3)}const _=e=>{const t=Math.round(255*e).toString(16);return 1===t.length?"0"+t:t};return`${_(h)}${_(p)}${_(u)}`.toUpperCase()}function De(e){return{lighter:Me(e,30),light:Me(e,15),base:(t=e,t.startsWith("#")?t.substring(1).toUpperCase():/^[0-9A-Fa-f]{6}$/.test(t)?t.toUpperCase():Me(t,0)),dark:Me(e,-15),darker:Me(e,-30)};var t}function Ee(e,t,o){let r="var(--primary-color)";if(o){const t=e.states["sensor.chorebot_points"],s=(t?.attributes.people||{})[o];s?.accent_color&&(r=s.accent_color)}return t&&(r=t),r}var Pe={};!function e(t,o,r,s){var i=!!(t.Worker&&t.Blob&&t.Promise&&t.OffscreenCanvas&&t.OffscreenCanvasRenderingContext2D&&t.HTMLCanvasElement&&t.HTMLCanvasElement.prototype.transferControlToOffscreen&&t.URL&&t.URL.createObjectURL),a="function"==typeof Path2D&&"function"==typeof DOMMatrix,n=function(){if(!t.OffscreenCanvas)return!1;try{var e=new OffscreenCanvas(1,1),o=e.getContext("2d");o.fillRect(0,0,1,1);var r=e.transferToImageBitmap();o.createPattern(r,"no-repeat")}catch(e){return!1}return!0}();function d(){}function c(e){var r=o.exports.Promise,s=void 0!==r?r:t.Promise;return"function"==typeof s?new s(e):(e(d,d),null)}var l,h,p,u,_,g,f,m,w,b,v,y=(l=n,h=new Map,{transform:function(e){if(l)return e;if(h.has(e))return h.get(e);var t=new OffscreenCanvas(e.width,e.height);return t.getContext("2d").drawImage(e,0,0),h.set(e,t),t},clear:function(){h.clear()}}),x=(_=Math.floor(1e3/60),g={},f=0,"function"==typeof requestAnimationFrame&&"function"==typeof cancelAnimationFrame?(p=function(e){var t=Math.random();return g[t]=requestAnimationFrame(function o(r){f===r||f+_-1<r?(f=r,delete g[t],e()):g[t]=requestAnimationFrame(o)}),t},u=function(e){g[e]&&cancelAnimationFrame(g[e])}):(p=function(e){return setTimeout(e,_)},u=function(e){return clearTimeout(e)}),{frame:p,cancel:u}),k=(b={},function(){if(m)return m;if(!r&&i){var t=["var CONFETTI, SIZE = {}, module = {};","("+e.toString()+")(this, module, true, SIZE);","onmessage = function(msg) {","  if (msg.data.options) {","    CONFETTI(msg.data.options).then(function () {","      if (msg.data.callback) {","        postMessage({ callback: msg.data.callback });","      }","    });","  } else if (msg.data.reset) {","    CONFETTI && CONFETTI.reset();","  } else if (msg.data.resize) {","    SIZE.width = msg.data.resize.width;","    SIZE.height = msg.data.resize.height;","  } else if (msg.data.canvas) {","    SIZE.width = msg.data.canvas.width;","    SIZE.height = msg.data.canvas.height;","    CONFETTI = module.exports.create(msg.data.canvas);","  }","}"].join("\n");try{m=new Worker(URL.createObjectURL(new Blob([t])))}catch(e){return"undefined"!=typeof console&&"function"==typeof console.warn&&console.warn("🎊 Could not load worker",e),null}!function(e){function t(t,o){e.postMessage({options:t||{},callback:o})}e.init=function(t){var o=t.transferControlToOffscreen();e.postMessage({canvas:o},[o])},e.fire=function(o,r,s){if(w)return t(o,null),w;var i=Math.random().toString(36).slice(2);return w=c(function(r){function a(t){t.data.callback===i&&(delete b[i],e.removeEventListener("message",a),w=null,y.clear(),s(),r())}e.addEventListener("message",a),t(o,i),b[i]=a.bind(null,{data:{callback:i}})})},e.reset=function(){for(var t in e.postMessage({reset:!0}),b)b[t](),delete b[t]}}(m)}return m}),$={particleCount:50,angle:90,spread:45,startVelocity:45,decay:.9,gravity:1,drift:0,ticks:200,x:.5,y:.5,shapes:["square","circle"],zIndex:100,colors:["#26ccff","#a25afd","#ff5e7e","#88ff5a","#fcff42","#ffa62d","#ff36ff"],disableForReducedMotion:!1,scalar:1};function T(e,t,o){return function(e,t){return t?t(e):e}(e&&null!=e[t]?e[t]:$[t],o)}function C(e){return e<0?0:Math.floor(e)}function A(e,t){return Math.floor(Math.random()*(t-e))+e}function S(e){return parseInt(e,16)}function R(e){return e.map(M)}function M(e){var t=String(e).replace(/[^0-9a-f]/gi,"");return t.length<6&&(t=t[0]+t[0]+t[1]+t[1]+t[2]+t[2]),{r:S(t.substring(0,2)),g:S(t.substring(2,4)),b:S(t.substring(4,6))}}function D(e){e.width=document.documentElement.clientWidth,e.height=document.documentElement.clientHeight}function E(e){var t=e.getBoundingClientRect();e.width=t.width,e.height=t.height}function P(e){var t=e.angle*(Math.PI/180),o=e.spread*(Math.PI/180);return{x:e.x,y:e.y,wobble:10*Math.random(),wobbleSpeed:Math.min(.11,.1*Math.random()+.05),velocity:.5*e.startVelocity+Math.random()*e.startVelocity,angle2D:-t+(.5*o-Math.random()*o),tiltAngle:(.5*Math.random()+.25)*Math.PI,color:e.color,shape:e.shape,tick:0,totalTicks:e.ticks,decay:e.decay,drift:e.drift,random:Math.random()+2,tiltSin:0,tiltCos:0,wobbleX:0,wobbleY:0,gravity:3*e.gravity,ovalScalar:.6,scalar:e.scalar,flat:e.flat}}function z(e,t){t.x+=Math.cos(t.angle2D)*t.velocity+t.drift,t.y+=Math.sin(t.angle2D)*t.velocity+t.gravity,t.velocity*=t.decay,t.flat?(t.wobble=0,t.wobbleX=t.x+10*t.scalar,t.wobbleY=t.y+10*t.scalar,t.tiltSin=0,t.tiltCos=0,t.random=1):(t.wobble+=t.wobbleSpeed,t.wobbleX=t.x+10*t.scalar*Math.cos(t.wobble),t.wobbleY=t.y+10*t.scalar*Math.sin(t.wobble),t.tiltAngle+=.1,t.tiltSin=Math.sin(t.tiltAngle),t.tiltCos=Math.cos(t.tiltAngle),t.random=Math.random()+2);var o=t.tick++/t.totalTicks,r=t.x+t.random*t.tiltCos,s=t.y+t.random*t.tiltSin,i=t.wobbleX+t.random*t.tiltCos,n=t.wobbleY+t.random*t.tiltSin;if(e.fillStyle="rgba("+t.color.r+", "+t.color.g+", "+t.color.b+", "+(1-o)+")",e.beginPath(),a&&"path"===t.shape.type&&"string"==typeof t.shape.path&&Array.isArray(t.shape.matrix))e.fill(function(e,t,o,r,s,i,a){var n=new Path2D(e),d=new Path2D;d.addPath(n,new DOMMatrix(t));var c=new Path2D;return c.addPath(d,new DOMMatrix([Math.cos(a)*s,Math.sin(a)*s,-Math.sin(a)*i,Math.cos(a)*i,o,r])),c}(t.shape.path,t.shape.matrix,t.x,t.y,.1*Math.abs(i-r),.1*Math.abs(n-s),Math.PI/10*t.wobble));else if("bitmap"===t.shape.type){var d=Math.PI/10*t.wobble,c=.1*Math.abs(i-r),l=.1*Math.abs(n-s),h=t.shape.bitmap.width*t.scalar,p=t.shape.bitmap.height*t.scalar,u=new DOMMatrix([Math.cos(d)*c,Math.sin(d)*c,-Math.sin(d)*l,Math.cos(d)*l,t.x,t.y]);u.multiplySelf(new DOMMatrix(t.shape.matrix));var _=e.createPattern(y.transform(t.shape.bitmap),"no-repeat");_.setTransform(u),e.globalAlpha=1-o,e.fillStyle=_,e.fillRect(t.x-h/2,t.y-p/2,h,p),e.globalAlpha=1}else if("circle"===t.shape)e.ellipse?e.ellipse(t.x,t.y,Math.abs(i-r)*t.ovalScalar,Math.abs(n-s)*t.ovalScalar,Math.PI/10*t.wobble,0,2*Math.PI):function(e,t,o,r,s,i,a,n,d){e.save(),e.translate(t,o),e.rotate(i),e.scale(r,s),e.arc(0,0,1,a,n,d),e.restore()}(e,t.x,t.y,Math.abs(i-r)*t.ovalScalar,Math.abs(n-s)*t.ovalScalar,Math.PI/10*t.wobble,0,2*Math.PI);else if("star"===t.shape)for(var g=Math.PI/2*3,f=4*t.scalar,m=8*t.scalar,w=t.x,b=t.y,v=5,x=Math.PI/v;v--;)w=t.x+Math.cos(g)*m,b=t.y+Math.sin(g)*m,e.lineTo(w,b),g+=x,w=t.x+Math.cos(g)*f,b=t.y+Math.sin(g)*f,e.lineTo(w,b),g+=x;else e.moveTo(Math.floor(t.x),Math.floor(t.y)),e.lineTo(Math.floor(t.wobbleX),Math.floor(s)),e.lineTo(Math.floor(i),Math.floor(n)),e.lineTo(Math.floor(r),Math.floor(t.wobbleY));return e.closePath(),e.fill(),t.tick<t.totalTicks}function O(e,o){var a,n=!e,d=!!T(o||{},"resize"),l=!1,h=T(o,"disableForReducedMotion",Boolean),p=i&&!!T(o||{},"useWorker")?k():null,u=n?D:E,_=!(!e||!p)&&!!e.__confetti_initialized,g="function"==typeof matchMedia&&matchMedia("(prefers-reduced-motion)").matches;function f(t,o,i){for(var n=T(t,"particleCount",C),d=T(t,"angle",Number),l=T(t,"spread",Number),h=T(t,"startVelocity",Number),p=T(t,"decay",Number),_=T(t,"gravity",Number),g=T(t,"drift",Number),f=T(t,"colors",R),m=T(t,"ticks",Number),w=T(t,"shapes"),b=T(t,"scalar"),v=!!T(t,"flat"),k=function(e){var t=T(e,"origin",Object);return t.x=T(t,"x",Number),t.y=T(t,"y",Number),t}(t),$=n,S=[],M=e.width*k.x,D=e.height*k.y;$--;)S.push(P({x:M,y:D,angle:d,spread:l,startVelocity:h,color:f[$%f.length],shape:w[A(0,w.length)],ticks:m,decay:p,gravity:_,drift:g,scalar:b,flat:v}));return a?a.addFettis(S):(a=function(e,t,o,i,a){var n,d,l=t.slice(),h=e.getContext("2d"),p=c(function(t){function c(){n=d=null,h.clearRect(0,0,i.width,i.height),y.clear(),a(),t()}n=x.frame(function t(){!r||i.width===s.width&&i.height===s.height||(i.width=e.width=s.width,i.height=e.height=s.height),i.width||i.height||(o(e),i.width=e.width,i.height=e.height),h.clearRect(0,0,i.width,i.height),(l=l.filter(function(e){return z(h,e)})).length?n=x.frame(t):c()}),d=c});return{addFettis:function(e){return l=l.concat(e),p},canvas:e,promise:p,reset:function(){n&&x.cancel(n),d&&d()}}}(e,S,u,o,i),a.promise)}function m(o){var r=h||T(o,"disableForReducedMotion",Boolean),s=T(o,"zIndex",Number);if(r&&g)return c(function(e){e()});n&&a?e=a.canvas:n&&!e&&(e=function(e){var t=document.createElement("canvas");return t.style.position="fixed",t.style.top="0px",t.style.left="0px",t.style.pointerEvents="none",t.style.zIndex=e,t}(s),document.body.appendChild(e)),d&&!_&&u(e);var i={width:e.width,height:e.height};function m(){if(p){var t={getBoundingClientRect:function(){if(!n)return e.getBoundingClientRect()}};return u(t),void p.postMessage({resize:{width:t.width,height:t.height}})}i.width=i.height=null}function w(){a=null,d&&(l=!1,t.removeEventListener("resize",m)),n&&e&&(document.body.contains(e)&&document.body.removeChild(e),e=null,_=!1)}return p&&!_&&p.init(e),_=!0,p&&(e.__confetti_initialized=!0),d&&!l&&(l=!0,t.addEventListener("resize",m,!1)),p?p.fire(o,i,w):f(o,i,w)}return m.reset=function(){p&&p.reset(),a&&a.reset()},m}function I(){return v||(v=O(null,{useWorker:!0,resize:!0})),v}o.exports=function(){return I().apply(this,arguments)},o.exports.reset=function(){I().reset()},o.exports.create=O,o.exports.shapeFromPath=function(e){if(!a)throw new Error("path confetti are not supported in this browser");var t,o;"string"==typeof e?t=e:(t=e.path,o=e.matrix);var r=new Path2D(t),s=document.createElement("canvas").getContext("2d");if(!o){for(var i,n,d=1e3,c=d,l=d,h=0,p=0,u=0;u<d;u+=2)for(var _=0;_<d;_+=2)s.isPointInPath(r,u,_,"nonzero")&&(c=Math.min(c,u),l=Math.min(l,_),h=Math.max(h,u),p=Math.max(p,_));i=h-c,n=p-l;var g=Math.min(10/i,10/n);o=[g,0,0,g,-Math.round(i/2+c)*g,-Math.round(n/2+l)*g]}return{type:"path",path:t,matrix:o}},o.exports.shapeFromText=function(e){var t,o=1,r="#000000",s='"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", "Twemoji Mozilla", "system emoji", sans-serif';"string"==typeof e?t=e:(t=e.text,o="scalar"in e?e.scalar:o,s="fontFamily"in e?e.fontFamily:s,r="color"in e?e.color:r);var i=10*o,a=i+"px "+s,n=new OffscreenCanvas(i,i),d=n.getContext("2d");d.font=a;var c=d.measureText(t),l=Math.ceil(c.actualBoundingBoxRight+c.actualBoundingBoxLeft),h=Math.ceil(c.actualBoundingBoxAscent+c.actualBoundingBoxDescent),p=c.actualBoundingBoxLeft+2,u=c.actualBoundingBoxAscent+2;l+=4,h+=4,(d=(n=new OffscreenCanvas(l,h)).getContext("2d")).font=a,d.fillStyle=r,d.fillText(t,p,u);var _=1/o;return{type:"bitmap",bitmap:n.transferToImageBitmap(),matrix:[_,0,0,_,-l*_/2,-h*_/2]}}}(function(){return"undefined"!=typeof window?window:"undefined"!=typeof self?self:this||{}}(),Pe,!1);var ze=Pe.exports;function Oe(e){const t=De(e);return[t.lighter,t.light,t.base,t.dark,t.darker]}function Ie(e,t){ze({particleCount:30,spread:70,startVelocity:25,origin:e,colors:t,disableForReducedMotion:!0})}function Fe(e,t=3e3){const o=Date.now()+t,r={startVelocity:30,spread:360,ticks:60,zIndex:0};function s(e,t){return Math.random()*(t-e)+e}const i=setInterval(function(){const a=o-Date.now();if(a<=0)return clearInterval(i);const n=a/t*50;ze({...r,particleCount:n,origin:{x:s(.1,.3),y:Math.random()-.2},colors:e,disableForReducedMotion:!0}),ze({...r,particleCount:n,origin:{x:s(.7,.9),y:Math.random()-.2},colors:e,disableForReducedMotion:!0})},250)}function Be(e,t=5e3){const o=Date.now()+t;function r(e,t){return Math.random()*(t-e)+e}!function s(){const i=o-Date.now(),a=Math.max(200,i/t*500);ze({particleCount:1,startVelocity:0,ticks:a,origin:{x:Math.random(),y:.3*Math.random()-.1},colors:e,shapes:["star"],gravity:r(1.2,1.5),scalar:r(1.2,2),drift:r(-.4,.4),disableForReducedMotion:!0}),i>0&&requestAnimationFrame(s)}()}function Ue(e,t,o,r,s,i){if(!s||!e.points_value)return L``;const a=Te(r);if(e.parent_uid){const o=t.find(t=>t.uid===e.parent_uid);if(o&&o.streak_bonus_points&&o.streak_bonus_interval){if((o.streak_current+1)%o.streak_bonus_interval===0)return L`<span
+  `;
+}
+
+// ============================================================================
+// Color Utilities for ChoreBot Cards
+// ============================================================================
+/**
+ * Adjust color lightness in HSL color space
+ * Handles hex, rgb, rgba, and CSS variable formats
+ *
+ * @param color - Base color (hex, rgb, or CSS variable like var(--primary-color))
+ * @param percent - Percentage to adjust (-100 to 100, negative = darker, positive = lighter)
+ * @returns Adjusted color in hex format without # prefix (for canvas-confetti compatibility)
+ */
+function adjustColorLightness(color, percent) {
+    // For CSS variables, resolve the computed value
+    if (color.startsWith("var(")) {
+        const resolvedColor = getComputedStyle(document.documentElement).getPropertyValue(color.slice(4, -1).trim());
+        if (resolvedColor) {
+            color = resolvedColor.trim();
+        }
+        else {
+            // Fallback if variable can't be resolved
+            return color;
+        }
+    }
+    // Convert hex to rgb
+    let r, g, b;
+    if (color.startsWith("#")) {
+        const hex = color.replace("#", "");
+        r = parseInt(hex.substring(0, 2), 16);
+        g = parseInt(hex.substring(2, 4), 16);
+        b = parseInt(hex.substring(4, 6), 16);
+    }
+    else if (color.startsWith("rgb")) {
+        const match = color.match(/\d+/g);
+        if (!match)
+            return color;
+        [r, g, b] = match.map(Number);
+    }
+    else {
+        return color;
+    }
+    // Convert RGB to HSL
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r:
+                h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+                break;
+            case g:
+                h = ((b - r) / d + 2) / 6;
+                break;
+            case b:
+                h = ((r - g) / d + 4) / 6;
+                break;
+        }
+    }
+    // Adjust lightness
+    if (percent > 0) {
+        // Lighten: increase lightness but cap to avoid pure white
+        l = Math.max(0, Math.min(0.95, l + (percent / 100) * (1 - l)));
+    }
+    else {
+        // Darken: decrease lightness proportionally
+        l = Math.max(0.05, l + (percent / 100) * l);
+    }
+    // Convert HSL back to RGB
+    const hue2rgb = (p, q, t) => {
+        if (t < 0)
+            t += 1;
+        if (t > 1)
+            t -= 1;
+        if (t < 1 / 6)
+            return p + (q - p) * 6 * t;
+        if (t < 1 / 2)
+            return q;
+        if (t < 2 / 3)
+            return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+    };
+    let r2, g2, b2;
+    if (s === 0) {
+        r2 = g2 = b2 = l;
+    }
+    else {
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r2 = hue2rgb(p, q, h + 1 / 3);
+        g2 = hue2rgb(p, q, h);
+        b2 = hue2rgb(p, q, h - 1 / 3);
+    }
+    // Convert to hex format without # prefix (canvas-confetti expects this format)
+    const toHex = (c) => {
+        const hex = Math.round(c * 255).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+    };
+    return `${toHex(r2)}${toHex(g2)}${toHex(b2)}`.toUpperCase();
+}
+/**
+ * Convert any color format to hex without # prefix
+ * Used for canvas-confetti which expects hex colors without the # prefix
+ *
+ * @param color - Color in any format (hex, rgb, or CSS variable)
+ * @returns Hex color without # prefix (format: 'RRGGBB')
+ */
+function toHexWithoutPrefix(color) {
+    // If already hex with #, remove it
+    if (color.startsWith("#")) {
+        return color.substring(1).toUpperCase();
+    }
+    // If it's already a hex without #, return as-is
+    if (/^[0-9A-Fa-f]{6}$/.test(color)) {
+        return color.toUpperCase();
+    }
+    // Otherwise it's rgb() or a CSS variable, adjustColorLightness will handle it
+    // and return hex without prefix
+    return adjustColorLightness(color, 0);
+}
+/**
+ * Calculate all 5 color shades from a base color
+ *
+ * @param baseColor - Base color (hex, rgb, or CSS variable)
+ * @returns Object with 5 color shades in hex format without # prefix
+ */
+function calculateColorShades(baseColor) {
+    return {
+        lighter: adjustColorLightness(baseColor, 30),
+        light: adjustColorLightness(baseColor, 15),
+        base: toHexWithoutPrefix(baseColor),
+        dark: adjustColorLightness(baseColor, -15),
+        darker: adjustColorLightness(baseColor, -30),
+    };
+}
+/**
+ * Resolve accent color with precedence: config > person profile > theme default
+ * This ensures consistent color inheritance across all ChoreBot cards
+ *
+ * @param hass - Home Assistant instance
+ * @param configAccentColor - Optional accent color from card config
+ * @param personEntityId - Optional person entity ID to check for profile color
+ * @returns Resolved accent color (hex, rgb, or CSS variable)
+ */
+function resolveAccentColor(hass, configAccentColor, personEntityId) {
+    // Precedence: Manual config > Person profile > Theme default
+    let baseColor = "var(--primary-color)"; // Default fallback
+    // Check for centralized person color from sensor
+    if (personEntityId) {
+        const sensor = hass.states["sensor.chorebot_points"];
+        const people = sensor?.attributes.people || {};
+        const personProfile = people[personEntityId];
+        if (personProfile?.accent_color) {
+            baseColor = personProfile.accent_color;
+        }
+    }
+    // Manual config overrides everything
+    if (configAccentColor) {
+        baseColor = configAccentColor;
+    }
+    return baseColor;
+}
+
+// canvas-confetti v1.9.4 built on 2025-10-25T05:14:56.640Z
+var module$1 = {};
+
+// source content
+/* globals Map */
+
+(function main(global, module, isWorker, workerSize) {
+  var canUseWorker = !!(
+    global.Worker &&
+    global.Blob &&
+    global.Promise &&
+    global.OffscreenCanvas &&
+    global.OffscreenCanvasRenderingContext2D &&
+    global.HTMLCanvasElement &&
+    global.HTMLCanvasElement.prototype.transferControlToOffscreen &&
+    global.URL &&
+    global.URL.createObjectURL);
+
+  var canUsePaths = typeof Path2D === 'function' && typeof DOMMatrix === 'function';
+  var canDrawBitmap = (function () {
+    // this mostly supports ssr
+    if (!global.OffscreenCanvas) {
+      return false;
+    }
+
+    try {
+      var canvas = new OffscreenCanvas(1, 1);
+      var ctx = canvas.getContext('2d');
+      ctx.fillRect(0, 0, 1, 1);
+      var bitmap = canvas.transferToImageBitmap();
+      ctx.createPattern(bitmap, 'no-repeat');
+    } catch (e) {
+      return false;
+    }
+
+    return true;
+  })();
+
+  function noop() {}
+
+  // create a promise if it exists, otherwise, just
+  // call the function directly
+  function promise(func) {
+    var ModulePromise = module.exports.Promise;
+    var Prom = ModulePromise !== void 0 ? ModulePromise : global.Promise;
+
+    if (typeof Prom === 'function') {
+      return new Prom(func);
+    }
+
+    func(noop, noop);
+
+    return null;
+  }
+
+  var bitmapMapper = (function (skipTransform, map) {
+    // see https://github.com/catdad/canvas-confetti/issues/209
+    // creating canvases is actually pretty expensive, so we should create a
+    // 1:1 map for bitmap:canvas, so that we can animate the confetti in
+    // a performant manner, but also not store them forever so that we don't
+    // have a memory leak
+    return {
+      transform: function(bitmap) {
+        if (skipTransform) {
+          return bitmap;
+        }
+
+        if (map.has(bitmap)) {
+          return map.get(bitmap);
+        }
+
+        var canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(bitmap, 0, 0);
+
+        map.set(bitmap, canvas);
+
+        return canvas;
+      },
+      clear: function () {
+        map.clear();
+      }
+    };
+  })(canDrawBitmap, new Map());
+
+  var raf = (function () {
+    var TIME = Math.floor(1000 / 60);
+    var frame, cancel;
+    var frames = {};
+    var lastFrameTime = 0;
+
+    if (typeof requestAnimationFrame === 'function' && typeof cancelAnimationFrame === 'function') {
+      frame = function (cb) {
+        var id = Math.random();
+
+        frames[id] = requestAnimationFrame(function onFrame(time) {
+          if (lastFrameTime === time || lastFrameTime + TIME - 1 < time) {
+            lastFrameTime = time;
+            delete frames[id];
+
+            cb();
+          } else {
+            frames[id] = requestAnimationFrame(onFrame);
+          }
+        });
+
+        return id;
+      };
+      cancel = function (id) {
+        if (frames[id]) {
+          cancelAnimationFrame(frames[id]);
+        }
+      };
+    } else {
+      frame = function (cb) {
+        return setTimeout(cb, TIME);
+      };
+      cancel = function (timer) {
+        return clearTimeout(timer);
+      };
+    }
+
+    return { frame: frame, cancel: cancel };
+  }());
+
+  var getWorker = (function () {
+    var worker;
+    var prom;
+    var resolves = {};
+
+    function decorate(worker) {
+      function execute(options, callback) {
+        worker.postMessage({ options: options || {}, callback: callback });
+      }
+      worker.init = function initWorker(canvas) {
+        var offscreen = canvas.transferControlToOffscreen();
+        worker.postMessage({ canvas: offscreen }, [offscreen]);
+      };
+
+      worker.fire = function fireWorker(options, size, done) {
+        if (prom) {
+          execute(options, null);
+          return prom;
+        }
+
+        var id = Math.random().toString(36).slice(2);
+
+        prom = promise(function (resolve) {
+          function workerDone(msg) {
+            if (msg.data.callback !== id) {
+              return;
+            }
+
+            delete resolves[id];
+            worker.removeEventListener('message', workerDone);
+
+            prom = null;
+
+            bitmapMapper.clear();
+
+            done();
+            resolve();
+          }
+
+          worker.addEventListener('message', workerDone);
+          execute(options, id);
+
+          resolves[id] = workerDone.bind(null, { data: { callback: id }});
+        });
+
+        return prom;
+      };
+
+      worker.reset = function resetWorker() {
+        worker.postMessage({ reset: true });
+
+        for (var id in resolves) {
+          resolves[id]();
+          delete resolves[id];
+        }
+      };
+    }
+
+    return function () {
+      if (worker) {
+        return worker;
+      }
+
+      if (!isWorker && canUseWorker) {
+        var code = [
+          'var CONFETTI, SIZE = {}, module = {};',
+          '(' + main.toString() + ')(this, module, true, SIZE);',
+          'onmessage = function(msg) {',
+          '  if (msg.data.options) {',
+          '    CONFETTI(msg.data.options).then(function () {',
+          '      if (msg.data.callback) {',
+          '        postMessage({ callback: msg.data.callback });',
+          '      }',
+          '    });',
+          '  } else if (msg.data.reset) {',
+          '    CONFETTI && CONFETTI.reset();',
+          '  } else if (msg.data.resize) {',
+          '    SIZE.width = msg.data.resize.width;',
+          '    SIZE.height = msg.data.resize.height;',
+          '  } else if (msg.data.canvas) {',
+          '    SIZE.width = msg.data.canvas.width;',
+          '    SIZE.height = msg.data.canvas.height;',
+          '    CONFETTI = module.exports.create(msg.data.canvas);',
+          '  }',
+          '}',
+        ].join('\n');
+        try {
+          worker = new Worker(URL.createObjectURL(new Blob([code])));
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          typeof console !== 'undefined' && typeof console.warn === 'function' ? console.warn('🎊 Could not load worker', e) : null;
+
+          return null;
+        }
+
+        decorate(worker);
+      }
+
+      return worker;
+    };
+  })();
+
+  var defaults = {
+    particleCount: 50,
+    angle: 90,
+    spread: 45,
+    startVelocity: 45,
+    decay: 0.9,
+    gravity: 1,
+    drift: 0,
+    ticks: 200,
+    x: 0.5,
+    y: 0.5,
+    shapes: ['square', 'circle'],
+    zIndex: 100,
+    colors: [
+      '#26ccff',
+      '#a25afd',
+      '#ff5e7e',
+      '#88ff5a',
+      '#fcff42',
+      '#ffa62d',
+      '#ff36ff'
+    ],
+    // probably should be true, but back-compat
+    disableForReducedMotion: false,
+    scalar: 1
+  };
+
+  function convert(val, transform) {
+    return transform ? transform(val) : val;
+  }
+
+  function isOk(val) {
+    return !(val === null || val === undefined);
+  }
+
+  function prop(options, name, transform) {
+    return convert(
+      options && isOk(options[name]) ? options[name] : defaults[name],
+      transform
+    );
+  }
+
+  function onlyPositiveInt(number){
+    return number < 0 ? 0 : Math.floor(number);
+  }
+
+  function randomInt(min, max) {
+    // [min, max)
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+
+  function toDecimal(str) {
+    return parseInt(str, 16);
+  }
+
+  function colorsToRgb(colors) {
+    return colors.map(hexToRgb);
+  }
+
+  function hexToRgb(str) {
+    var val = String(str).replace(/[^0-9a-f]/gi, '');
+
+    if (val.length < 6) {
+        val = val[0]+val[0]+val[1]+val[1]+val[2]+val[2];
+    }
+
+    return {
+      r: toDecimal(val.substring(0,2)),
+      g: toDecimal(val.substring(2,4)),
+      b: toDecimal(val.substring(4,6))
+    };
+  }
+
+  function getOrigin(options) {
+    var origin = prop(options, 'origin', Object);
+    origin.x = prop(origin, 'x', Number);
+    origin.y = prop(origin, 'y', Number);
+
+    return origin;
+  }
+
+  function setCanvasWindowSize(canvas) {
+    canvas.width = document.documentElement.clientWidth;
+    canvas.height = document.documentElement.clientHeight;
+  }
+
+  function setCanvasRectSize(canvas) {
+    var rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+  }
+
+  function getCanvas(zIndex) {
+    var canvas = document.createElement('canvas');
+
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0px';
+    canvas.style.left = '0px';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = zIndex;
+
+    return canvas;
+  }
+
+  function ellipse(context, x, y, radiusX, radiusY, rotation, startAngle, endAngle, antiClockwise) {
+    context.save();
+    context.translate(x, y);
+    context.rotate(rotation);
+    context.scale(radiusX, radiusY);
+    context.arc(0, 0, 1, startAngle, endAngle, antiClockwise);
+    context.restore();
+  }
+
+  function randomPhysics(opts) {
+    var radAngle = opts.angle * (Math.PI / 180);
+    var radSpread = opts.spread * (Math.PI / 180);
+
+    return {
+      x: opts.x,
+      y: opts.y,
+      wobble: Math.random() * 10,
+      wobbleSpeed: Math.min(0.11, Math.random() * 0.1 + 0.05),
+      velocity: (opts.startVelocity * 0.5) + (Math.random() * opts.startVelocity),
+      angle2D: -radAngle + ((0.5 * radSpread) - (Math.random() * radSpread)),
+      tiltAngle: (Math.random() * (0.75 - 0.25) + 0.25) * Math.PI,
+      color: opts.color,
+      shape: opts.shape,
+      tick: 0,
+      totalTicks: opts.ticks,
+      decay: opts.decay,
+      drift: opts.drift,
+      random: Math.random() + 2,
+      tiltSin: 0,
+      tiltCos: 0,
+      wobbleX: 0,
+      wobbleY: 0,
+      gravity: opts.gravity * 3,
+      ovalScalar: 0.6,
+      scalar: opts.scalar,
+      flat: opts.flat
+    };
+  }
+
+  function updateFetti(context, fetti) {
+    fetti.x += Math.cos(fetti.angle2D) * fetti.velocity + fetti.drift;
+    fetti.y += Math.sin(fetti.angle2D) * fetti.velocity + fetti.gravity;
+    fetti.velocity *= fetti.decay;
+
+    if (fetti.flat) {
+      fetti.wobble = 0;
+      fetti.wobbleX = fetti.x + (10 * fetti.scalar);
+      fetti.wobbleY = fetti.y + (10 * fetti.scalar);
+
+      fetti.tiltSin = 0;
+      fetti.tiltCos = 0;
+      fetti.random = 1;
+    } else {
+      fetti.wobble += fetti.wobbleSpeed;
+      fetti.wobbleX = fetti.x + ((10 * fetti.scalar) * Math.cos(fetti.wobble));
+      fetti.wobbleY = fetti.y + ((10 * fetti.scalar) * Math.sin(fetti.wobble));
+
+      fetti.tiltAngle += 0.1;
+      fetti.tiltSin = Math.sin(fetti.tiltAngle);
+      fetti.tiltCos = Math.cos(fetti.tiltAngle);
+      fetti.random = Math.random() + 2;
+    }
+
+    var progress = (fetti.tick++) / fetti.totalTicks;
+
+    var x1 = fetti.x + (fetti.random * fetti.tiltCos);
+    var y1 = fetti.y + (fetti.random * fetti.tiltSin);
+    var x2 = fetti.wobbleX + (fetti.random * fetti.tiltCos);
+    var y2 = fetti.wobbleY + (fetti.random * fetti.tiltSin);
+
+    context.fillStyle = 'rgba(' + fetti.color.r + ', ' + fetti.color.g + ', ' + fetti.color.b + ', ' + (1 - progress) + ')';
+
+    context.beginPath();
+
+    if (canUsePaths && fetti.shape.type === 'path' && typeof fetti.shape.path === 'string' && Array.isArray(fetti.shape.matrix)) {
+      context.fill(transformPath2D(
+        fetti.shape.path,
+        fetti.shape.matrix,
+        fetti.x,
+        fetti.y,
+        Math.abs(x2 - x1) * 0.1,
+        Math.abs(y2 - y1) * 0.1,
+        Math.PI / 10 * fetti.wobble
+      ));
+    } else if (fetti.shape.type === 'bitmap') {
+      var rotation = Math.PI / 10 * fetti.wobble;
+      var scaleX = Math.abs(x2 - x1) * 0.1;
+      var scaleY = Math.abs(y2 - y1) * 0.1;
+      var width = fetti.shape.bitmap.width * fetti.scalar;
+      var height = fetti.shape.bitmap.height * fetti.scalar;
+
+      var matrix = new DOMMatrix([
+        Math.cos(rotation) * scaleX,
+        Math.sin(rotation) * scaleX,
+        -Math.sin(rotation) * scaleY,
+        Math.cos(rotation) * scaleY,
+        fetti.x,
+        fetti.y
+      ]);
+
+      // apply the transform matrix from the confetti shape
+      matrix.multiplySelf(new DOMMatrix(fetti.shape.matrix));
+
+      var pattern = context.createPattern(bitmapMapper.transform(fetti.shape.bitmap), 'no-repeat');
+      pattern.setTransform(matrix);
+
+      context.globalAlpha = (1 - progress);
+      context.fillStyle = pattern;
+      context.fillRect(
+        fetti.x - (width / 2),
+        fetti.y - (height / 2),
+        width,
+        height
+      );
+      context.globalAlpha = 1;
+    } else if (fetti.shape === 'circle') {
+      context.ellipse ?
+        context.ellipse(fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI) :
+        ellipse(context, fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI);
+    } else if (fetti.shape === 'star') {
+      var rot = Math.PI / 2 * 3;
+      var innerRadius = 4 * fetti.scalar;
+      var outerRadius = 8 * fetti.scalar;
+      var x = fetti.x;
+      var y = fetti.y;
+      var spikes = 5;
+      var step = Math.PI / spikes;
+
+      while (spikes--) {
+        x = fetti.x + Math.cos(rot) * outerRadius;
+        y = fetti.y + Math.sin(rot) * outerRadius;
+        context.lineTo(x, y);
+        rot += step;
+
+        x = fetti.x + Math.cos(rot) * innerRadius;
+        y = fetti.y + Math.sin(rot) * innerRadius;
+        context.lineTo(x, y);
+        rot += step;
+      }
+    } else {
+      context.moveTo(Math.floor(fetti.x), Math.floor(fetti.y));
+      context.lineTo(Math.floor(fetti.wobbleX), Math.floor(y1));
+      context.lineTo(Math.floor(x2), Math.floor(y2));
+      context.lineTo(Math.floor(x1), Math.floor(fetti.wobbleY));
+    }
+
+    context.closePath();
+    context.fill();
+
+    return fetti.tick < fetti.totalTicks;
+  }
+
+  function animate(canvas, fettis, resizer, size, done) {
+    var animatingFettis = fettis.slice();
+    var context = canvas.getContext('2d');
+    var animationFrame;
+    var destroy;
+
+    var prom = promise(function (resolve) {
+      function onDone() {
+        animationFrame = destroy = null;
+
+        context.clearRect(0, 0, size.width, size.height);
+        bitmapMapper.clear();
+
+        done();
+        resolve();
+      }
+
+      function update() {
+        if (isWorker && !(size.width === workerSize.width && size.height === workerSize.height)) {
+          size.width = canvas.width = workerSize.width;
+          size.height = canvas.height = workerSize.height;
+        }
+
+        if (!size.width && !size.height) {
+          resizer(canvas);
+          size.width = canvas.width;
+          size.height = canvas.height;
+        }
+
+        context.clearRect(0, 0, size.width, size.height);
+
+        animatingFettis = animatingFettis.filter(function (fetti) {
+          return updateFetti(context, fetti);
+        });
+
+        if (animatingFettis.length) {
+          animationFrame = raf.frame(update);
+        } else {
+          onDone();
+        }
+      }
+
+      animationFrame = raf.frame(update);
+      destroy = onDone;
+    });
+
+    return {
+      addFettis: function (fettis) {
+        animatingFettis = animatingFettis.concat(fettis);
+
+        return prom;
+      },
+      canvas: canvas,
+      promise: prom,
+      reset: function () {
+        if (animationFrame) {
+          raf.cancel(animationFrame);
+        }
+
+        if (destroy) {
+          destroy();
+        }
+      }
+    };
+  }
+
+  function confettiCannon(canvas, globalOpts) {
+    var isLibCanvas = !canvas;
+    var allowResize = !!prop(globalOpts || {}, 'resize');
+    var hasResizeEventRegistered = false;
+    var globalDisableForReducedMotion = prop(globalOpts, 'disableForReducedMotion', Boolean);
+    var shouldUseWorker = canUseWorker && !!prop(globalOpts || {}, 'useWorker');
+    var worker = shouldUseWorker ? getWorker() : null;
+    var resizer = isLibCanvas ? setCanvasWindowSize : setCanvasRectSize;
+    var initialized = (canvas && worker) ? !!canvas.__confetti_initialized : false;
+    var preferLessMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion)').matches;
+    var animationObj;
+
+    function fireLocal(options, size, done) {
+      var particleCount = prop(options, 'particleCount', onlyPositiveInt);
+      var angle = prop(options, 'angle', Number);
+      var spread = prop(options, 'spread', Number);
+      var startVelocity = prop(options, 'startVelocity', Number);
+      var decay = prop(options, 'decay', Number);
+      var gravity = prop(options, 'gravity', Number);
+      var drift = prop(options, 'drift', Number);
+      var colors = prop(options, 'colors', colorsToRgb);
+      var ticks = prop(options, 'ticks', Number);
+      var shapes = prop(options, 'shapes');
+      var scalar = prop(options, 'scalar');
+      var flat = !!prop(options, 'flat');
+      var origin = getOrigin(options);
+
+      var temp = particleCount;
+      var fettis = [];
+
+      var startX = canvas.width * origin.x;
+      var startY = canvas.height * origin.y;
+
+      while (temp--) {
+        fettis.push(
+          randomPhysics({
+            x: startX,
+            y: startY,
+            angle: angle,
+            spread: spread,
+            startVelocity: startVelocity,
+            color: colors[temp % colors.length],
+            shape: shapes[randomInt(0, shapes.length)],
+            ticks: ticks,
+            decay: decay,
+            gravity: gravity,
+            drift: drift,
+            scalar: scalar,
+            flat: flat
+          })
+        );
+      }
+
+      // if we have a previous canvas already animating,
+      // add to it
+      if (animationObj) {
+        return animationObj.addFettis(fettis);
+      }
+
+      animationObj = animate(canvas, fettis, resizer, size , done);
+
+      return animationObj.promise;
+    }
+
+    function fire(options) {
+      var disableForReducedMotion = globalDisableForReducedMotion || prop(options, 'disableForReducedMotion', Boolean);
+      var zIndex = prop(options, 'zIndex', Number);
+
+      if (disableForReducedMotion && preferLessMotion) {
+        return promise(function (resolve) {
+          resolve();
+        });
+      }
+
+      if (isLibCanvas && animationObj) {
+        // use existing canvas from in-progress animation
+        canvas = animationObj.canvas;
+      } else if (isLibCanvas && !canvas) {
+        // create and initialize a new canvas
+        canvas = getCanvas(zIndex);
+        document.body.appendChild(canvas);
+      }
+
+      if (allowResize && !initialized) {
+        // initialize the size of a user-supplied canvas
+        resizer(canvas);
+      }
+
+      var size = {
+        width: canvas.width,
+        height: canvas.height
+      };
+
+      if (worker && !initialized) {
+        worker.init(canvas);
+      }
+
+      initialized = true;
+
+      if (worker) {
+        canvas.__confetti_initialized = true;
+      }
+
+      function onResize() {
+        if (worker) {
+          // TODO this really shouldn't be immediate, because it is expensive
+          var obj = {
+            getBoundingClientRect: function () {
+              if (!isLibCanvas) {
+                return canvas.getBoundingClientRect();
+              }
+            }
+          };
+
+          resizer(obj);
+
+          worker.postMessage({
+            resize: {
+              width: obj.width,
+              height: obj.height
+            }
+          });
+          return;
+        }
+
+        // don't actually query the size here, since this
+        // can execute frequently and rapidly
+        size.width = size.height = null;
+      }
+
+      function done() {
+        animationObj = null;
+
+        if (allowResize) {
+          hasResizeEventRegistered = false;
+          global.removeEventListener('resize', onResize);
+        }
+
+        if (isLibCanvas && canvas) {
+          if (document.body.contains(canvas)) {
+            document.body.removeChild(canvas);
+          }
+          canvas = null;
+          initialized = false;
+        }
+      }
+
+      if (allowResize && !hasResizeEventRegistered) {
+        hasResizeEventRegistered = true;
+        global.addEventListener('resize', onResize, false);
+      }
+
+      if (worker) {
+        return worker.fire(options, size, done);
+      }
+
+      return fireLocal(options, size, done);
+    }
+
+    fire.reset = function () {
+      if (worker) {
+        worker.reset();
+      }
+
+      if (animationObj) {
+        animationObj.reset();
+      }
+    };
+
+    return fire;
+  }
+
+  // Make default export lazy to defer worker creation until called.
+  var defaultFire;
+  function getDefaultFire() {
+    if (!defaultFire) {
+      defaultFire = confettiCannon(null, { useWorker: true, resize: true });
+    }
+    return defaultFire;
+  }
+
+  function transformPath2D(pathString, pathMatrix, x, y, scaleX, scaleY, rotation) {
+    var path2d = new Path2D(pathString);
+
+    var t1 = new Path2D();
+    t1.addPath(path2d, new DOMMatrix(pathMatrix));
+
+    var t2 = new Path2D();
+    // see https://developer.mozilla.org/en-US/docs/Web/API/DOMMatrix/DOMMatrix
+    t2.addPath(t1, new DOMMatrix([
+      Math.cos(rotation) * scaleX,
+      Math.sin(rotation) * scaleX,
+      -Math.sin(rotation) * scaleY,
+      Math.cos(rotation) * scaleY,
+      x,
+      y
+    ]));
+
+    return t2;
+  }
+
+  function shapeFromPath(pathData) {
+    if (!canUsePaths) {
+      throw new Error('path confetti are not supported in this browser');
+    }
+
+    var path, matrix;
+
+    if (typeof pathData === 'string') {
+      path = pathData;
+    } else {
+      path = pathData.path;
+      matrix = pathData.matrix;
+    }
+
+    var path2d = new Path2D(path);
+    var tempCanvas = document.createElement('canvas');
+    var tempCtx = tempCanvas.getContext('2d');
+
+    if (!matrix) {
+      // attempt to figure out the width of the path, up to 1000x1000
+      var maxSize = 1000;
+      var minX = maxSize;
+      var minY = maxSize;
+      var maxX = 0;
+      var maxY = 0;
+      var width, height;
+
+      // do some line skipping... this is faster than checking
+      // every pixel and will be mostly still correct
+      for (var x = 0; x < maxSize; x += 2) {
+        for (var y = 0; y < maxSize; y += 2) {
+          if (tempCtx.isPointInPath(path2d, x, y, 'nonzero')) {
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+          }
+        }
+      }
+
+      width = maxX - minX;
+      height = maxY - minY;
+
+      var maxDesiredSize = 10;
+      var scale = Math.min(maxDesiredSize/width, maxDesiredSize/height);
+
+      matrix = [
+        scale, 0, 0, scale,
+        -Math.round((width/2) + minX) * scale,
+        -Math.round((height/2) + minY) * scale
+      ];
+    }
+
+    return {
+      type: 'path',
+      path: path,
+      matrix: matrix
+    };
+  }
+
+  function shapeFromText(textData) {
+    var text,
+        scalar = 1,
+        color = '#000000',
+        // see https://nolanlawson.com/2022/04/08/the-struggle-of-using-native-emoji-on-the-web/
+        fontFamily = '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", "Twemoji Mozilla", "system emoji", sans-serif';
+
+    if (typeof textData === 'string') {
+      text = textData;
+    } else {
+      text = textData.text;
+      scalar = 'scalar' in textData ? textData.scalar : scalar;
+      fontFamily = 'fontFamily' in textData ? textData.fontFamily : fontFamily;
+      color = 'color' in textData ? textData.color : color;
+    }
+
+    // all other confetti are 10 pixels,
+    // so this pixel size is the de-facto 100% scale confetti
+    var fontSize = 10 * scalar;
+    var font = '' + fontSize + 'px ' + fontFamily;
+
+    var canvas = new OffscreenCanvas(fontSize, fontSize);
+    var ctx = canvas.getContext('2d');
+
+    ctx.font = font;
+    var size = ctx.measureText(text);
+    var width = Math.ceil(size.actualBoundingBoxRight + size.actualBoundingBoxLeft);
+    var height = Math.ceil(size.actualBoundingBoxAscent + size.actualBoundingBoxDescent);
+
+    var padding = 2;
+    var x = size.actualBoundingBoxLeft + padding;
+    var y = size.actualBoundingBoxAscent + padding;
+    width += padding + padding;
+    height += padding + padding;
+
+    canvas = new OffscreenCanvas(width, height);
+    ctx = canvas.getContext('2d');
+    ctx.font = font;
+    ctx.fillStyle = color;
+
+    ctx.fillText(text, x, y);
+
+    var scale = 1 / scalar;
+
+    return {
+      type: 'bitmap',
+      // TODO these probably need to be transfered for workers
+      bitmap: canvas.transferToImageBitmap(),
+      matrix: [scale, 0, 0, scale, -width * scale / 2, -height * scale / 2]
+    };
+  }
+
+  module.exports = function() {
+    return getDefaultFire().apply(this, arguments);
+  };
+  module.exports.reset = function() {
+    getDefaultFire().reset();
+  };
+  module.exports.create = confettiCannon;
+  module.exports.shapeFromPath = shapeFromPath;
+  module.exports.shapeFromText = shapeFromText;
+}((function () {
+  if (typeof window !== 'undefined') {
+    return window;
+  }
+
+  if (typeof self !== 'undefined') {
+    return self;
+  }
+
+  return this || {};
+})(), module$1, false));
+
+// end source content
+
+var confetti = module$1.exports;
+module$1.exports.create;
+
+// ============================================================================
+// Confetti Utility Functions for ChoreBot Cards
+// ============================================================================
+/**
+ * Extract color variants (lighter and darker shades) from a base color
+ * Returns array of 5 colors compatible with canvas-confetti
+ *
+ * @param baseColor - Base color (hex, rgb, or CSS variable)
+ * @returns Array of 5 hex color strings without # prefix (format: 'RRGGBB')
+ */
+function extractColorVariants(baseColor) {
+    const shades = calculateColorShades(baseColor);
+    return [
+        shades.lighter,
+        shades.light,
+        shades.base,
+        shades.dark,
+        shades.darker,
+    ];
+}
+/**
+ * Play a small burst of confetti from a specific origin point (task completion)
+ * @param origin - Origin point {x: 0-1, y: 0-1} relative to viewport
+ * @param colors - Array of color strings to use for confetti
+ */
+function playCompletionBurst(origin, colors) {
+    confetti({
+        particleCount: 30,
+        spread: 70,
+        startVelocity: 25,
+        origin,
+        colors,
+        disableForReducedMotion: true,
+    });
+}
+/**
+ * Play fireworks effect from both sides (group completion)
+ * @param colors - Array of color strings to use for fireworks
+ * @param duration - Duration in milliseconds (default: 3000)
+ */
+function playFireworks(colors, duration = 3000) {
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+    const interval = setInterval(function () {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+            return clearInterval(interval);
+        }
+        const particleCount = 50 * (timeLeft / duration);
+        // Launch from left side
+        confetti({
+            ...defaults,
+            particleCount,
+            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+            colors,
+            disableForReducedMotion: true,
+        });
+        // Launch from right side
+        confetti({
+            ...defaults,
+            particleCount,
+            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+            colors,
+            disableForReducedMotion: true,
+        });
+    }, 250);
+}
+/**
+ * Play star shower effect falling from top (all tasks complete)
+ * @param colors - Array of color strings to use for stars
+ * @param duration - Duration in milliseconds (default: 5000)
+ */
+function playStarShower(colors, duration = 5000) {
+    const animationEnd = Date.now() + duration;
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+    (function frame() {
+        const timeLeft = animationEnd - Date.now();
+        const ticks = Math.max(200, 500 * (timeLeft / duration));
+        confetti({
+            particleCount: 1,
+            startVelocity: 0,
+            ticks: ticks,
+            origin: {
+                x: Math.random(),
+                // Keep stars mostly at the top of the screen
+                y: Math.random() * 0.3 - 0.1,
+            },
+            colors: colors,
+            shapes: ["star"],
+            gravity: randomInRange(1.2, 1.5), // Faster fall (increased from 0.4-0.6)
+            scalar: randomInRange(1.2, 2.0), // Larger stars (increased from 0.4-1.0)
+            drift: randomInRange(-0.4, 0.4),
+            disableForReducedMotion: true,
+        });
+        if (timeLeft > 0) {
+            requestAnimationFrame(frame);
+        }
+    })();
+}
+/**
+ * Play floating points animation from a specific origin point (task completion with points)
+ * Displays "+X" text that scales up and fades out
+ * @param origin - Origin point in pixels {x, y} relative to viewport
+ * @param totalPoints - Total points awarded (base + bonus)
+ */
+function playPointsAnimation(origin, totalPoints) {
+    // Check for reduced motion preference
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+    }
+    // Create DOM element
+    const pointsEl = document.createElement("div");
+    pointsEl.textContent = `+${totalPoints}`;
+    // Apply all styles inline (cannot use component CSS since element is appended to body)
+    // Use 'fixed' positioning so element stays relative to viewport (like confetti canvas)
+    pointsEl.style.position = "fixed";
+    pointsEl.style.left = `${origin.x - 20}px`;
+    pointsEl.style.top = `${origin.y - 30}px`;
+    pointsEl.style.fontSize = "28px";
+    pointsEl.style.fontWeight = "bold";
+    pointsEl.style.color = "white";
+    pointsEl.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.8)";
+    pointsEl.style.pointerEvents = "none";
+    pointsEl.style.zIndex = "9999";
+    pointsEl.style.animation = "floatPoints 2s ease-out forwards";
+    // Define keyframes animation dynamically if not already defined
+    if (!document.getElementById("chorebot-points-animation-styles")) {
+        const styleSheet = document.createElement("style");
+        styleSheet.id = "chorebot-points-animation-styles";
+        styleSheet.textContent = `
+      @keyframes floatPoints {
+        0% {
+          transform: scale(0.5) translateY(0);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.5) translateY(-30px);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1.5) translateY(-60px);
+          opacity: 0;
+        }
+      }
+    `;
+        document.head.appendChild(styleSheet);
+    }
+    // Append to body
+    document.body.appendChild(pointsEl);
+    // Auto-remove after animation completes (2 seconds)
+    setTimeout(() => {
+        pointsEl.remove();
+    }, 2000);
+}
+
+// ============================================================================
+// Points Badge Rendering Utility
+// ============================================================================
+// Shared utility for rendering points badges with bonus detection
+/**
+ * Render a points badge for a task with automatic bonus detection
+ * @param task - Task object to render badge for
+ * @param templates - Array of recurring task templates (for bonus detection)
+ * @param shades - Color shades for badge styling
+ * @param hass - Home Assistant instance for getting points display config
+ * @param showPoints - Whether to show points badges at all
+ * @param textColor - Text color for badge (usually matches task text)
+ * @returns TemplateResult for points badge or empty if no points
+ */
+function renderPointsBadge(task, templates, shades, hass, showPoints, textColor) {
+    // Don't show if points disabled or task has no points
+    if (!showPoints || !task.points_value) {
+        return b ``;
+    }
+    // Get configured points display parts
+    const parts = getPointsDisplayParts(hass);
+    // Check if this is a recurring task with upcoming bonus
+    if (task.parent_uid) {
+        const template = templates.find((t) => t.uid === task.parent_uid);
+        if (template &&
+            template.streak_bonus_points &&
+            template.streak_bonus_interval) {
+            const nextStreak = template.streak_current + 1;
+            if (nextStreak % template.streak_bonus_interval === 0) {
+                // Next completion will award bonus!
+                return b `<span
           class="points-badge bonus-pending"
-          style="color: ${i};"
+          style="color: ${textColor};"
         >
-          +${e.points_value} + ${o.streak_bonus_points}
-          ${a.icon?L`<ha-icon icon="${a.icon}"></ha-icon>`:""}
-          ${a.text?a.text:""}
-        </span>`}}return L`<span
+          +${task.points_value} + ${template.streak_bonus_points}
+          ${parts.icon ? b `<ha-icon icon="${parts.icon}"></ha-icon>` : ""}
+          ${parts.text ? parts.text : ""}
+        </span>`;
+            }
+        }
+    }
+    // Regular points badge (no bonus)
+    return b `<span
     class="points-badge"
-    style="background: #${o.lighter}; color: ${i}; border: 1px solid ${i};"
+    style="background: #${shades
+        .lighter}; color: ${textColor}; border: 1px solid ${textColor};"
   >
-    +${e.points_value}
-    ${a.icon?L`<ha-icon icon="${a.icon}"></ha-icon>`:""}
-    ${a.text?a.text:""}
-  </span>`}Pe.exports.create;let He=class extends ne{constructor(){super(...arguments),this._editDialogOpen=!1,this._editingTask=null,this._saving=!1,this._groups=[],this._addTaskDialogOpen=!1,this._newTask=null,this._savingNewTask=!1,this._autoCollapseTimeouts=new Map,this._previousGroupProgress=new Map,this.shades={lighter:"",light:"",base:"",dark:"",darker:""},this.shadesArray=[]}setConfig(e){if(!e.entity)throw new Error("You need to define an entity");this._config={entity:e.entity,title:e.title||"Tasks",show_title:!1!==e.show_title,show_dateless_tasks:!1!==e.show_dateless_tasks,hide_card_background:!0===e.hide_card_background,accent_color:e.accent_color||"",task_text_color:e.task_text_color||"",show_points:!1!==e.show_points,untagged_header:e.untagged_header||"Untagged",tag_group_order:e.tag_group_order||[],show_future_tasks:!0===e.show_future_tasks,filter_section_id:e.filter_section_id,person_entity:e.person_entity,show_add_task_button:!1!==e.show_add_task_button}}getCardSize(){return 3}willUpdate(e){if((e.has("_config")||e.has("hass"))&&this._config&&this.hass){const e=Ee(this.hass,this._config.accent_color,this._config.person_entity);this.shades=De(e),this.shadesArray=Object.values(this.shades)}(e.has("hass")||e.has("_config"))&&this._updateGroups()}_updateGroups(){if(!this.hass||!this._config)return;const e=this.hass.states[this._config.entity];if(!e)return;let t=ke(e,!1!==this._config.show_dateless_tasks,!0===this._config.show_future_tasks,this._config.untagged_header||"Untagged","Upcoming",this._config.filter_section_id,this._config.person_entity);t=ye(t,this._config.tag_group_order,this._config.untagged_header,"Upcoming"),this._groups=t.map(e=>({...e,isCollapsed:this._findExistingCollapseState(e.name)}))}_findExistingCollapseState(e){const t=this._groups.find(t=>t.name===e);return void 0!==t?t.isCollapsed:"Upcoming"===e}render(){if(!this.hass||!this._config)return L`<ha-card>Loading...</ha-card>`;return this.hass.states[this._config.entity]?L`
+    +${task.points_value}
+    ${parts.icon ? b `<ha-icon icon="${parts.icon}"></ha-icon>` : ""}
+    ${parts.text ? parts.text : ""}
+  </span>`;
+}
+
+// ============================================================================
+// ChoreBot Grouped Card (TypeScript)
+// ============================================================================
+/**
+ * ChoreBot Grouped Card
+ *
+ * Displays todo items grouped by tags with:
+ * - Tag-based grouping (tasks appear in all matching tag groups)
+ * - Per-group progress tracking
+ * - Today-focused view (tasks due today + incomplete overdue + completed overdue)
+ * - Optional dateless tasks
+ * - Task editing dialog
+ * - Custom tag ordering
+ */
+let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
+    constructor() {
+        super(...arguments);
+        this._editDialogOpen = false;
+        this._editingTask = null;
+        this._saving = false;
+        this._groups = [];
+        this._addTaskDialogOpen = false;
+        this._newTask = null;
+        this._savingNewTask = false;
+        this._autoCollapseTimeouts = new Map();
+        this._previousGroupProgress = new Map();
+        // Cached color shades for performance (recalculated when config changes)
+        this.shades = {
+            lighter: "",
+            light: "",
+            base: "",
+            dark: "",
+            darker: "",
+        };
+        this.shadesArray = [];
+    }
+    setConfig(config) {
+        if (!config.entity) {
+            throw new Error("You need to define an entity");
+        }
+        this._config = {
+            entity: config.entity,
+            title: config.title || "Tasks",
+            show_title: config.show_title !== false,
+            show_dateless_tasks: config.show_dateless_tasks !== false,
+            hide_card_background: config.hide_card_background === true,
+            accent_color: config.accent_color || "",
+            task_text_color: config.task_text_color || "",
+            show_points: config.show_points !== false,
+            untagged_header: config.untagged_header || "Untagged",
+            tag_group_order: config.tag_group_order || [],
+            show_future_tasks: config.show_future_tasks === true,
+            filter_section_id: config.filter_section_id,
+            person_entity: config.person_entity,
+            show_add_task_button: config.show_add_task_button !== false,
+        };
+    }
+    getCardSize() {
+        return 3;
+    }
+    willUpdate(changedProperties) {
+        // Recalculate color shades when config or hass changes
+        if ((changedProperties.has("_config") || changedProperties.has("hass")) &&
+            this._config &&
+            this.hass) {
+            const baseColor = resolveAccentColor(this.hass, this._config.accent_color, this._config.person_entity);
+            this.shades = calculateColorShades(baseColor);
+            this.shadesArray = Object.values(this.shades);
+        }
+        // Rebuild groups when hass or config changes
+        if (changedProperties.has("hass") || changedProperties.has("_config")) {
+            this._updateGroups();
+        }
+    }
+    _updateGroups() {
+        if (!this.hass || !this._config)
+            return;
+        const entity = this.hass.states[this._config.entity];
+        if (!entity)
+            return;
+        // Get new groups from filterAndGroupTasks
+        let newGroups = filterAndGroupTasks(entity, this._config.show_dateless_tasks !== false, this._config.show_future_tasks === true, this._config.untagged_header || "Untagged", "Upcoming", this._config.filter_section_id, this._config.person_entity);
+        // Sort groups
+        newGroups = sortGroups(newGroups, this._config.tag_group_order, this._config.untagged_header, "Upcoming");
+        // Preserve collapse state from existing groups
+        this._groups = newGroups.map((newGroup) => ({
+            ...newGroup,
+            isCollapsed: this._findExistingCollapseState(newGroup.name),
+        }));
+    }
+    _findExistingCollapseState(groupName) {
+        const existing = this._groups.find((g) => g.name === groupName);
+        if (existing !== undefined)
+            return existing.isCollapsed;
+        // Default: Upcoming starts collapsed, others start expanded
+        return groupName === "Upcoming";
+    }
+    render() {
+        if (!this.hass || !this._config) {
+            return b `<ha-card>Loading...</ha-card>`;
+        }
+        const entity = this.hass.states[this._config.entity];
+        if (!entity) {
+            return b `<ha-card>
+        <div class="empty-state">Entity not found: ${this._config.entity}</div>
+      </ha-card>`;
+        }
+        return b `
       <ha-card
-        class="${this._config.hide_card_background?"no-background":""}"
+        class="${this._config.hide_card_background ? "no-background" : ""}"
       >
-        ${this._config.show_title?L`<div class="card-header">${this._config.title}</div>`:""}
-        ${0===this._groups.length?L`<div class="empty-state">No tasks</div>`:L`<div class="tag-groups">
+        ${this._config.show_title
+            ? b `<div class="card-header">${this._config.title}</div>`
+            : ""}
+        ${this._groups.length === 0
+            ? b `<div class="empty-state">No tasks</div>`
+            : b `<div class="tag-groups">
               ${this._renderAllGroups(this._groups)}
             </div>`}
         ${this._renderAddTaskButton()}
       </ha-card>
 
       ${this._renderEditDialog()} ${this._renderAddTaskDialog()}
-    `:L`<ha-card>
-        <div class="empty-state">Entity not found: ${this._config.entity}</div>
-      </ha-card>`}_renderAllGroups(e){return e.map(e=>{const t=be(e.tasks),o=this._config.task_text_color||"white",r=e.isCollapsed,s=t.completed===t.total,i=r&&s,a=t.total>0?t.completed/t.total*100:0;return this._checkAutoCollapse(e.name,t,s,r),L`
-        <div class="tag-group-container ${r?"collapsed":""}">
+    `;
+    }
+    // ============================================================================
+    // Tag Group Rendering
+    // ============================================================================
+    _renderAllGroups(groups) {
+        return groups.map((group) => {
+            const progress = calculateProgress(group.tasks);
+            const textColor = this._config.task_text_color || "white";
+            const isCollapsed = group.isCollapsed;
+            const allComplete = progress.completed === progress.total;
+            const showCheckmark = isCollapsed && allComplete;
+            // Calculate progress percentage for progress bar
+            const progressPercent = progress.total > 0 ? (progress.completed / progress.total) * 100 : 0;
+            // Auto-collapse logic: check if group just became complete
+            this._checkAutoCollapse(group.name, progress, allComplete, isCollapsed);
+            return b `
+        <div class="tag-group-container ${isCollapsed ? "collapsed" : ""}">
           <div
-            class="tag-group-header ${r?"collapsed":""}"
-            style="background: #${this.shades.light}; color: ${o}; --progress-width: ${a}%; --darker-color: #${this.shades.dark};"
-            @click=${()=>this._toggleGroup(e.name)}
+            class="tag-group-header ${isCollapsed ? "collapsed" : ""}"
+            style="background: #${this.shades
+                .light}; color: ${textColor}; --progress-width: ${progressPercent}%; --darker-color: #${this
+                .shades.dark};"
+            @click=${() => this._toggleGroup(group.name)}
           >
-            <div class="tag-group-header-title">${e.name}</div>
+            <div class="tag-group-header-title">${group.name}</div>
             <div class="tag-group-header-progress">
-              ${i?L`<ha-icon
+              ${showCheckmark
+                ? b `<ha-icon
                     icon="mdi:check"
-                    style="color: ${o}; --mdi-icon-size: 20px;"
-                  ></ha-icon>`:L`${t.completed}/${t.total}`}
+                    style="color: ${textColor}; --mdi-icon-size: 20px;"
+                  ></ha-icon>`
+                : b `${progress.completed}/${progress.total}`}
             </div>
           </div>
-          <div class="tag-group-tasks ${r?"collapsed":""}">
+          <div class="tag-group-tasks ${isCollapsed ? "collapsed" : ""}">
             <div class="tag-group-tasks-inner">
-              ${this._renderTasks(e.tasks,o)}
+              ${this._renderTasks(group.tasks, textColor)}
             </div>
           </div>
         </div>
-      `})}_renderTasks(e,t){return e.map(e=>{const o="completed"===e.status,r=o?`#${this.shades.base}`:this._config?.hide_card_background?"transparent":"var(--card-background-color)",s=o?t:"var(--primary-text-color)",i=o?`#${this.shades.dark}`:"transparent",a=o?"white":"var(--divider-color)",n=o?"none":"2px solid var(--divider-color)";return L`
+      `;
+        });
+    }
+    _renderTasks(tasks, textColor) {
+        return tasks.map((task) => {
+            const isCompleted = task.status === "completed";
+            // Task styling based on completion
+            // When hide_card_background is enabled, incomplete tasks are transparent
+            const taskBgColor = isCompleted
+                ? `#${this.shades.base}`
+                : (this._config?.hide_card_background ? "transparent" : "var(--card-background-color)");
+            const taskTextColor = isCompleted
+                ? textColor
+                : "var(--primary-text-color)";
+            // Completion circle styling
+            const circleBgColor = isCompleted
+                ? `#${this.shades.dark}`
+                : "transparent";
+            const circleIconColor = isCompleted ? "white" : "var(--divider-color)";
+            const circleBorder = isCompleted
+                ? "none"
+                : `2px solid var(--divider-color)`;
+            return b `
         <div
           class="todo-item"
-          style="background: ${r}; color: ${s};"
-          @click=${()=>this._openEditDialog(e)}
+          style="background: ${taskBgColor}; color: ${taskTextColor};"
+          @click=${() => this._openEditDialog(task)}
         >
           <div class="todo-content">
-            <div class="todo-summary">${e.summary}</div>
-            ${e.due||e.points_value||e.parent_uid?L`<div
+            <div class="todo-summary">
+              ${task.summary}
+              ${this._renderStreakIndicator(task)}
+            </div>
+            ${task.due || task.points_value || task.parent_uid
+                ? b `<div
                   class="todo-due-date"
-                  style="color: ${fe(e)?"var(--error-color)":"inherit"}"
+                  style="color: ${isOverdue(task)
+                    ? "var(--error-color)"
+                    : "inherit"}"
                 >
-                  ${e.due?ge(new Date(e.due),e):""}
-                  ${e.parent_uid?L`<ha-icon
+                  ${task.due
+                    ? formatRelativeDate(new Date(task.due), task)
+                    : ""}
+                  ${task.parent_uid
+                    ? b `<ha-icon
                         icon="mdi:sync"
                         class="recurring-icon"
-                      ></ha-icon>`:""}
-                  ${this._renderPointsBadge(e)}
-                </div>`:""}
+                      ></ha-icon>`
+                    : ""}
+                  ${this._renderPointsBadge(task)}
+                </div>`
+                : ""}
           </div>
           <div
             class="completion-circle"
-            style="background: ${i}; border: ${n};"
-            @click=${t=>this._handleCompletionClick(t,e)}
+            style="background: ${circleBgColor}; border: ${circleBorder};"
+            @click=${(e) => this._handleCompletionClick(e, task)}
           >
             <ha-icon
               icon="mdi:check"
-              style="color: ${a};"
+              style="color: ${circleIconColor};"
             ></ha-icon>
           </div>
         </div>
-      `})}_renderPointsBadge(e){const t=this.hass?.states[this._config.entity],o=t?.attributes.chorebot_templates||[],r=this._config.task_text_color||"white";return Ue(e,o,this.shades,this.hass,!1!==this._config?.show_points,r)}_getFilteredTasks(e){return we(e,!1!==this._config.show_dateless_tasks,this._config?.filter_section_id)}_toggleGroup(e){this._autoCollapseTimeouts.has(e)&&(clearTimeout(this._autoCollapseTimeouts.get(e)),this._autoCollapseTimeouts.delete(e));const t=this._groups.find(t=>t.name===e);t&&(t.isCollapsed=!t.isCollapsed,this.requestUpdate())}_checkAutoCollapse(e,t,o,r){const s=this._previousGroupProgress.get(e),i=s&&s.completed<s.total&&o&&!r;if(this._previousGroupProgress.set(e,{completed:t.completed,total:t.total}),i){this._autoCollapseTimeouts.has(e)&&clearTimeout(this._autoCollapseTimeouts.get(e));const t=window.setTimeout(()=>{const t=this._groups.find(t=>t.name===e);t&&(t.isCollapsed=!0,this.requestUpdate()),this._autoCollapseTimeouts.delete(e)},1500);this._autoCollapseTimeouts.set(e,t)}}async _toggleTask(e,t){const o="completed"===e.status?"needs_action":"completed";if(await this.hass.callService("todo","update_item",{entity_id:this._config.entity,item:e.uid,status:o}),"completed"===o&&t){this._playCompletionConfetti(t);const o=this._calculateTotalPointsAwarded(e);if(null!==o&&o>0){!function(e,t){if(window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;const o=document.createElement("div");if(o.textContent=`+${t}`,o.style.position="fixed",o.style.left=e.x-20+"px",o.style.top=e.y-30+"px",o.style.fontSize="28px",o.style.fontWeight="bold",o.style.color="white",o.style.textShadow="2px 2px 4px rgba(0, 0, 0, 0.8)",o.style.pointerEvents="none",o.style.zIndex="9999",o.style.animation="floatPoints 2s ease-out forwards",!document.getElementById("chorebot-points-animation-styles")){const e=document.createElement("style");e.id="chorebot-points-animation-styles",e.textContent="\n      @keyframes floatPoints {\n        0% {\n          transform: scale(0.5) translateY(0);\n          opacity: 1;\n        }\n        50% {\n          transform: scale(1.5) translateY(-30px);\n          opacity: 1;\n        }\n        100% {\n          transform: scale(1.5) translateY(-60px);\n          opacity: 0;\n        }\n      }\n    ",document.head.appendChild(e)}document.body.appendChild(o),setTimeout(()=>{o.remove()},2e3)}({x:t.x*window.innerWidth,y:t.y*window.innerHeight},o)}const r=this._areAllTasksComplete(),s=this._areAllDatedTasksComplete(),i=!!e.due;r?this._playAllCompleteStarShower():s&&i?this._playDatedTasksFireworks():this._isGroupComplete(e)&&this._playGroupFireworks()}}_handleCompletionClick(e,t){e.stopPropagation();const o=e.currentTarget.getBoundingClientRect(),r={x:(o.left+o.width/2)/window.innerWidth,y:(o.top+o.height/2)/window.innerHeight};this._toggleTask(t,r)}_playCompletionConfetti(e){Ie(e,this.shadesArray)}_isGroupComplete(e){const t=this.hass?.states[this._config.entity];if(!t)return!1;const o=this._getFilteredTasks(t),r=this._config.untagged_header||"Untagged",s=function(e,t="Untagged"){const o=new Map;for(const r of e){const e=r.tags||[];if(0===e.length)o.has(t)||o.set(t,[]),o.get(t).push(r);else for(const t of e)o.has(t)||o.set(t,[]),o.get(t).push(r)}return o}(o,r),i=e.tags||[],a=i.length>0?i:[r];for(const e of a){const t=s.get(e);if(!t)continue;const o=be(t);if(o.total>0&&o.completed===o.total)return!0}return!1}_areAllTasksComplete(){const e=this.hass?.states[this._config.entity];if(!e)return!1;const t=be(this._getFilteredTasks(e));return t.total>0&&t.completed===t.total}_areAllDatedTasksComplete(){const e=this.hass?.states[this._config.entity];if(!e)return!1;const t=ve(this._getFilteredTasks(e));return t.total>0&&t.completed===t.total}_playGroupFireworks(){Fe(this.shadesArray)}_playDatedTasksFireworks(){Fe(this.shadesArray)}_playAllCompleteStarShower(){Be(this.shadesArray)}_calculateTotalPointsAwarded(e){if(!e.points_value)return null;let t=e.points_value;if(e.parent_uid){const o=this.hass?.states[this._config.entity],r=(o?.attributes.chorebot_templates||[]).find(t=>t.uid===e.parent_uid);if(r?.streak_bonus_points&&r?.streak_bonus_interval){(r.streak_current+1)%r.streak_bonus_interval===0&&(t+=r.streak_bonus_points)}}return t}_openEditDialog(e){if(!this.hass||!this._config?.entity)return;const t=this.hass.states[this._config.entity];if(!t)return;const o=t.attributes.chorebot_templates||[];this._editingTask=Ae(e,o),this._editDialogOpen=!0}_closeEditDialog(){this._editDialogOpen=!1,this._editingTask=null}_renderEditDialog(){const e=this.hass?.states[this._config.entity],t=e?.attributes.chorebot_sections||[],o=e?.attributes.chorebot_tags||[];return Re(this._editDialogOpen,this._editingTask,this.hass,t,o,this._saving,()=>this._closeEditDialog(),e=>this._formValueChanged(e),()=>this._saveTask(),()=>this._handleDeleteTask())}_formValueChanged(e){const t=e.detail.value;this._editingTask={...this._editingTask,...t},("has_due_date"in t||"is_all_day"in t||"has_recurrence"in t||"recurrence_frequency"in t)&&this.requestUpdate()}async _saveTask(){if(!this._editingTask||!this._editingTask.summary?.trim()||this._saving)return;this._saving=!0;const e={list_id:this._config.entity,uid:this._editingTask.uid,summary:this._editingTask.summary.trim()};if(this._editingTask.has_due_date&&this._editingTask.due_date){const t=!!this._editingTask.is_all_day;let o;if(t||!this._editingTask.due_time)o=`${this._editingTask.due_date}T00:00:00`;else{const e=3===this._editingTask.due_time.split(":").length?this._editingTask.due_time:`${this._editingTask.due_time}:00`;o=`${this._editingTask.due_date}T${e}`}const r=new Date(o);if(isNaN(r.getTime()))return console.error("Invalid date/time combination:",o),void(this._saving=!1);e.due=r.toISOString(),e.is_all_day=t}else!1===this._editingTask.has_due_date&&(e.due="",e.is_all_day=!1);this._editingTask.description&&(e.description=this._editingTask.description),this._editingTask.section_id&&(e.section_id=this._editingTask.section_id),void 0!==this._editingTask.tags&&(e.tags=this._editingTask.tags);const t=$e(this._editingTask);null!==t?e.rrule=t:!1===this._editingTask.has_recurrence&&(e.rrule=""),void 0!==this._editingTask.points_value&&(e.points_value=this._editingTask.points_value),void 0!==this._editingTask.streak_bonus_points&&(e.streak_bonus_points=this._editingTask.streak_bonus_points),void 0!==this._editingTask.streak_bonus_interval&&(e.streak_bonus_interval=this._editingTask.streak_bonus_interval);!!this._editingTask.parent_uid&&(e.include_future_occurrences=!0),console.log("Calling chorebot.update_task with payload:",e);try{await this.hass.callService("chorebot","update_task",e),this._closeEditDialog()}catch(e){console.error("Error saving task:",e),alert("Failed to save task. Please try again.")}finally{this._saving=!1}}async _handleDeleteTask(){if(!this._editingTask||this._saving)return;const e=this._editingTask,t=e.has_recurrence||e.parent_uid;if(confirm(t?"Delete this recurring task? This will remove all future occurrences, but keep completed instances.":"Delete this task? This action cannot be undone.")){this._saving=!0;try{await this.hass.callService("todo","remove_item",{entity_id:this._config.entity,item:e.uid}),this._closeEditDialog(),this.dispatchEvent(new CustomEvent("hass-notification",{detail:{message:"Task deleted successfully"},bubbles:!0,composed:!0}))}catch(e){console.error("Error deleting task:",e),alert(`Failed to delete task: ${e}`)}finally{this._saving=!1}}}_renderAddTaskButton(){if(!this._config?.show_add_task_button)return L``;const e=`#${this.shades.light}`,t=`color-mix(in srgb, #${this.shades.light} 20%, var(--card-background-color))`,o=`#${this.shades.light}`;return L`
+      `;
+        });
+    }
+    _renderPointsBadge(task) {
+        const entity = this.hass?.states[this._config.entity];
+        const templates = entity?.attributes.chorebot_templates || [];
+        const textColor = this._config.task_text_color || "white";
+        return renderPointsBadge(task, templates, this.shades, this.hass, this._config?.show_points !== false, textColor);
+    }
+    _renderStreakIndicator(task) {
+        // Only show for recurring instances
+        if (!task.parent_uid) {
+            return b ``;
+        }
+        // Get template to access streak data
+        const entity = this.hass?.states[this._config.entity];
+        const templates = entity?.attributes.chorebot_templates || [];
+        const template = templates.find((t) => t.uid === task.parent_uid);
+        // Only show if streak exists and is greater than 0
+        if (!template || !template.streak_current || template.streak_current <= 0) {
+            return b ``;
+        }
+        return b `
+      <span class="streak-indicator">
+        <ha-icon icon="mdi:fire"></ha-icon>
+        <span>${template.streak_current}</span>
+      </span>
+    `;
+    }
+    // ============================================================================
+    // Task Filtering
+    // ============================================================================
+    _getFilteredTasks(entity) {
+        return filterTodayTasks(entity, this._config.show_dateless_tasks !== false, this._config?.filter_section_id);
+    }
+    // ============================================================================
+    // Group Collapse/Expand
+    // ============================================================================
+    _toggleGroup(groupName) {
+        // Clear any pending auto-collapse timeout for this group
+        if (this._autoCollapseTimeouts.has(groupName)) {
+            clearTimeout(this._autoCollapseTimeouts.get(groupName));
+            this._autoCollapseTimeouts.delete(groupName);
+        }
+        // Find the group and toggle its isCollapsed state
+        const group = this._groups.find((g) => g.name === groupName);
+        if (group) {
+            group.isCollapsed = !group.isCollapsed;
+            this.requestUpdate();
+        }
+    }
+    _checkAutoCollapse(tagName, progress, allComplete, isCollapsed) {
+        const previousProgress = this._previousGroupProgress.get(tagName);
+        // Check if group just became complete (wasn't complete before, is complete now)
+        const justCompleted = previousProgress &&
+            previousProgress.completed < previousProgress.total &&
+            allComplete &&
+            !isCollapsed;
+        // Update the stored progress for next comparison
+        this._previousGroupProgress.set(tagName, {
+            completed: progress.completed,
+            total: progress.total,
+        });
+        if (justCompleted) {
+            // Clear any existing timeout for this group
+            if (this._autoCollapseTimeouts.has(tagName)) {
+                clearTimeout(this._autoCollapseTimeouts.get(tagName));
+            }
+            // Set a delay before auto-collapsing (1.5 seconds)
+            const timeoutId = window.setTimeout(() => {
+                const group = this._groups.find((g) => g.name === tagName);
+                if (group) {
+                    group.isCollapsed = true;
+                    this.requestUpdate();
+                }
+                this._autoCollapseTimeouts.delete(tagName);
+            }, 1500);
+            this._autoCollapseTimeouts.set(tagName, timeoutId);
+        }
+    }
+    // ============================================================================
+    // Task Completion
+    // ============================================================================
+    async _toggleTask(task, confettiOrigin) {
+        const newStatus = task.status === "completed" ? "needs_action" : "completed";
+        await this.hass.callService("todo", "update_item", {
+            entity_id: this._config.entity,
+            item: task.uid,
+            status: newStatus,
+        });
+        // Play confetti animations when completing a task
+        if (newStatus === "completed" && confettiOrigin) {
+            // 1. Always play completion burst
+            this._playCompletionConfetti(confettiOrigin);
+            // 2. Play floating points animation if task has points
+            const totalPoints = this._calculateTotalPointsAwarded(task);
+            if (totalPoints !== null && totalPoints > 0) {
+                // Convert normalized origin (0-1) to viewport pixel coordinates for points animation
+                const pixelOrigin = {
+                    x: confettiOrigin.x * window.innerWidth,
+                    y: confettiOrigin.y * window.innerHeight,
+                };
+                playPointsAnimation(pixelOrigin, totalPoints);
+            }
+            // 3. Check for completion effects with two-tier system
+            const allTasksComplete = this._areAllTasksComplete();
+            const allDatedTasksComplete = this._areAllDatedTasksComplete();
+            const taskHasDueDate = !!task.due;
+            if (allTasksComplete) {
+                // Everything complete (including dateless) - play star shower
+                this._playAllCompleteStarShower();
+            }
+            else if (allDatedTasksComplete && taskHasDueDate) {
+                // All dated tasks complete AND the just-completed task had a due date
+                // This means we just completed the final dated task - play fireworks!
+                this._playDatedTasksFireworks();
+            }
+            else if (this._isGroupComplete(task)) {
+                // Just this group complete - play group fireworks
+                this._playGroupFireworks();
+            }
+        }
+    }
+    _handleCompletionClick(e, task) {
+        e.stopPropagation();
+        // Capture the position NOW before the async call
+        const target = e.currentTarget;
+        const rect = target.getBoundingClientRect();
+        const origin = {
+            x: (rect.left + rect.width / 2) / window.innerWidth,
+            y: (rect.top + rect.height / 2) / window.innerHeight,
+        };
+        this._toggleTask(task, origin);
+    }
+    _playCompletionConfetti(origin) {
+        // Small burst of confetti from the checkbox with themed colors
+        playCompletionBurst(origin, this.shadesArray);
+    }
+    /**
+     * Check if the group(s) that this task belongs to are 100% complete
+     */
+    _isGroupComplete(task) {
+        const entity = this.hass?.states[this._config.entity];
+        if (!entity)
+            return false;
+        const tasks = this._getFilteredTasks(entity);
+        const untaggedHeader = this._config.untagged_header || "Untagged";
+        const tagGroups = groupTasksByTag(tasks, untaggedHeader);
+        // Get tags for the completed task
+        const taskTags = task.tags || [];
+        const tagsToCheck = taskTags.length > 0 ? taskTags : [untaggedHeader];
+        // Check if any of the task's groups are now complete
+        for (const tagName of tagsToCheck) {
+            const groupTasks = tagGroups.get(tagName);
+            if (!groupTasks)
+                continue;
+            const progress = calculateProgress(groupTasks);
+            if (progress.total > 0 && progress.completed === progress.total) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Check if all visible tasks are 100% complete
+     */
+    _areAllTasksComplete() {
+        const entity = this.hass?.states[this._config.entity];
+        if (!entity)
+            return false;
+        const tasks = this._getFilteredTasks(entity);
+        const progress = calculateProgress(tasks);
+        return progress.total > 0 && progress.completed === progress.total;
+    }
+    /**
+     * Check if all tasks with due dates are 100% complete (excludes dateless tasks)
+     */
+    _areAllDatedTasksComplete() {
+        const entity = this.hass?.states[this._config.entity];
+        if (!entity)
+            return false;
+        const tasks = this._getFilteredTasks(entity);
+        const progress = calculateDatedTasksProgress(tasks);
+        return progress.total > 0 && progress.completed === progress.total;
+    }
+    _playGroupFireworks() {
+        playFireworks(this.shadesArray);
+    }
+    _playDatedTasksFireworks() {
+        playFireworks(this.shadesArray);
+    }
+    _playAllCompleteStarShower() {
+        playStarShower(this.shadesArray);
+    }
+    /**
+     * Calculate total points awarded for completing this task
+     * Includes base points + streak bonus if applicable
+     * Returns null if task has no points_value
+     */
+    _calculateTotalPointsAwarded(task) {
+        if (!task.points_value)
+            return null;
+        let totalPoints = task.points_value;
+        // Check for streak bonus (recurring tasks only)
+        if (task.parent_uid) {
+            const entity = this.hass?.states[this._config.entity];
+            const templates = entity?.attributes.chorebot_templates || [];
+            const template = templates.find((t) => t.uid === task.parent_uid);
+            if (template?.streak_bonus_points && template?.streak_bonus_interval) {
+                const nextStreak = template.streak_current + 1;
+                if (nextStreak % template.streak_bonus_interval === 0) {
+                    totalPoints += template.streak_bonus_points;
+                }
+            }
+        }
+        return totalPoints;
+    }
+    // ============================================================================
+    // Edit Dialog
+    // ============================================================================
+    _openEditDialog(task) {
+        if (!this.hass || !this._config?.entity)
+            return;
+        const entity = this.hass.states[this._config.entity];
+        if (!entity)
+            return;
+        const templates = entity.attributes.chorebot_templates || [];
+        this._editingTask = prepareTaskForEditing(task, templates);
+        this._editDialogOpen = true;
+    }
+    _closeEditDialog() {
+        this._editDialogOpen = false;
+        this._editingTask = null;
+    }
+    _renderEditDialog() {
+        // Get sections and tags from entity attributes
+        const entity = this.hass?.states[this._config.entity];
+        const sections = entity?.attributes.chorebot_sections || [];
+        const availableTags = entity?.attributes.chorebot_tags || [];
+        return renderTaskDialog(this._editDialogOpen, this._editingTask, this.hass, sections, availableTags, this._saving, () => this._closeEditDialog(), (ev) => this._formValueChanged(ev), () => this._saveTask(), () => this._handleDeleteTask());
+    }
+    _formValueChanged(ev) {
+        const updatedValues = ev.detail.value;
+        this._editingTask = {
+            ...this._editingTask,
+            ...updatedValues,
+        };
+        if ("has_due_date" in updatedValues ||
+            "is_all_day" in updatedValues ||
+            "has_recurrence" in updatedValues ||
+            "recurrence_frequency" in updatedValues) {
+            this.requestUpdate();
+        }
+    }
+    async _saveTask() {
+        if (!this._editingTask ||
+            !this._editingTask.summary?.trim() ||
+            this._saving) {
+            return;
+        }
+        this._saving = true;
+        const serviceData = {
+            list_id: this._config.entity,
+            uid: this._editingTask.uid,
+            summary: this._editingTask.summary.trim(),
+        };
+        if (this._editingTask.has_due_date && this._editingTask.due_date) {
+            const isAllDay = !!this._editingTask.is_all_day;
+            const timeStr = this._editingTask.due_time || "00:00";
+            try {
+                serviceData.due = createISOString(this._editingTask.due_date, timeStr, isAllDay);
+                serviceData.is_all_day = isAllDay;
+            }
+            catch (error) {
+                console.error("Invalid date/time combination:", error);
+                this._saving = false;
+                return;
+            }
+        }
+        else if (this._editingTask.has_due_date === false) {
+            serviceData.due = "";
+            serviceData.is_all_day = false;
+        }
+        if (this._editingTask.description) {
+            serviceData.description = this._editingTask.description;
+        }
+        if (this._editingTask.section_id) {
+            serviceData.section_id = this._editingTask.section_id;
+        }
+        // Handle tags
+        if (this._editingTask.tags !== undefined) {
+            serviceData.tags = this._editingTask.tags;
+        }
+        // Handle recurrence
+        const rrule = buildRrule(this._editingTask);
+        if (rrule !== null) {
+            serviceData.rrule = rrule;
+        }
+        else if (this._editingTask.has_recurrence === false) {
+            // User explicitly disabled recurrence, send empty string to clear it
+            serviceData.rrule = "";
+        }
+        // Handle points fields
+        if (this._editingTask.points_value !== undefined) {
+            serviceData.points_value = this._editingTask.points_value;
+        }
+        if (this._editingTask.streak_bonus_points !== undefined) {
+            serviceData.streak_bonus_points = this._editingTask.streak_bonus_points;
+        }
+        if (this._editingTask.streak_bonus_interval !== undefined) {
+            serviceData.streak_bonus_interval =
+                this._editingTask.streak_bonus_interval;
+        }
+        // For recurring task instances, always apply changes to future instances
+        const isRecurringInstance = !!this._editingTask.parent_uid;
+        if (isRecurringInstance) {
+            serviceData.include_future_occurrences = true;
+        }
+        console.log("Calling chorebot.update_task with payload:", serviceData);
+        try {
+            await this.hass.callService("chorebot", "update_task", serviceData);
+            this._closeEditDialog();
+        }
+        catch (error) {
+            console.error("Error saving task:", error);
+            alert("Failed to save task. Please try again.");
+        }
+        finally {
+            this._saving = false;
+        }
+    }
+    async _handleDeleteTask() {
+        if (!this._editingTask || this._saving) {
+            return;
+        }
+        const task = this._editingTask;
+        const isRecurring = task.has_recurrence || task.parent_uid;
+        // Confirmation message based on task type
+        const message = isRecurring
+            ? "Delete this recurring task? This will remove all future occurrences, but keep completed instances."
+            : "Delete this task? This action cannot be undone.";
+        if (!confirm(message)) {
+            return;
+        }
+        this._saving = true;
+        try {
+            // Call HA service to delete
+            await this.hass.callService("todo", "remove_item", {
+                entity_id: this._config.entity,
+                item: task.uid,
+            });
+            // Close dialog and show success
+            this._closeEditDialog();
+            // Optional: Show success toast
+            this.dispatchEvent(new CustomEvent("hass-notification", {
+                detail: { message: "Task deleted successfully" },
+                bubbles: true,
+                composed: true,
+            }));
+        }
+        catch (error) {
+            console.error("Error deleting task:", error);
+            alert(`Failed to delete task: ${error}`);
+        }
+        finally {
+            this._saving = false;
+        }
+    }
+    // ============================================================================
+    // Add Task Dialog
+    // ============================================================================
+    _renderAddTaskButton() {
+        if (!this._config?.show_add_task_button) {
+            return b ``;
+        }
+        // Use the same color shades as the rest of the card
+        const borderColor = `#${this.shades.light}`;
+        const hoverBg = `color-mix(in srgb, #${this.shades.light} 20%, var(--card-background-color))`;
+        const hoverColor = `#${this.shades.light}`;
+        return b `
       <div
         class="add-task-button-container"
-        style="--button-border-color: ${e}; --button-hover-bg: ${t}; --button-hover-color: ${o};"
+        style="--button-border-color: ${borderColor}; --button-hover-bg: ${hoverBg}; --button-hover-color: ${hoverColor};"
       >
         <div class="add-task-card" @click="${this._openAddTaskDialog}">
           <div class="add-task-icon-section">
@@ -171,7 +2939,298 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
           </div>
         </div>
       </div>
-    `}_openAddTaskDialog(){const e=this.hass?.states[this._config.entity],t=e?.attributes.chorebot_sections||[];this._newTask=this._createBlankTask(t),this._addTaskDialogOpen=!0}_closeAddTaskDialog(){this._addTaskDialogOpen=!1,this._newTask=null}_createBlankTask(e){let t;if(this._config.filter_section_id){let o=e.find(e=>e.id===this._config.filter_section_id);o||(o=e.find(e=>e.name.toLowerCase()===this._config.filter_section_id.toLowerCase())),o&&(t=o.id)}if(!t&&this._config.person_entity){const o=e.find(e=>e.person_id===this._config.person_entity);o&&(t=o.id)}return!t&&e.length>0&&(t=e.sort((e,t)=>t.sort_order-e.sort_order)[0].id),{uid:"",summary:"",status:"needs_action",has_due_date:!1,is_all_day:!1,due_date:void 0,due_time:void 0,description:"",section_id:t,tags:[],has_recurrence:!1,recurrence_frequency:"DAILY",recurrence_interval:1,recurrence_byweekday:[],recurrence_bymonthday:1,points_value:0,streak_bonus_points:0,streak_bonus_interval:0}}_renderAddTaskDialog(){const e=this.hass?.states[this._config.entity],t=e?.attributes.chorebot_sections||[],o=e?.attributes.chorebot_tags||[];return Re(this._addTaskDialogOpen,this._newTask,this.hass,t,o,this._savingNewTask,()=>this._closeAddTaskDialog(),e=>this._formValueChangedForNewTask(e),()=>this._saveNewTask(),void 0,"Add Task",!1)}_formValueChangedForNewTask(e){const t=e.detail.value;this._newTask={...this._newTask,...t},("has_due_date"in t||"is_all_day"in t||"has_recurrence"in t||"recurrence_frequency"in t)&&this.requestUpdate()}async _saveNewTask(){if(!this._newTask||!this._newTask.summary?.trim()||this._savingNewTask)return;this._savingNewTask=!0;const e={list_id:this._config.entity,summary:this._newTask.summary.trim()};if(this._newTask.has_due_date&&this._newTask.due_date){const t=!!this._newTask.is_all_day;let o;if(t||!this._newTask.due_time)o=`${this._newTask.due_date}T00:00:00`;else{const e=3===this._newTask.due_time.split(":").length?this._newTask.due_time:`${this._newTask.due_time}:00`;o=`${this._newTask.due_date}T${e}`}const r=new Date(o);if(isNaN(r.getTime()))return console.error("Invalid date/time combination:",o),void(this._savingNewTask=!1);e.due=r.toISOString(),e.is_all_day=t}this._newTask.description&&(e.description=this._newTask.description),this._newTask.section_id&&(e.section_id=this._newTask.section_id),void 0!==this._newTask.tags&&this._newTask.tags.length>0&&(e.tags=this._newTask.tags);const t=$e(this._newTask);null!==t&&(e.rrule=t),void 0!==this._newTask.points_value&&this._newTask.points_value>0&&(e.points_value=this._newTask.points_value),null!==t&&(void 0!==this._newTask.streak_bonus_points&&this._newTask.streak_bonus_points>0&&(e.streak_bonus_points=this._newTask.streak_bonus_points),void 0!==this._newTask.streak_bonus_interval&&this._newTask.streak_bonus_interval>0&&(e.streak_bonus_interval=this._newTask.streak_bonus_interval));try{await this.hass.callService("chorebot","add_task",e),this._closeAddTaskDialog();const t=this.hass?.states[this._config.entity],o=t?.attributes.chorebot_sections||[];this._newTask=this._createBlankTask(o)}catch(e){console.error("Error adding task:",e),alert("Failed to add task. Please try again.")}finally{this._savingNewTask=!1}}static getStubConfig(){return{entity:"",title:"Tasks",show_title:!0,show_dateless_tasks:!0,show_future_tasks:!1,filter_section_id:"",person_entity:"",hide_card_background:!1,accent_color:"",task_text_color:"",untagged_header:"Untagged",tag_group_order:[],show_add_task_button:!0}}static getConfigForm(){return{schema:[{name:"entity",required:!0,selector:{entity:{filter:{domain:"todo"}}}},{name:"title",default:"Tasks",selector:{text:{}}},{name:"show_title",default:!0,selector:{boolean:{}}},{name:"show_dateless_tasks",default:!0,selector:{boolean:{}}},{name:"show_future_tasks",default:!1,selector:{boolean:{}}},{name:"filter_section_id",selector:{text:{}}},{name:"person_entity",selector:{entity:{filter:{domain:"person"}}}},{name:"hide_card_background",default:!1,selector:{boolean:{}}},{name:"accent_color",selector:{text:{}}},{name:"task_text_color",selector:{text:{}}},{name:"untagged_header",default:"Untagged",selector:{text:{}}},{name:"tag_group_order",selector:{select:{multiple:!0,custom_value:!0,options:[]}}},{name:"show_add_task_button",default:!0,selector:{boolean:{}}}],computeLabel:e=>({entity:"Todo Entity",title:"Card Title",show_title:"Show Title",show_dateless_tasks:"Show Tasks Without Due Date",show_future_tasks:"Show Future Tasks",filter_section_id:"Filter by Section",person_entity:"Filter by Person",hide_card_background:"Hide Card Background",accent_color:"Accent Color",task_text_color:"Task Text Color",untagged_header:"Untagged Tasks Header",tag_group_order:"Tag Display Order",show_add_task_button:"Show Add Task Button"}[e.name]||void 0),computeHelper:e=>({entity:"Select the ChoreBot todo entity to display",title:"Custom title for the card",show_title:"Show the card title",show_dateless_tasks:"Show tasks that do not have a due date",show_future_tasks:"Show tasks with future due dates in a collapsible 'Upcoming' section (collapsed by default)",filter_section_id:'Enter section name (e.g., "SECOND SECTION"). Leave empty to show all sections.',person_entity:"Optional: Filter to show only tasks assigned to this person. Also inherits their accent color if set.",hide_card_background:"Hide the card background and padding for a seamless look",accent_color:"Accent color for task items and headers (hex code or CSS variable like var(--primary-color))",task_text_color:"Text color for task items (hex code or CSS variable)",untagged_header:'Header text for tasks without tags (default: "Untagged")',tag_group_order:"Order to display tag groups. Tags not listed will appear alphabetically after these.",show_add_task_button:"Show the 'Add Task' button below tag groups for creating new tasks"}[e.name]||void 0)}}};He.styles=a`
+    `;
+    }
+    _openAddTaskDialog() {
+        const entity = this.hass?.states[this._config.entity];
+        const sections = entity?.attributes.chorebot_sections || [];
+        // Create a blank task with smart defaults
+        this._newTask = this._createBlankTask(sections);
+        this._addTaskDialogOpen = true;
+    }
+    _closeAddTaskDialog() {
+        this._addTaskDialogOpen = false;
+        this._newTask = null;
+    }
+    _createBlankTask(sections) {
+        let defaultSectionId;
+        // Priority 1: Explicit section filter (can be either ID or name)
+        if (this._config.filter_section_id) {
+            // First try to find by ID
+            let filtered = sections.find((s) => s.id === this._config.filter_section_id);
+            // If not found by ID, try by name (case-insensitive)
+            if (!filtered) {
+                filtered = sections.find((s) => s.name.toLowerCase() ===
+                    this._config.filter_section_id.toLowerCase());
+            }
+            if (filtered) {
+                defaultSectionId = filtered.id;
+            }
+        }
+        // Priority 2: Person's assigned section (find section where person_id matches)
+        if (!defaultSectionId && this._config.person_entity) {
+            const personSection = sections.find((s) => s.person_id === this._config.person_entity);
+            if (personSection) {
+                defaultSectionId = personSection.id;
+            }
+        }
+        // Priority 3: First section (highest sort_order)
+        if (!defaultSectionId && sections.length > 0) {
+            defaultSectionId = sections.sort((a, b) => b.sort_order - a.sort_order)[0].id;
+        }
+        return {
+            uid: "",
+            summary: "",
+            status: "needs_action",
+            has_due_date: false,
+            is_all_day: false,
+            due_date: undefined,
+            due_time: undefined,
+            description: "",
+            section_id: defaultSectionId,
+            tags: [],
+            has_recurrence: false,
+            recurrence_frequency: "DAILY",
+            recurrence_interval: 1,
+            recurrence_byweekday: [],
+            recurrence_bymonthday: 1,
+            points_value: 0,
+            streak_bonus_points: 0,
+            streak_bonus_interval: 0,
+        };
+    }
+    _renderAddTaskDialog() {
+        const entity = this.hass?.states[this._config.entity];
+        const sections = entity?.attributes.chorebot_sections || [];
+        const availableTags = entity?.attributes.chorebot_tags || [];
+        return renderTaskDialog(this._addTaskDialogOpen, this._newTask, this.hass, sections, availableTags, this._savingNewTask, () => this._closeAddTaskDialog(), (ev) => this._formValueChangedForNewTask(ev), () => this._saveNewTask(), undefined, // onDelete - not applicable for new tasks
+        "Add Task", // Custom dialog title
+        false);
+    }
+    _formValueChangedForNewTask(ev) {
+        const updatedValues = ev.detail.value;
+        this._newTask = {
+            ...this._newTask,
+            ...updatedValues,
+        };
+        // Trigger re-render for conditional fields
+        if ("has_due_date" in updatedValues ||
+            "is_all_day" in updatedValues ||
+            "has_recurrence" in updatedValues ||
+            "recurrence_frequency" in updatedValues) {
+            this.requestUpdate();
+        }
+    }
+    async _saveNewTask() {
+        if (!this._newTask || !this._newTask.summary?.trim() || this._savingNewTask) {
+            return;
+        }
+        this._savingNewTask = true;
+        const serviceData = {
+            list_id: this._config.entity,
+            summary: this._newTask.summary.trim(),
+        };
+        // Handle due date
+        if (this._newTask.has_due_date && this._newTask.due_date) {
+            const isAllDay = !!this._newTask.is_all_day;
+            const timeStr = this._newTask.due_time || "00:00";
+            try {
+                serviceData.due = createISOString(this._newTask.due_date, timeStr, isAllDay);
+                serviceData.is_all_day = isAllDay;
+            }
+            catch (error) {
+                console.error("Invalid date/time combination:", error);
+                this._savingNewTask = false;
+                return;
+            }
+        }
+        // Handle description
+        if (this._newTask.description) {
+            serviceData.description = this._newTask.description;
+        }
+        // Handle section
+        if (this._newTask.section_id) {
+            serviceData.section_id = this._newTask.section_id;
+        }
+        // Handle tags
+        if (this._newTask.tags !== undefined && this._newTask.tags.length > 0) {
+            serviceData.tags = this._newTask.tags;
+        }
+        // Handle recurrence
+        const rrule = buildRrule(this._newTask);
+        if (rrule !== null) {
+            serviceData.rrule = rrule;
+        }
+        // Handle points
+        if (this._newTask.points_value !== undefined &&
+            this._newTask.points_value > 0) {
+            serviceData.points_value = this._newTask.points_value;
+        }
+        // Handle streak bonus (only for recurring tasks)
+        if (rrule !== null) {
+            if (this._newTask.streak_bonus_points !== undefined &&
+                this._newTask.streak_bonus_points > 0) {
+                serviceData.streak_bonus_points = this._newTask.streak_bonus_points;
+            }
+            if (this._newTask.streak_bonus_interval !== undefined &&
+                this._newTask.streak_bonus_interval > 0) {
+                serviceData.streak_bonus_interval = this._newTask.streak_bonus_interval;
+            }
+        }
+        try {
+            await this.hass.callService("chorebot", "add_task", serviceData);
+            this._closeAddTaskDialog();
+            // Reset task for next use
+            const entity = this.hass?.states[this._config.entity];
+            const sections = entity?.attributes.chorebot_sections || [];
+            this._newTask = this._createBlankTask(sections);
+        }
+        catch (error) {
+            console.error("Error adding task:", error);
+            alert("Failed to add task. Please try again.");
+        }
+        finally {
+            this._savingNewTask = false;
+        }
+    }
+    // ============================================================================
+    // Configuration
+    // ============================================================================
+    static getStubConfig() {
+        return {
+            entity: "",
+            title: "Tasks",
+            show_title: true,
+            show_dateless_tasks: true,
+            show_future_tasks: false,
+            filter_section_id: "",
+            person_entity: "",
+            hide_card_background: false,
+            accent_color: "",
+            task_text_color: "",
+            untagged_header: "Untagged",
+            tag_group_order: [],
+            show_add_task_button: true,
+        };
+    }
+    static getConfigForm() {
+        return {
+            schema: [
+                {
+                    name: "entity",
+                    required: true,
+                    selector: {
+                        entity: {
+                            filter: { domain: "todo" },
+                        },
+                    },
+                },
+                {
+                    name: "title",
+                    default: "Tasks",
+                    selector: { text: {} },
+                },
+                {
+                    name: "show_title",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_dateless_tasks",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_future_tasks",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "filter_section_id",
+                    selector: { text: {} },
+                },
+                {
+                    name: "person_entity",
+                    selector: {
+                        entity: {
+                            filter: { domain: "person" },
+                        },
+                    },
+                },
+                {
+                    name: "hide_card_background",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "accent_color",
+                    selector: { text: {} },
+                },
+                {
+                    name: "task_text_color",
+                    selector: { text: {} },
+                },
+                {
+                    name: "untagged_header",
+                    default: "Untagged",
+                    selector: { text: {} },
+                },
+                {
+                    name: "tag_group_order",
+                    selector: {
+                        select: {
+                            multiple: true,
+                            custom_value: true,
+                            options: [],
+                        },
+                    },
+                },
+                {
+                    name: "show_add_task_button",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+            ],
+            computeLabel: (schema) => {
+                const labels = {
+                    entity: "Todo Entity",
+                    title: "Card Title",
+                    show_title: "Show Title",
+                    show_dateless_tasks: "Show Tasks Without Due Date",
+                    show_future_tasks: "Show Future Tasks",
+                    filter_section_id: "Filter by Section",
+                    person_entity: "Filter by Person",
+                    hide_card_background: "Hide Card Background",
+                    accent_color: "Accent Color",
+                    task_text_color: "Task Text Color",
+                    untagged_header: "Untagged Tasks Header",
+                    tag_group_order: "Tag Display Order",
+                    show_add_task_button: "Show Add Task Button",
+                };
+                return labels[schema.name] || undefined;
+            },
+            computeHelper: (schema) => {
+                const helpers = {
+                    entity: "Select the ChoreBot todo entity to display",
+                    title: "Custom title for the card",
+                    show_title: "Show the card title",
+                    show_dateless_tasks: "Show tasks that do not have a due date",
+                    show_future_tasks: "Show tasks with future due dates in a collapsible 'Upcoming' section (collapsed by default)",
+                    filter_section_id: 'Enter section name (e.g., "SECOND SECTION"). Leave empty to show all sections.',
+                    person_entity: "Optional: Filter to show only tasks assigned to this person. Also inherits their accent color if set.",
+                    hide_card_background: "Hide the card background and padding for a seamless look",
+                    accent_color: "Accent color for task items and headers (hex code or CSS variable like var(--primary-color))",
+                    task_text_color: "Text color for task items (hex code or CSS variable)",
+                    untagged_header: 'Header text for tasks without tags (default: "Untagged")',
+                    tag_group_order: "Order to display tag groups. Tags not listed will appear alphabetically after these.",
+                    show_add_task_button: "Show the 'Add Task' button below tag groups for creating new tasks",
+                };
+                return helpers[schema.name] || undefined;
+            },
+        };
+    }
+};
+ChoreBotGroupedCard.styles = i$3 `
     :host {
       display: block;
     }
@@ -361,6 +3420,23 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
       align-items: center;
     }
 
+    .streak-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-left: 8px;
+      font-size: 14px;
+      font-weight: normal;
+      color: var(--warning-color, #ff9800);
+      vertical-align: middle;
+      line-height: 1;
+    }
+
+    .streak-indicator ha-icon {
+      --mdc-icon-size: 13px;
+      display: flex;
+    }
+
     .completion-circle {
       width: 48px;
       height: 48px;
@@ -459,61 +3535,385 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
     ha-dialog {
       --mdc-dialog-min-width: min(500px, 90vw);
     }
-  `,e([pe({attribute:!1})],He.prototype,"hass",void 0),e([ue()],He.prototype,"_config",void 0),e([ue()],He.prototype,"_editDialogOpen",void 0),e([ue()],He.prototype,"_editingTask",void 0),e([ue()],He.prototype,"_saving",void 0),e([ue()],He.prototype,"_groups",void 0),e([ue()],He.prototype,"_addTaskDialogOpen",void 0),e([ue()],He.prototype,"_newTask",void 0),e([ue()],He.prototype,"_savingNewTask",void 0),He=e([ce("chorebot-grouped-card")],He),window.customCards=window.customCards||[],window.customCards.push({type:"chorebot-grouped-card",name:"ChoreBot Grouped Card",description:"Display and manage ChoreBot tasks grouped by tags",preview:!0}),console.info("%c CHOREBOT-GROUPED-CARD %c v0.1.0 ","color: white; background: #2196F3; font-weight: bold;","color: #2196F3; background: white; font-weight: bold;");let Ne=class extends ne{constructor(){super(...arguments),this._dialogOpen=!1,this._newTask=null,this._saving=!1}setConfig(e){if(!e.entity)throw new Error("You need to define an entity");this._config={entity:e.entity,button_text:e.button_text||"Add Task",button_icon:e.button_icon||"mdi:plus",button_color:e.button_color||"var(--primary-color)",button_text_color:e.button_text_color||"white",button_size:e.button_size||"medium",hide_card_background:!0===e.hide_card_background,default_section_id:e.default_section_id,default_tags:e.default_tags||[]}}getCardSize(){return 1}render(){if(!this.hass||!this._config)return L`<ha-card>Loading...</ha-card>`;return this.hass.states[this._config.entity]?L`
-      <ha-card
-        class="${this._config.hide_card_background?"no-background":""}"
-      >
-        <div class="button-container">
-          <button
-            class="add-button ${this._config.button_size} ${this._config.button_text?"":"icon-only"}"
-            style="background: ${this._config.button_color}; color: ${this._config.button_text_color};"
-            @click=${this._openDialog}
-          >
-            <ha-icon icon="${this._config.button_icon}"></ha-icon>
-            ${this._config.button_text?L`<span>${this._config.button_text}</span>`:""}
-          </button>
-        </div>
-      </ha-card>
+  `;
+__decorate([
+    n({ attribute: false })
+], ChoreBotGroupedCard.prototype, "hass", void 0);
+__decorate([
+    r()
+], ChoreBotGroupedCard.prototype, "_config", void 0);
+__decorate([
+    r()
+], ChoreBotGroupedCard.prototype, "_editDialogOpen", void 0);
+__decorate([
+    r()
+], ChoreBotGroupedCard.prototype, "_editingTask", void 0);
+__decorate([
+    r()
+], ChoreBotGroupedCard.prototype, "_saving", void 0);
+__decorate([
+    r()
+], ChoreBotGroupedCard.prototype, "_groups", void 0);
+__decorate([
+    r()
+], ChoreBotGroupedCard.prototype, "_addTaskDialogOpen", void 0);
+__decorate([
+    r()
+], ChoreBotGroupedCard.prototype, "_newTask", void 0);
+__decorate([
+    r()
+], ChoreBotGroupedCard.prototype, "_savingNewTask", void 0);
+ChoreBotGroupedCard = __decorate([
+    t("chorebot-grouped-card")
+], ChoreBotGroupedCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "chorebot-grouped-card",
+    name: "ChoreBot Grouped Card",
+    description: "Display and manage ChoreBot tasks grouped by tags",
+    preview: true,
+});
+console.info("%c CHOREBOT-GROUPED-CARD %c v0.1.0 ", "color: white; background: #2196F3; font-weight: bold;", "color: #2196F3; background: white; font-weight: bold;");
 
-      ${this._renderDialog()}
-    `:L`<ha-card>
+// ============================================================================
+// ChoreBot Add Task Card (TypeScript)
+// ============================================================================
+/**
+ * ChoreBot Add Task Card
+ *
+ * A simple button card that opens a dialog to create new tasks.
+ * Reuses the shared task dialog for consistency with edit operations.
+ */
+let ChoreBotAddTaskCard = class ChoreBotAddTaskCard extends i {
+    constructor() {
+        super(...arguments);
+        this._dialogOpen = false;
+        this._newTask = null;
+        this._saving = false;
+    }
+    setConfig(config) {
+        if (!config.entity) {
+            throw new Error("You need to define an entity");
+        }
+        this._config = {
+            entity: config.entity,
+            button_text: config.button_text || "Add Task",
+            button_icon: config.button_icon || "mdi:plus",
+            button_color: config.button_color || "var(--primary-color)",
+            button_text_color: config.button_text_color || "white",
+            button_size: config.button_size || "medium",
+            hide_card_background: config.hide_card_background === true,
+            default_section_id: config.default_section_id,
+            default_tags: config.default_tags || [],
+        };
+    }
+    getCardSize() {
+        return 1;
+    }
+    render() {
+        if (!this.hass || !this._config) {
+            return b `<ha-card>Loading...</ha-card>`;
+        }
+        const entity = this.hass.states[this._config.entity];
+        if (!entity) {
+            return b `<ha-card>
         <div
           style="text-align: center; padding: 16px; color: var(--error-color);"
         >
           Entity not found: ${this._config.entity}
         </div>
-      </ha-card>`}_openDialog(){const e=this.hass?.states[this._config.entity],t=e?.attributes.chorebot_sections||[];this._newTask=this._createBlankTask(t),this._dialogOpen=!0}_closeDialog(){this._dialogOpen=!1,this._newTask=null}_createBlankTask(e){let t;if(this._config.default_section_id){const o=e.find(e=>e.id===this._config.default_section_id);if(o)t=o.id;else{const o=e.find(e=>e.name.toLowerCase()===this._config.default_section_id.toLowerCase());o&&(t=o.id)}}else e.length>0&&(t=e.sort((e,t)=>t.sort_order-e.sort_order)[0].id);return{uid:"",summary:"",status:"needs_action",has_due_date:!1,is_all_day:!1,due_date:void 0,due_time:void 0,description:"",section_id:t,tags:this._config.default_tags||[],has_recurrence:!1,recurrence_frequency:"DAILY",recurrence_interval:1,recurrence_byweekday:[],recurrence_bymonthday:1}}_renderDialog(){const e=this.hass?.states[this._config.entity],t=e?.attributes.chorebot_sections||[],o=e?.attributes.chorebot_tags||[];return Re(this._dialogOpen,this._newTask,this.hass,t,o,this._saving,()=>this._closeDialog(),e=>this._formValueChanged(e),()=>this._saveTask(),void 0,"Add Task",!1)}_formValueChanged(e){const t=e.detail.value;this._newTask={...this._newTask,...t},("has_due_date"in t||"is_all_day"in t||"has_recurrence"in t||"recurrence_frequency"in t)&&this.requestUpdate()}async _saveTask(){if(!this._newTask||!this._newTask.summary?.trim()||this._saving)return;this._saving=!0;const e={list_id:this._config.entity,summary:this._newTask.summary.trim()};if(this._newTask.has_due_date&&this._newTask.due_date){const t=!!this._newTask.is_all_day;let o;if(t||!this._newTask.due_time)o=`${this._newTask.due_date}T00:00:00`;else{const e=3===this._newTask.due_time.split(":").length?this._newTask.due_time:`${this._newTask.due_time}:00`;o=`${this._newTask.due_date}T${e}`}const r=new Date(o);if(isNaN(r.getTime()))return console.error("Invalid date/time combination:",o),void(this._saving=!1);e.due=r.toISOString(),e.is_all_day=t}this._newTask.description&&(e.description=this._newTask.description),this._newTask.section_id&&(e.section_id=this._newTask.section_id),void 0!==this._newTask.tags&&this._newTask.tags.length>0&&(e.tags=this._newTask.tags);const t=$e(this._newTask);null!==t&&(e.rrule=t),void 0!==this._newTask.points_value&&this._newTask.points_value>0&&(e.points_value=this._newTask.points_value),null!==t&&(void 0!==this._newTask.streak_bonus_points&&this._newTask.streak_bonus_points>0&&(e.streak_bonus_points=this._newTask.streak_bonus_points),void 0!==this._newTask.streak_bonus_interval&&this._newTask.streak_bonus_interval>0&&(e.streak_bonus_interval=this._newTask.streak_bonus_interval));try{await this.hass.callService("chorebot","add_task",e),this._closeDialog();const t=this.hass?.states[this._config.entity],o=t?.attributes.chorebot_sections||[];this._newTask=this._createBlankTask(o)}catch(e){console.error("Error adding task:",e),alert("Failed to add task. Please try again.")}finally{this._saving=!1}}static getStubConfig(){return{entity:"",button_text:"Add Task",button_icon:"mdi:plus",button_color:"var(--primary-color)",button_text_color:"white",button_size:"medium",hide_card_background:!1,default_section_id:"",default_tags:[]}}static getConfigForm(){return{schema:[{name:"entity",required:!0,selector:{entity:{filter:{domain:"todo"}}}},{name:"button_text",default:"Add Task",selector:{text:{}}},{name:"button_icon",default:"mdi:plus",selector:{icon:{}}},{name:"button_color",default:"var(--primary-color)",selector:{text:{}}},{name:"button_text_color",default:"white",selector:{text:{}}},{name:"button_size",default:"medium",selector:{select:{options:[{label:"Small",value:"small"},{label:"Medium",value:"medium"},{label:"Large",value:"large"}]}}},{name:"hide_card_background",default:!1,selector:{boolean:{}}},{name:"default_section_id",selector:{text:{}}},{name:"default_tags",selector:{select:{multiple:!0,custom_value:!0,options:[]}}}],computeLabel:e=>({entity:"Todo Entity",button_text:"Button Text",button_icon:"Button Icon",button_color:"Button Color",button_text_color:"Button Text Color",button_size:"Button Size",hide_card_background:"Hide Card Background",default_section_id:"Default Section",default_tags:"Default Tags"}[e.name]||void 0),computeHelper:e=>({entity:"Select the ChoreBot todo entity for new tasks",button_text:"Text displayed on the button",button_icon:"Icon displayed on the button",button_color:"Button background color (hex code or CSS variable like var(--primary-color))",button_text_color:"Button text color (hex code or CSS variable)",button_size:"Size of the button",hide_card_background:"Hide the card background and padding for a seamless look",default_section_id:'Default section for new tasks (enter section name like "Kyle" or leave empty for automatic)',default_tags:"Tags to pre-fill when creating new tasks"}[e.name]||void 0)}}};function je(e,t,o,r=64){const s=e.states[t],i=s?.attributes.entity_picture,a=qe(e,t),n=a.split(" ").map(e=>e[0]).join("").toUpperCase().slice(0,2);const d=`width: ${r}px; height: ${r}px;`,c=Math.floor(.375*r);return i?L`
-      <div class="person-avatar" style="${d}">
-        <img src="${i}" alt="${a}" />
-      </div>
-    `:L`
-    <div
-      class="person-avatar initials"
-      style="${d} font-size: ${c}px;"
-    >
-      ${n}
-    </div>
-  `}function Le(e,t,o){const r=Te(t);return L`
-    <div class="person-points" style="color: ${o}">
-      ${e.points_balance}
-      ${r.icon?L`<ha-icon icon="${r.icon}"></ha-icon>`:""}
-      ${r.text?r.text:""}
-    </div>
-  `}function qe(e,t){const o=e.states[t];return o?.attributes.friendly_name||t.replace("person.","")}function Ye(e){const t=e.states["sensor.chorebot_points"];if(!t)return[];const o=t.attributes.people||{};return Object.values(o)}function We(e,t,o,r){const s=e.total>0?e.completed/e.total*100:0,i=o||"var(--text-primary-color)",a=`${e.completed} of ${e.total} tasks completed`;return L`
-    <div
-      class="progress-bar"
-      style="background: #${t.lighter}"
-      aria-label="${a}"
-    >
-      <div
-        class="progress-bar-fill"
-        style="width: ${s}%; background: #${t.darker}"
-      ></div>
-      <div class="progress-text" style="color: ${i}">
-        ${e.completed}/${e.total}
-      </div>
-    </div>
-  `}Ne.styles=a`
+      </ha-card>`;
+        }
+        return b `
+      <ha-card
+        class="${this._config.hide_card_background ? "no-background" : ""}"
+      >
+        <div class="button-container">
+          <button
+            class="add-button ${this._config.button_size} ${this._config
+            .button_text
+            ? ""
+            : "icon-only"}"
+            style="background: ${this._config.button_color}; color: ${this
+            ._config.button_text_color};"
+            @click=${this._openDialog}
+          >
+            <ha-icon icon="${this._config.button_icon}"></ha-icon>
+            ${this._config.button_text
+            ? b `<span>${this._config.button_text}</span>`
+            : ""}
+          </button>
+        </div>
+      </ha-card>
+
+      ${this._renderDialog()}
+    `;
+    }
+    // ============================================================================
+    // Dialog Management
+    // ============================================================================
+    _openDialog() {
+        const entity = this.hass?.states[this._config.entity];
+        const sections = entity?.attributes.chorebot_sections || [];
+        // Create a blank task with defaults from config
+        this._newTask = this._createBlankTask(sections);
+        this._dialogOpen = true;
+    }
+    _closeDialog() {
+        this._dialogOpen = false;
+        this._newTask = null;
+    }
+    _createBlankTask(sections) {
+        // Determine default section
+        let defaultSectionId;
+        if (this._config.default_section_id) {
+            // Config can specify either the section ID or the section name
+            // First try to find a section with matching ID
+            const byId = sections.find((s) => s.id === this._config.default_section_id);
+            if (byId) {
+                defaultSectionId = byId.id;
+            }
+            else {
+                // Try to find a section with matching name (case-insensitive)
+                const byName = sections.find((s) => s.name.toLowerCase() ===
+                    this._config.default_section_id.toLowerCase());
+                if (byName) {
+                    defaultSectionId = byName.id;
+                }
+            }
+        }
+        else if (sections.length > 0) {
+            // Use the first section (highest sort_order)
+            defaultSectionId = sections.sort((a, b) => b.sort_order - a.sort_order)[0].id;
+        }
+        return {
+            uid: "", // Will be generated by backend
+            summary: "",
+            status: "needs_action",
+            has_due_date: false,
+            is_all_day: false,
+            due_date: undefined,
+            due_time: undefined,
+            description: "",
+            section_id: defaultSectionId,
+            tags: this._config.default_tags || [],
+            has_recurrence: false,
+            recurrence_frequency: "DAILY",
+            recurrence_interval: 1,
+            recurrence_byweekday: [],
+            recurrence_bymonthday: 1,
+        };
+    }
+    _renderDialog() {
+        const entity = this.hass?.states[this._config.entity];
+        const sections = entity?.attributes.chorebot_sections || [];
+        const availableTags = entity?.attributes.chorebot_tags || [];
+        return renderTaskDialog(this._dialogOpen, this._newTask, this.hass, sections, availableTags, this._saving, () => this._closeDialog(), (ev) => this._formValueChanged(ev), () => this._saveTask(), undefined, // onDelete - not applicable for new tasks
+        "Add Task", // Custom dialog title
+        false);
+    }
+    // ============================================================================
+    // Form Handling
+    // ============================================================================
+    _formValueChanged(ev) {
+        const updatedValues = ev.detail.value;
+        this._newTask = {
+            ...this._newTask,
+            ...updatedValues,
+        };
+        // Trigger re-render for conditional fields
+        if ("has_due_date" in updatedValues ||
+            "is_all_day" in updatedValues ||
+            "has_recurrence" in updatedValues ||
+            "recurrence_frequency" in updatedValues) {
+            this.requestUpdate();
+        }
+    }
+    async _saveTask() {
+        if (!this._newTask || !this._newTask.summary?.trim() || this._saving) {
+            return;
+        }
+        this._saving = true;
+        const serviceData = {
+            list_id: this._config.entity,
+            summary: this._newTask.summary.trim(),
+        };
+        // Handle due date
+        if (this._newTask.has_due_date && this._newTask.due_date) {
+            const isAllDay = !!this._newTask.is_all_day;
+            const timeStr = this._newTask.due_time || "00:00";
+            try {
+                serviceData.due = createISOString(this._newTask.due_date, timeStr, isAllDay);
+                serviceData.is_all_day = isAllDay;
+            }
+            catch (error) {
+                console.error("Invalid date/time combination:", error);
+                this._saving = false;
+                return;
+            }
+        }
+        // Handle description
+        if (this._newTask.description) {
+            serviceData.description = this._newTask.description;
+        }
+        // Handle section
+        if (this._newTask.section_id) {
+            serviceData.section_id = this._newTask.section_id;
+        }
+        // Handle tags
+        if (this._newTask.tags !== undefined && this._newTask.tags.length > 0) {
+            serviceData.tags = this._newTask.tags;
+        }
+        // Handle recurrence
+        const rrule = buildRrule(this._newTask);
+        if (rrule !== null) {
+            serviceData.rrule = rrule;
+        }
+        // Handle points
+        if (this._newTask.points_value !== undefined &&
+            this._newTask.points_value > 0) {
+            serviceData.points_value = this._newTask.points_value;
+        }
+        // Handle streak bonus (only for recurring tasks)
+        if (rrule !== null) {
+            if (this._newTask.streak_bonus_points !== undefined &&
+                this._newTask.streak_bonus_points > 0) {
+                serviceData.streak_bonus_points = this._newTask.streak_bonus_points;
+            }
+            if (this._newTask.streak_bonus_interval !== undefined &&
+                this._newTask.streak_bonus_interval > 0) {
+                serviceData.streak_bonus_interval = this._newTask.streak_bonus_interval;
+            }
+        }
+        try {
+            await this.hass.callService("chorebot", "add_task", serviceData);
+            this._closeDialog();
+            // Reset task for next use
+            const entity = this.hass?.states[this._config.entity];
+            const sections = entity?.attributes.chorebot_sections || [];
+            this._newTask = this._createBlankTask(sections);
+        }
+        catch (error) {
+            console.error("Error adding task:", error);
+            alert("Failed to add task. Please try again.");
+        }
+        finally {
+            this._saving = false;
+        }
+    }
+    // ============================================================================
+    // Configuration
+    // ============================================================================
+    static getStubConfig() {
+        return {
+            entity: "",
+            button_text: "Add Task",
+            button_icon: "mdi:plus",
+            button_color: "var(--primary-color)",
+            button_text_color: "white",
+            button_size: "medium",
+            hide_card_background: false,
+            default_section_id: "",
+            default_tags: [],
+        };
+    }
+    static getConfigForm() {
+        return {
+            schema: [
+                {
+                    name: "entity",
+                    required: true,
+                    selector: {
+                        entity: {
+                            filter: { domain: "todo" },
+                        },
+                    },
+                },
+                {
+                    name: "button_text",
+                    default: "Add Task",
+                    selector: { text: {} },
+                },
+                {
+                    name: "button_icon",
+                    default: "mdi:plus",
+                    selector: { icon: {} },
+                },
+                {
+                    name: "button_color",
+                    default: "var(--primary-color)",
+                    selector: { text: {} },
+                },
+                {
+                    name: "button_text_color",
+                    default: "white",
+                    selector: { text: {} },
+                },
+                {
+                    name: "button_size",
+                    default: "medium",
+                    selector: {
+                        select: {
+                            options: [
+                                { label: "Small", value: "small" },
+                                { label: "Medium", value: "medium" },
+                                { label: "Large", value: "large" },
+                            ],
+                        },
+                    },
+                },
+                {
+                    name: "hide_card_background",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "default_section_id",
+                    selector: { text: {} },
+                },
+                {
+                    name: "default_tags",
+                    selector: {
+                        select: {
+                            multiple: true,
+                            custom_value: true,
+                            options: [],
+                        },
+                    },
+                },
+            ],
+            computeLabel: (schema) => {
+                const labels = {
+                    entity: "Todo Entity",
+                    button_text: "Button Text",
+                    button_icon: "Button Icon",
+                    button_color: "Button Color",
+                    button_text_color: "Button Text Color",
+                    button_size: "Button Size",
+                    hide_card_background: "Hide Card Background",
+                    default_section_id: "Default Section",
+                    default_tags: "Default Tags",
+                };
+                return labels[schema.name] || undefined;
+            },
+            computeHelper: (schema) => {
+                const helpers = {
+                    entity: "Select the ChoreBot todo entity for new tasks",
+                    button_text: "Text displayed on the button",
+                    button_icon: "Icon displayed on the button",
+                    button_color: "Button background color (hex code or CSS variable like var(--primary-color))",
+                    button_text_color: "Button text color (hex code or CSS variable)",
+                    button_size: "Size of the button",
+                    hide_card_background: "Hide the card background and padding for a seamless look",
+                    default_section_id: 'Default section for new tasks (enter section name like "Kyle" or leave empty for automatic)',
+                    default_tags: "Tags to pre-fill when creating new tasks",
+                };
+                return helpers[schema.name] || undefined;
+            },
+        };
+    }
+};
+ChoreBotAddTaskCard.styles = i$3 `
     :host {
       display: block;
     }
@@ -585,39 +3985,384 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
     ha-dialog {
       --mdc-dialog-min-width: min(500px, 90vw);
     }
-  `,e([pe({attribute:!1})],Ne.prototype,"hass",void 0),e([ue()],Ne.prototype,"_config",void 0),e([ue()],Ne.prototype,"_dialogOpen",void 0),e([ue()],Ne.prototype,"_newTask",void 0),e([ue()],Ne.prototype,"_saving",void 0),Ne=e([ce("chorebot-add-task-card")],Ne),window.customCards=window.customCards||[],window.customCards.push({type:"chorebot-add-task-card",name:"ChoreBot Add Task Card",description:"A button card for quickly adding new ChoreBot tasks",preview:!0}),console.info("%c CHOREBOT-ADD-TASK-CARD %c v0.1.0 ","color: white; background: #4CAF50; font-weight: bold;","color: #4CAF50; background: white; font-weight: bold;");let Ge=class extends ne{constructor(){super(...arguments),this.shades={lighter:"",light:"",base:"",dark:"",darker:""}}setConfig(e){if(!e.person_entity)throw new Error("person_entity is required");this._config={type:"custom:chorebot-person-points-card",person_entity:e.person_entity,title:e.title||"Points",show_title:!1!==e.show_title,hide_card_background:!0===e.hide_card_background,show_progress:!1!==e.show_progress,accent_color:e.accent_color||"",progress_text_color:e.progress_text_color||""}}willUpdate(e){if(super.willUpdate(e),(e.has("_config")||e.has("hass"))&&this._config&&this.hass){const e=Ee(this.hass,this._config.accent_color,this._config.person_entity);this.shades=De(e)}(e.has("hass")||e.has("_config"))&&this.hass&&this._config&&(this._progress=this._calculatePersonProgress())}_calculatePersonProgress(){if(!this.hass||!this._config)return{completed:0,total:0};const e=Object.values(this.hass.states).filter(e=>e.entity_id.startsWith("todo.")),t=e.filter(e=>e.entity_id.startsWith("todo.chorebot_"));return ve(xe(t,this._config.person_entity,!1))}static getStubConfig(){return{type:"custom:chorebot-person-points-card",person_entity:"",title:"Points",show_title:!0,hide_card_background:!1,show_progress:!0,accent_color:"",progress_text_color:""}}static getConfigForm(){return{schema:[{name:"person_entity",required:!0,selector:{entity:{filter:{domain:"person"}}}},{name:"title",default:"Points",selector:{text:{}}},{name:"show_title",default:!0,selector:{boolean:{}}},{name:"hide_card_background",default:!1,selector:{boolean:{}}},{name:"show_progress",default:!0,selector:{boolean:{}}},{name:"accent_color",selector:{text:{}}},{name:"progress_text_color",selector:{text:{}}}],computeLabel:e=>({person_entity:"Person Entity",title:"Card Title",show_title:"Show Title",hide_card_background:"Hide Card Background",show_progress:"Show Progress Bar",accent_color:"Accent Color",progress_text_color:"Progress Text Color"}[e.name]||void 0),computeHelper:e=>({person_entity:"Select the person entity to display points for",title:"Custom title for the card",show_title:"Show the card title",hide_card_background:"Hide the card background and padding for a seamless look",show_progress:"Display task completion progress below the person's name",accent_color:"Accent color for progress bar and points text (hex code or CSS variable like var(--primary-color))",progress_text_color:"Text color for progress label (hex code or CSS variable)"}[e.name]||void 0)}}getCardSize(){return 1}render(){if(!this.hass||!this._config)return L``;const e=this.hass.states["sensor.chorebot_points"];if(!e)return L`<ha-card>
+  `;
+__decorate([
+    n({ attribute: false })
+], ChoreBotAddTaskCard.prototype, "hass", void 0);
+__decorate([
+    r()
+], ChoreBotAddTaskCard.prototype, "_config", void 0);
+__decorate([
+    r()
+], ChoreBotAddTaskCard.prototype, "_dialogOpen", void 0);
+__decorate([
+    r()
+], ChoreBotAddTaskCard.prototype, "_newTask", void 0);
+__decorate([
+    r()
+], ChoreBotAddTaskCard.prototype, "_saving", void 0);
+ChoreBotAddTaskCard = __decorate([
+    t("chorebot-add-task-card")
+], ChoreBotAddTaskCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "chorebot-add-task-card",
+    name: "ChoreBot Add Task Card",
+    description: "A button card for quickly adding new ChoreBot tasks",
+    preview: true,
+});
+console.info("%c CHOREBOT-ADD-TASK-CARD %c v0.1.0 ", "color: white; background: #4CAF50; font-weight: bold;", "color: #4CAF50; background: white; font-weight: bold;");
+
+// ============================================================================
+// Person Display Utilities
+// ============================================================================
+// Shared utilities for rendering person avatars, points, and profiles
+// across multiple ChoreBot cards.
+/**
+ * Render person avatar (image or initials fallback)
+ * @param personEntity - Home Assistant person entity
+ * @param personProfile - Person profile with points/settings
+ * @param size - Avatar size in pixels (default: 64)
+ */
+function renderPersonAvatar(hass, personEntityId, personProfile, size = 64) {
+    const personEntity = hass.states[personEntityId];
+    const pictureUrl = personEntity?.attributes.entity_picture;
+    const name = getPersonName(hass, personEntityId);
+    const initials = getPersonInitials(name);
+    const avatarStyle = `width: ${size}px; height: ${size}px;`;
+    const initialsSize = Math.floor(size * 0.375); // 37.5% of avatar size
+    if (pictureUrl) {
+        return b `
+      <div class="person-avatar" style="${avatarStyle}">
+        <img src="${pictureUrl}" alt="${name}" />
+      </div>
+    `;
+    }
+    return b `
+    <div
+      class="person-avatar initials"
+      style="${avatarStyle} font-size: ${initialsSize}px;"
+    >
+      ${initials}
+    </div>
+  `;
+}
+/**
+ * Render person points display with icon/text
+ * @param personProfile - Person profile with points balance
+ * @param hass - Home Assistant instance for getting points display config
+ * @param accentColor - Color for points text (hex or CSS variable)
+ */
+function renderPersonPoints(personProfile, hass, accentColor) {
+    const parts = getPointsDisplayParts(hass);
+    return b `
+    <div class="person-points" style="color: ${accentColor}">
+      ${personProfile.points_balance}
+      ${parts.icon ? b `<ha-icon icon="${parts.icon}"></ha-icon>` : ""}
+      ${parts.text ? parts.text : ""}
+    </div>
+  `;
+}
+/**
+ * Get person initials for avatar fallback
+ * @param personName - Person's display name
+ * @returns Up to 2 uppercase initials
+ */
+function getPersonInitials(personName) {
+    return personName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+}
+/**
+ * Get person name from entity
+ * @param hass - Home Assistant instance
+ * @param personId - Person entity ID (e.g., "person.kyle")
+ * @returns Friendly name or fallback to entity_id without domain
+ */
+function getPersonName(hass, personId) {
+    const entity = hass.states[personId];
+    return entity?.attributes.friendly_name || personId.replace("person.", "");
+}
+/**
+ * Get all person profiles from sensor
+ * @param hass - Home Assistant instance
+ * @returns Array of PersonProfile objects
+ */
+function getAllPeople(hass) {
+    const sensor = hass.states["sensor.chorebot_points"];
+    if (!sensor)
+        return [];
+    const people = sensor.attributes.people || {};
+    return Object.values(people);
+}
+/**
+ * Detect logged-in user's person entity (best-effort)
+ * Matches hass.user.name to person entity friendly_name
+ * @param hass - Home Assistant instance
+ * @returns Person entity ID if detected, null otherwise
+ */
+function detectCurrentUserPerson(hass) {
+    // Check if user info is available
+    const userName = hass.user?.name;
+    if (!userName)
+        return null;
+    // Get all person entities
+    const personEntities = Object.values(hass.states).filter((e) => e.entity_id.startsWith("person."));
+    // Try to find matching person by friendly_name
+    const matchingPerson = personEntities.find((p) => p.attributes.friendly_name?.toLowerCase() === userName.toLowerCase());
+    return matchingPerson?.entity_id || null;
+}
+
+// ============================================================================
+// Progress Bar Rendering Utility
+// ============================================================================
+// Shared utility for rendering progress bars consistently across ChoreBot cards
+/**
+ * Render a progress bar with fill and text overlay
+ * @param progress - Progress object with completed/total counts
+ * @param shades - Color shades for styling (lighter for background, darker for fill)
+ * @param textColor - Optional text color override (defaults to --text-primary-color)
+ * @param ariaLabel - Optional custom aria-label for accessibility
+ * @returns TemplateResult for progress bar
+ */
+function renderProgressBar(progress, shades, textColor, ariaLabel) {
+    const percentage = progress.total > 0 ? (progress.completed / progress.total) * 100 : 0;
+    const finalTextColor = textColor || "var(--text-primary-color)";
+    const label = `${progress.completed} of ${progress.total} tasks completed`;
+    return b `
+    <div
+      class="progress-bar"
+      style="background: #${shades.lighter}"
+      aria-label="${label}"
+    >
+      <div
+        class="progress-bar-fill"
+        style="width: ${percentage}%; background: #${shades.darker}"
+      ></div>
+      <div class="progress-text" style="color: ${finalTextColor}">
+        ${progress.completed}/${progress.total}
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// ChoreBot Person Points Card (TypeScript)
+// ============================================================================
+/**
+ * ChoreBot Person Points Card
+ *
+ * Displays a single person's avatar and current points balance in a compact
+ * horizontal layout. Designed to be placed above a person's task list card
+ * for quick visual feedback.
+ */
+let ChoreBotPersonPointsCard = class ChoreBotPersonPointsCard extends i {
+    constructor() {
+        super(...arguments);
+        this.shades = {
+            lighter: "",
+            light: "",
+            base: "",
+            dark: "",
+            darker: "",
+        };
+    }
+    setConfig(config) {
+        if (!config.person_entity) {
+            throw new Error("person_entity is required");
+        }
+        this._config = {
+            type: "custom:chorebot-person-points-card",
+            person_entity: config.person_entity,
+            title: config.title || "Points",
+            show_title: config.show_title !== false,
+            hide_card_background: config.hide_card_background === true,
+            show_progress: config.show_progress !== false, // Default: true
+            accent_color: config.accent_color || "",
+            progress_text_color: config.progress_text_color || "",
+        };
+    }
+    willUpdate(changedProperties) {
+        super.willUpdate(changedProperties);
+        // Recalculate color shades when config or hass changes
+        if ((changedProperties.has("_config") || changedProperties.has("hass")) &&
+            this._config &&
+            this.hass) {
+            const baseColor = resolveAccentColor(this.hass, this._config.accent_color, this._config.person_entity);
+            this.shades = calculateColorShades(baseColor);
+        }
+        // Recalculate progress when hass or config changes
+        if ((changedProperties.has("hass") || changedProperties.has("_config")) &&
+            this.hass &&
+            this._config) {
+            this._progress = this._calculatePersonProgress();
+        }
+    }
+    _calculatePersonProgress() {
+        if (!this.hass || !this._config) {
+            return { completed: 0, total: 0 };
+        }
+        // Get all ChoreBot todo entities
+        const allStates = Object.values(this.hass.states);
+        const todoEntities = allStates.filter((e) => e.entity_id.startsWith("todo."));
+        const entities = todoEntities.filter((e) => e.entity_id.startsWith("todo.chorebot_"));
+        // Filter tasks assigned to this person (excludes dateless by default)
+        const personTasks = filterTasksByPerson(entities, this._config.person_entity, false);
+        // Calculate progress for dated tasks only
+        return calculateDatedTasksProgress(personTasks);
+    }
+    static getStubConfig() {
+        return {
+            type: "custom:chorebot-person-points-card",
+            person_entity: "",
+            title: "Points",
+            show_title: true,
+            hide_card_background: false,
+            show_progress: true,
+            accent_color: "",
+            progress_text_color: "",
+        };
+    }
+    static getConfigForm() {
+        return {
+            schema: [
+                {
+                    name: "person_entity",
+                    required: true,
+                    selector: {
+                        entity: {
+                            filter: { domain: "person" },
+                        },
+                    },
+                },
+                {
+                    name: "title",
+                    default: "Points",
+                    selector: { text: {} },
+                },
+                {
+                    name: "show_title",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "hide_card_background",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_progress",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "accent_color",
+                    selector: { text: {} },
+                },
+                {
+                    name: "progress_text_color",
+                    selector: { text: {} },
+                },
+            ],
+            computeLabel: (schema) => {
+                const labels = {
+                    person_entity: "Person Entity",
+                    title: "Card Title",
+                    show_title: "Show Title",
+                    hide_card_background: "Hide Card Background",
+                    show_progress: "Show Progress Bar",
+                    accent_color: "Accent Color",
+                    progress_text_color: "Progress Text Color",
+                };
+                return labels[schema.name] || undefined;
+            },
+            computeHelper: (schema) => {
+                const helpers = {
+                    person_entity: "Select the person entity to display points for",
+                    title: "Custom title for the card",
+                    show_title: "Show the card title",
+                    hide_card_background: "Hide the card background and padding for a seamless look",
+                    show_progress: "Display task completion progress below the person's name",
+                    accent_color: "Accent color for progress bar and points text (hex code or CSS variable like var(--primary-color))",
+                    progress_text_color: "Text color for progress label (hex code or CSS variable)",
+                };
+                return helpers[schema.name] || undefined;
+            },
+        };
+    }
+    getCardSize() {
+        return 1;
+    }
+    render() {
+        if (!this.hass || !this._config) {
+            return b ``;
+        }
+        // Check if ChoreBot sensor exists
+        const sensor = this.hass.states["sensor.chorebot_points"];
+        if (!sensor) {
+            return b `<ha-card>
         <div class="error-message">
           ChoreBot Points sensor not found. Make sure the integration is set up.
         </div>
-      </ha-card>`;const t=this.hass.states[this._config.person_entity];if(!t)return L`<ha-card>
+      </ha-card>`;
+        }
+        // Check if person entity exists
+        const personEntity = this.hass.states[this._config.person_entity];
+        if (!personEntity) {
+            return b `<ha-card>
         <div class="error-message">
           Person entity not found. Please check your configuration.
         </div>
-      </ha-card>`;const o=(e.attributes.people||{})[this._config.person_entity];return o?L`
-      <ha-card
-        class="${this._config.hide_card_background?"no-background":""}"
-      >
-        ${this._config.show_title?L`<div class="card-header">${this._config.title}</div>`:""}
-        ${this._renderPersonDisplay(t,o)}
-      </ha-card>
-    `:L`<ha-card>
+      </ha-card>`;
+        }
+        // Get person data from sensor
+        const people = sensor.attributes.people || {};
+        const personData = people[this._config.person_entity];
+        if (!personData) {
+            return b `<ha-card>
         <div class="error-message">
           Person not found in points system. Complete tasks to earn points.
         </div>
-      </ha-card>`}_renderPersonDisplay(e,t){const o=qe(this.hass,this._config.person_entity);return L`
+      </ha-card>`;
+        }
+        return b `
+      <ha-card
+        class="${this._config.hide_card_background ? "no-background" : ""}"
+      >
+        ${this._config.show_title
+            ? b `<div class="card-header">${this._config.title}</div>`
+            : ""}
+        ${this._renderPersonDisplay(personEntity, personData)}
+      </ha-card>
+    `;
+    }
+    _renderPersonDisplay(personEntity, personData) {
+        const name = getPersonName(this.hass, this._config.person_entity);
+        return b `
       <div class="person-container">
         <div class="person-left">
-          ${je(this.hass,this._config.person_entity,0,64)}
+          ${renderPersonAvatar(this.hass, this._config.person_entity, personData, 64)}
         </div>
         <div class="person-info">
           <div class="person-header">
-            <div class="person-name">${o}</div>
-            ${Le(t,this.hass,`#${this.shades.base}`)}
+            <div class="person-name">${name}</div>
+            ${renderPersonPoints(personData, this.hass, `#${this.shades.base}`)}
           </div>
-          ${this._config.show_progress&&this._progress?this._renderProgressBar(this._progress):""}
+          ${this._config.show_progress && this._progress
+            ? this._renderProgressBar(this._progress)
+            : ""}
         </div>
       </div>
-    `}_renderProgressBar(e){return We(e,this.shades,this._config.progress_text_color)}};Ge.styles=a`
+    `;
+    }
+    _renderProgressBar(progress) {
+        return renderProgressBar(progress, this.shades, this._config.progress_text_color);
+    }
+};
+ChoreBotPersonPointsCard.styles = i$3 `
     :host {
       display: block;
       margin-bottom: 1em;
@@ -785,36 +4530,276 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
         --mdc-icon-size: 18px;
       }
     }
-  `,e([pe({attribute:!1})],Ge.prototype,"hass",void 0),e([ue()],Ge.prototype,"_config",void 0),e([ue()],Ge.prototype,"_progress",void 0),Ge=e([ce("chorebot-person-points-card")],Ge),window.customCards=window.customCards||[],window.customCards.push({type:"chorebot-person-points-card",name:"ChoreBot Person Points Card",description:"Display a person's avatar and points balance",preview:!0}),console.info("%c CHOREBOT-PERSON-POINTS-CARD %c v0.1.0 ","color: white; background: #FF9800; font-weight: bold;","color: #FF9800; background: white; font-weight: bold;");let Ve=class extends ne{constructor(){super(...arguments),this._redeeming=null,this._showConfirmModal=!1,this._showAddRewardModal=!1,this._pendingRedemption=null,this._rewardFormData={name:"",cost:50,icon:"mdi:gift",description:""},this._showEditRewardModal=!1,this._editingRewardId=null,this._rewardFormSchema=[{name:"name",required:!0,selector:{text:{}}},{name:"cost",selector:{number:{min:1,max:1e4,mode:"box"}}},{name:"icon",selector:{icon:{}}},{name:"description",selector:{text:{multiline:!0}}}],this._computeRewardFieldLabel=e=>{const t=Ce(this.hass);return{name:"Name",cost:`Cost (${t.charAt(0).toUpperCase()+t.slice(1)})`,icon:"Icon",description:"Description (Optional)"}[e.name]||e.name},this._computeRewardFieldHelper=e=>({cost:`Cost between 1 and 10,000 ${Ce(this.hass)}`,icon:"Use Material Design Icons (e.g., mdi:gift, mdi:ice-cream)"}[e.name]||""),this._handleRewardFormChange=e=>{this._rewardFormData=e.detail.value}}setConfig(e){if(!e.person_entity)throw new Error("person_entity is required");this._config={type:"custom:chorebot-rewards-card",person_entity:e.person_entity,title:e.title||void 0,show_title:!1!==e.show_title,hide_card_background:!0===e.hide_card_background,show_disabled_rewards:!0===e.show_disabled_rewards,sort_by:e.sort_by||"cost",show_add_reward_button:!1!==e.show_add_reward_button,accent_color:e.accent_color||""}}static getStubConfig(){return{type:"custom:chorebot-rewards-card",person_entity:"person.example",title:"My Rewards",show_title:!0,hide_card_background:!1,show_disabled_rewards:!1,sort_by:"cost",show_add_reward_button:!0,accent_color:""}}getCardSize(){return 3}static getConfigForm(){return{schema:[{name:"person_entity",required:!0,selector:{entity:{domain:"person"}}},{name:"title",selector:{text:{}}},{name:"show_title",default:!0,selector:{boolean:{}}},{name:"hide_card_background",default:!1,selector:{boolean:{}}},{name:"show_disabled_rewards",default:!1,selector:{boolean:{}}},{name:"sort_by",default:"cost",selector:{select:{options:[{label:"Cost (Low to High)",value:"cost"},{label:"Name (A-Z)",value:"name"},{label:"Date Created (Oldest First)",value:"created"}]}}},{name:"show_add_reward_button",default:!0,selector:{boolean:{}}},{name:"accent_color",selector:{text:{}}}],computeLabel:e=>({person_entity:"Person Entity",title:"Card Title",show_title:"Show Title",hide_card_background:"Hide Card Background",show_disabled_rewards:"Show Disabled Rewards",sort_by:"Sort Rewards By",show_add_reward_button:"Show Add Reward Button",accent_color:"Accent Color"}[e.name]||void 0),computeHelper:e=>({person_entity:"Select the person whose rewards to display",title:'Custom title for the card (defaults to "{Person Name}\'s Rewards")',show_title:"Show the card title",hide_card_background:"Hide the card background and padding for a seamless look",show_disabled_rewards:"Include rewards that have been disabled in the grid",sort_by:"Choose how to sort the rewards in the grid",show_add_reward_button:"Show the 'Add Reward' card for creating new rewards",accent_color:"Accent color for reward icons and buttons (hex code or CSS variable like var(--primary-color))"}[e.name]||void 0)}}render(){if(!this.hass||!this._config)return L`<ha-card>Loading...</ha-card>`;if(!this.hass.states[this._config.person_entity])return L`<ha-card>
+  `;
+__decorate([
+    n({ attribute: false })
+], ChoreBotPersonPointsCard.prototype, "hass", void 0);
+__decorate([
+    r()
+], ChoreBotPersonPointsCard.prototype, "_config", void 0);
+__decorate([
+    r()
+], ChoreBotPersonPointsCard.prototype, "_progress", void 0);
+ChoreBotPersonPointsCard = __decorate([
+    t("chorebot-person-points-card")
+], ChoreBotPersonPointsCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "chorebot-person-points-card",
+    name: "ChoreBot Person Points Card",
+    description: "Display a person's avatar and points balance",
+    preview: true,
+});
+console.info("%c CHOREBOT-PERSON-POINTS-CARD %c v0.1.0 ", "color: white; background: #FF9800; font-weight: bold;", "color: #FF9800; background: white; font-weight: bold;");
+
+// ============================================================================
+// ChoreBot Rewards Card (TypeScript)
+// ============================================================================
+/**
+ * ChoreBot Rewards Card
+ *
+ * Displays rewards for a single person with:
+ * - Filtered rewards grid (only rewards for configured person)
+ * - Click reward card to open confirmation modal (no separate redeem button)
+ * - "Add Reward" placeholder card at end of grid
+ * - Create reward modal with form fields
+ * - Confetti animation on successful redemption
+ */
+let ChoreBotPersonRewardsCard$1 = class ChoreBotPersonRewardsCard extends i {
+    constructor() {
+        super(...arguments);
+        this._redeeming = null; // reward_id being redeemed
+        this._showConfirmModal = false; // Show redemption confirmation
+        this._showAddRewardModal = false; // Show add reward modal
+        this._pendingRedemption = null; // Pending redemption details
+        this._rewardFormData = {
+            name: "",
+            cost: 50,
+            icon: "mdi:gift",
+            description: "",
+        }; // Reward form data for ha-form
+        this._showEditRewardModal = false;
+        this._editingRewardId = null;
+        this._rewardFormSchema = [
+            { name: "name", required: true, selector: { text: {} } },
+            { name: "cost", selector: { number: { min: 1, max: 10000, mode: "box" } } },
+            { name: "icon", selector: { icon: {} } },
+            { name: "description", selector: { text: { multiline: true } } },
+        ];
+        this._computeRewardFieldLabel = (schema) => {
+            const pointsTerm = getPointsTermLowercase(this.hass);
+            const pointsTermCap = pointsTerm.charAt(0).toUpperCase() + pointsTerm.slice(1);
+            const labels = {
+                name: "Name",
+                cost: `Cost (${pointsTermCap})`,
+                icon: "Icon",
+                description: "Description (Optional)",
+            };
+            return labels[schema.name] || schema.name;
+        };
+        this._computeRewardFieldHelper = (schema) => {
+            const pointsTerm = getPointsTermLowercase(this.hass);
+            const helpers = {
+                cost: `Cost between 1 and 10,000 ${pointsTerm}`,
+                icon: "Use Material Design Icons (e.g., mdi:gift, mdi:ice-cream)",
+            };
+            return helpers[schema.name] || "";
+        };
+        this._handleRewardFormChange = (ev) => {
+            this._rewardFormData = ev.detail.value;
+        };
+    }
+    setConfig(config) {
+        if (!config.person_entity) {
+            throw new Error("person_entity is required");
+        }
+        this._config = {
+            type: "custom:chorebot-rewards-card",
+            person_entity: config.person_entity,
+            title: config.title || undefined, // Will default to "{Name}'s Rewards" in render
+            show_title: config.show_title !== false,
+            hide_card_background: config.hide_card_background === true,
+            show_disabled_rewards: config.show_disabled_rewards === true,
+            sort_by: config.sort_by || "cost",
+            show_add_reward_button: config.show_add_reward_button !== false,
+            accent_color: config.accent_color || "",
+        };
+    }
+    static getStubConfig() {
+        return {
+            type: "custom:chorebot-rewards-card",
+            person_entity: "person.example",
+            title: "My Rewards",
+            show_title: true,
+            hide_card_background: false,
+            show_disabled_rewards: false,
+            sort_by: "cost",
+            show_add_reward_button: true,
+            accent_color: "",
+        };
+    }
+    getCardSize() {
+        return 3;
+    }
+    static getConfigForm() {
+        return {
+            schema: [
+                {
+                    name: "person_entity",
+                    required: true,
+                    selector: { entity: { domain: "person" } },
+                },
+                {
+                    name: "title",
+                    selector: { text: {} },
+                },
+                {
+                    name: "show_title",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "hide_card_background",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_disabled_rewards",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "sort_by",
+                    default: "cost",
+                    selector: {
+                        select: {
+                            options: [
+                                { label: "Cost (Low to High)", value: "cost" },
+                                { label: "Name (A-Z)", value: "name" },
+                                { label: "Date Created (Oldest First)", value: "created" },
+                            ],
+                        },
+                    },
+                },
+                {
+                    name: "show_add_reward_button",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "accent_color",
+                    selector: { text: {} },
+                },
+            ],
+            computeLabel: (schema) => {
+                const labels = {
+                    person_entity: "Person Entity",
+                    title: "Card Title",
+                    show_title: "Show Title",
+                    hide_card_background: "Hide Card Background",
+                    show_disabled_rewards: "Show Disabled Rewards",
+                    sort_by: "Sort Rewards By",
+                    show_add_reward_button: "Show Add Reward Button",
+                    accent_color: "Accent Color",
+                };
+                return labels[schema.name] || undefined;
+            },
+            computeHelper: (schema) => {
+                const helpers = {
+                    person_entity: "Select the person whose rewards to display",
+                    title: 'Custom title for the card (defaults to "{Person Name}\'s Rewards")',
+                    show_title: "Show the card title",
+                    hide_card_background: "Hide the card background and padding for a seamless look",
+                    show_disabled_rewards: "Include rewards that have been disabled in the grid",
+                    sort_by: "Choose how to sort the rewards in the grid",
+                    show_add_reward_button: "Show the 'Add Reward' card for creating new rewards",
+                    accent_color: "Accent color for reward icons and buttons (hex code or CSS variable like var(--primary-color))",
+                };
+                return helpers[schema.name] || undefined;
+            },
+        };
+    }
+    render() {
+        if (!this.hass || !this._config) {
+            return b `<ha-card>Loading...</ha-card>`;
+        }
+        // Validate person entity exists
+        const personEntity = this.hass.states[this._config.person_entity];
+        if (!personEntity) {
+            return b `<ha-card>
         <div class="error-state">
           Person entity "${this._config.person_entity}" not found. Please check
           your configuration.
         </div>
-      </ha-card>`;const e=this.hass.states["sensor.chorebot_points"];if(!e)return L`<ha-card>
+      </ha-card>`;
+        }
+        // Get points sensor entity
+        const sensor = this.hass.states["sensor.chorebot_points"];
+        if (!sensor) {
+            return b `<ha-card>
         <div class="empty-state">
           ChoreBot Points sensor not found. Make sure the integration is set up.
         </div>
-      </ha-card>`;const t=e.attributes.people||{},o=e.attributes.rewards||[];let r="var(--primary-color)";if(this._config.person_entity){const e=t[this._config.person_entity];e?.accent_color&&(r=e.accent_color)}this._config.accent_color&&(r=this._config.accent_color),this.style.setProperty("--accent-color",r);const s=qe(this.hass,this._config.person_entity),i=this._config.title||`${s}'s Rewards`;return L`
+      </ha-card>`;
+        }
+        const people = sensor.attributes.people || {};
+        const rewards = sensor.attributes.rewards || [];
+        // Precedence: Manual config > Person profile > Theme default
+        let accentColor = "var(--primary-color)"; // Default fallback
+        // Check for centralized person color from sensor
+        if (this._config.person_entity) {
+            const personProfile = people[this._config.person_entity];
+            if (personProfile?.accent_color) {
+                accentColor = personProfile.accent_color;
+            }
+        }
+        // Manual config overrides everything
+        if (this._config.accent_color) {
+            accentColor = this._config.accent_color;
+        }
+        // Set CSS variable for accent color
+        this.style.setProperty("--accent-color", accentColor);
+        // Get person name for default title
+        const personName = getPersonName(this.hass, this._config.person_entity);
+        const cardTitle = this._config.title || `${personName}'s Rewards`;
+        return b `
       <ha-card
-        class="${this._config.hide_card_background?"no-background":""}"
+        class="${this._config.hide_card_background ? "no-background" : ""}"
       >
-        ${this._config.show_title?L`<div class="card-header">${i}</div>`:""}
-        ${this._renderRewardsGrid(o,t)}
+        ${this._config.show_title
+            ? b `<div class="card-header">${cardTitle}</div>`
+            : ""}
+        ${this._renderRewardsGrid(rewards, people)}
       </ha-card>
-      ${this._showConfirmModal?this._renderConfirmModal(t,o):""}
-      ${this._showAddRewardModal?this._renderAddRewardModal():""}
-      ${this._showEditRewardModal?this._renderEditRewardModal():""}
-    `}_renderConfirmModal(e,t){if(!this._pendingRedemption||!this._config)return"";const{personId:o,rewardId:r}=this._pendingRedemption,s=e[o],i=t.find(e=>e.id===r);if(!s||!i)return"";const a=qe(this.hass,o),n=s.points_balance-i.cost,d=s.points_balance>=i.cost,c=i.enabled&&d,l=Te(this.hass);return L`
+      ${this._showConfirmModal ? this._renderConfirmModal(people, rewards) : ""}
+      ${this._showAddRewardModal ? this._renderAddRewardModal() : ""}
+      ${this._showEditRewardModal ? this._renderEditRewardModal() : ""}
+    `;
+    }
+    _renderConfirmModal(people, rewards) {
+        if (!this._pendingRedemption || !this._config)
+            return "";
+        const { personId, rewardId } = this._pendingRedemption;
+        const person = people[personId];
+        const reward = rewards.find((r) => r.id === rewardId);
+        if (!person || !reward)
+            return "";
+        const personName = getPersonName(this.hass, personId);
+        const remainingPoints = person.points_balance - reward.cost;
+        const canAfford = person.points_balance >= reward.cost;
+        const canRedeem = reward.enabled && canAfford;
+        const parts = getPointsDisplayParts(this.hass);
+        return b `
       <div class="modal-overlay" @click="${this._cancelRedemption}">
         <div
           class="modal-content"
-          @click="${e=>e.stopPropagation()}"
+          @click="${(e) => e.stopPropagation()}"
         >
           <div class="modal-header">
-            ${c?"Are you sure?":"Reward Details"}
+            ${canRedeem ? "Are you sure?" : "Reward Details"}
             <button
               class="edit-button"
-              @click="${()=>this._handleEditButtonClick(i.id)}"
+              @click="${() => this._handleEditButtonClick(reward.id)}"
               title="Edit Reward"
             >
               <ha-icon icon="mdi:pencil"></ha-icon>
@@ -824,48 +4809,60 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
             <div class="modal-info">
               <div class="modal-info-row">
                 <span class="modal-info-label">Person:</span>
-                <span class="modal-info-value">${a}</span>
+                <span class="modal-info-value">${personName}</span>
               </div>
               <div class="modal-info-row">
                 <span class="modal-info-label">Reward:</span>
-                <span class="modal-info-value">${i.name}</span>
+                <span class="modal-info-value">${reward.name}</span>
               </div>
               <div class="modal-info-row">
                 <span class="modal-info-label">Cost:</span>
                 <span class="modal-info-value"
-                  >${i.cost}
-                  ${l.icon?L`<ha-icon icon="${l.icon}"></ha-icon>`:""}
-                  ${l.text?l.text:""}</span
+                  >${reward.cost}
+                  ${parts.icon
+            ? b `<ha-icon icon="${parts.icon}"></ha-icon>`
+            : ""}
+                  ${parts.text ? parts.text : ""}</span
                 >
               </div>
               <div class="modal-info-row">
                 <span class="modal-info-label">Current Balance:</span>
                 <span class="modal-info-value"
-                  >${s.points_balance}
-                  ${l.icon?L`<ha-icon icon="${l.icon}"></ha-icon>`:""}
-                  ${l.text?l.text:""}</span
+                  >${person.points_balance}
+                  ${parts.icon
+            ? b `<ha-icon icon="${parts.icon}"></ha-icon>`
+            : ""}
+                  ${parts.text ? parts.text : ""}</span
                 >
               </div>
               <div class="modal-info-row">
                 <span class="modal-info-label">Remaining Balance:</span>
                 <span
                   class="modal-info-value"
-                  style="color: ${n<0?"var(--error-color)":"inherit"}"
-                  >${n}
-                  ${l.icon?L`<ha-icon icon="${l.icon}"></ha-icon>`:""}
-                  ${l.text?l.text:""}</span
+                  style="color: ${remainingPoints < 0
+            ? "var(--error-color)"
+            : "inherit"}"
+                  >${remainingPoints}
+                  ${parts.icon
+            ? b `<ha-icon icon="${parts.icon}"></ha-icon>`
+            : ""}
+                  ${parts.text ? parts.text : ""}</span
                 >
               </div>
-              ${i.enabled?"":L`<div
+              ${!reward.enabled
+            ? b `<div
                     style="margin-top: 12px; color: var(--warning-color); font-size: 14px; text-align: center;"
                   >
                     This reward is currently disabled.
-                  </div>`}
-              ${d?"":L`<div
+                  </div>`
+            : ""}
+              ${!canAfford
+            ? b `<div
                     style="margin-top: 12px; color: var(--error-color); font-size: 14px; text-align: center;"
                   >
                     Not enough points to redeem this reward.
-                  </div>`}
+                  </div>`
+            : ""}
             </div>
           </div>
           <div class="modal-actions">
@@ -873,11 +4870,11 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
               class="modal-button cancel"
               @click="${this._cancelRedemption}"
             >
-              ${c?"Cancel":"Close"}
+              ${canRedeem ? "Cancel" : "Close"}
             </button>
             <button
               class="modal-button confirm"
-              ?disabled="${!c}"
+              ?disabled="${!canRedeem}"
               @click="${this._confirmRedemption}"
             >
               Redeem
@@ -885,7 +4882,12 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
           </div>
         </div>
       </div>
-    `}_renderAddRewardModal(){return this._config?L`
+    `;
+    }
+    _renderAddRewardModal() {
+        if (!this._config)
+            return "";
+        return b `
       <ha-dialog
         open
         @closed=${this._closeAddRewardModal}
@@ -911,7 +4913,12 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
           Cancel
         </ha-button>
       </ha-dialog>
-    `:""}_renderEditRewardModal(){return this._config?L`
+    `;
+    }
+    _renderEditRewardModal() {
+        if (!this._config)
+            return "";
+        return b `
       <ha-dialog
         open
         @closed=${this._closeEditRewardModal}
@@ -937,37 +4944,68 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
           Cancel
         </ha-button>
       </ha-dialog>
-    `:""}_renderRewardsGrid(e,t){if(!this._config)return"";const o=e.filter(e=>e.person_id===this._config.person_entity),r=o.filter(e=>this._config.show_disabled_rewards||e.enabled),s=this._sortRewards(r),i=t[this._config.person_entity];return 0!==s.length||this._config.show_add_reward_button?L`
-      <div class="rewards-grid">
-        ${s.map(e=>this._renderRewardCard(e,i))}
-        ${this._config.show_add_reward_button?this._renderAddRewardCard():""}
-      </div>
-    `:L`<div class="empty-state">
+    `;
+    }
+    _renderRewardsGrid(rewards, people) {
+        if (!this._config)
+            return "";
+        // Filter rewards by person_id
+        const personRewards = rewards.filter((r) => r.person_id === this._config.person_entity);
+        // Filter by enabled/disabled
+        const filteredRewards = personRewards.filter((r) => this._config.show_disabled_rewards || r.enabled);
+        // Sort rewards
+        const sortedRewards = this._sortRewards(filteredRewards);
+        // Get person's balance
+        const person = people[this._config.person_entity];
+        if (sortedRewards.length === 0 && !this._config.show_add_reward_button) {
+            return b `<div class="empty-state">
         No rewards configured yet. Use the "Add Reward" button or
         <code>chorebot.manage_reward</code> service to create rewards.
-      </div>`}_renderRewardCard(e,t){const o=!!t&&t.points_balance>=e.cost,r=!e.enabled||!o,s=Te(this.hass);return L`
+      </div>`;
+        }
+        return b `
+      <div class="rewards-grid">
+        ${sortedRewards.map((reward) => this._renderRewardCard(reward, person))}
+        ${this._config.show_add_reward_button
+            ? this._renderAddRewardCard()
+            : ""}
+      </div>
+    `;
+    }
+    _renderRewardCard(reward, person) {
+        const canAfford = person ? person.points_balance >= reward.cost : false;
+        const isDisabled = !reward.enabled || !canAfford;
+        const parts = getPointsDisplayParts(this.hass);
+        return b `
       <div
-        class="reward-card ${r?"disabled":""}"
-        @click="${()=>this._handleRewardClick(e,o)}"
+        class="reward-card ${isDisabled ? "disabled" : ""}"
+        @click="${() => this._handleRewardClick(reward, canAfford)}"
       >
         <div class="reward-icon-section">
           <div class="reward-icon">
-            <ha-icon icon="${e.icon}"></ha-icon>
+            <ha-icon icon="${reward.icon}"></ha-icon>
           </div>
         </div>
         <div class="reward-info">
           <div class="reward-header">
-            <div class="reward-name">${e.name}</div>
+            <div class="reward-name">${reward.name}</div>
             <div class="reward-cost">
-              ${e.cost}
-              ${s.icon?L`<ha-icon icon="${s.icon}"></ha-icon>`:""}
-              ${s.text?s.text:""}
+              ${reward.cost}
+              ${parts.icon
+            ? b `<ha-icon icon="${parts.icon}"></ha-icon>`
+            : ""}
+              ${parts.text ? parts.text : ""}
             </div>
           </div>
-          ${e.description?L`<div class="reward-description">${e.description}</div>`:""}
+          ${reward.description
+            ? b `<div class="reward-description">${reward.description}</div>`
+            : ""}
         </div>
       </div>
-    `}_renderAddRewardCard(){return L`
+    `;
+    }
+    _renderAddRewardCard() {
+        return b `
       <div class="add-reward-card" @click="${this._openAddRewardModal}">
         <div class="add-reward-icon-section">
           <div class="add-reward-icon">
@@ -978,60 +5016,175 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
           <div class="add-reward-text">Add Reward</div>
         </div>
       </div>
-    `}_sortRewards(e){const t=[...e];switch(this._config.sort_by){case"name":return t.sort((e,t)=>e.name.localeCompare(t.name));case"created":return t.sort((e,t)=>new Date(e.created||0).getTime()-new Date(t.created||0).getTime());default:return t.sort((e,t)=>e.cost-t.cost)}}_handleRewardClick(e,t){this._pendingRedemption={personId:this._config.person_entity,rewardId:e.id},this._showConfirmModal=!0}_cancelRedemption(){this._showConfirmModal=!1,this._pendingRedemption=null}async _confirmRedemption(){if(!this._pendingRedemption)return;const{personId:e,rewardId:t}=this._pendingRedemption;this._showConfirmModal=!1,this._pendingRedemption=null,this._redeeming=t;try{await this.hass.callService("chorebot","redeem_reward",{person_id:e,reward_id:t}),this._showRedemptionSuccess()}catch(e){const t=e.message||"Failed to redeem reward. Please try again.";alert(t)}finally{this._redeeming=null}}_showRedemptionSuccess(){Be(Oe(this._config.accent_color||getComputedStyle(this).getPropertyValue("--primary-color")||"#03a9f4"),3e3)}_openAddRewardModal(){this._rewardFormData={name:"",cost:50,icon:"mdi:gift",description:""},this._showAddRewardModal=!0}_closeAddRewardModal(){this._showAddRewardModal=!1}async _createReward(){if(!this._config)return;const{name:e,cost:t,icon:o,description:r}=this._rewardFormData;if(e.trim())try{await this.hass.callService("chorebot","manage_reward",{name:e.trim(),cost:Math.max(1,Math.min(1e4,t)),icon:o||"mdi:gift",description:r.trim(),person_id:this._config.person_entity}),this._closeAddRewardModal()}catch(e){const t=e.message||"Failed to create reward. Please try again.";alert(t)}else alert("Reward name is required")}_openEditRewardModal(e){if(!this.hass)return;const t=this.hass.states["sensor.chorebot_points"];if(!t)return;const o=(t.attributes.rewards||[]).find(t=>t.id===e);o?(this._rewardFormData={name:o.name,cost:o.cost,icon:o.icon,description:o.description||""},this._editingRewardId=e,this._showEditRewardModal=!0):alert("Reward not found")}_closeEditRewardModal(){this._showEditRewardModal=!1,this._editingRewardId=null,this._rewardFormData={name:"",cost:50,icon:"mdi:gift",description:""}}_handleEditButtonClick(e){this._showConfirmModal=!1,this._pendingRedemption=null,this._openEditRewardModal(e)}async _updateReward(){if(!this._config||!this._editingRewardId)return;const{name:e,cost:t,icon:o,description:r}=this._rewardFormData;if(e.trim())try{await this.hass.callService("chorebot","manage_reward",{reward_id:this._editingRewardId,name:e.trim(),cost:Math.max(1,Math.min(1e4,t)),icon:o||"mdi:gift",description:r.trim(),person_id:this._config.person_entity}),this._closeEditRewardModal()}catch(e){const t=e.message||"Failed to update reward. Please try again.";alert(t)}else alert("Reward name is required")}};function Ze(e,t,o,r,s,i,a,n,d,c,l=!1){const h=t?r.find(e=>e.entity_id===t):null;let p="var(--primary-color)";return h?.accent_color&&(p=h.accent_color),L`
-    <div
-      class="person-section ${l?"no-background":""} ${o?"dropdown-open":""}"
-    >
-      <!-- Person Header (Collapsed State) -->
-      <div class="person-header" @click=${d}>
-        <div class="person-container">
-          <div class="person-left">
-            ${je(e,t,0,64)}
-          </div>
-          <div class="person-info">
-            <div class="person-header-row">
-              <div class="person-name">
-                ${qe(e,t)}
-              </div>
-              <div class="person-points-and-chevron">
-                ${Le(h,e,p)}
-                <ha-icon
-                  icon="mdi:chevron-down"
-                  class="dropdown-chevron ${o?"open":""}"
-                ></ha-icon>
-              </div>
-            </div>
-            ${s&&i?We(i,a,n):""}
-          </div>
-        </div>
-      </div>
-
-      <!-- Person Dropdown (Expanded State) -->
-      <div class="person-dropdown ${o?"open":""}">
-        <div class="person-dropdown-inner">
-          ${r.map(o=>{const r=o.entity_id===t,s=Te(e);return L`
-              <div
-                class="person-dropdown-item ${r?"selected":""}"
-                @click=${()=>c(o.entity_id)}
-              >
-                ${je(e,o.entity_id,0,40)}
-                <div class="person-dropdown-info">
-                  <div class="person-dropdown-name">
-                    ${qe(e,o.entity_id)}
-                  </div>
-                  <div class="person-dropdown-points">
-                    ${o.points_balance}
-                    ${s.icon?L`<ha-icon icon="${s.icon}"></ha-icon>`:""}
-                    ${s.text}
-                  </div>
-                </div>
-                ${r?L`<ha-icon icon="mdi:check"></ha-icon>`:""}
-              </div>
-            `})}
-        </div>
-      </div>
-    </div>
-  `}function Ke(e,t){let o=function(e){const t=e.user?.name;if(!t)return null;const o=Object.values(e.states).filter(e=>e.entity_id.startsWith("person.")),r=o.find(e=>e.attributes.friendly_name?.toLowerCase()===t.toLowerCase());return r?.entity_id||null}(e);if(!o&&t&&(o=t),!o){const t=Ye(e);if(t.length>0){const e=t.sort((e,t)=>e.entity_id.localeCompare(t.entity_id));o=e[0].entity_id}}return o||""}Ve.styles=a`
+    `;
+    }
+    _sortRewards(rewards) {
+        const sorted = [...rewards];
+        switch (this._config.sort_by) {
+            case "name":
+                return sorted.sort((a, b) => a.name.localeCompare(b.name));
+            case "created":
+                return sorted.sort((a, b) => new Date(a.created || 0).getTime() -
+                    new Date(b.created || 0).getTime());
+            case "cost":
+            default:
+                return sorted.sort((a, b) => a.cost - b.cost);
+        }
+    }
+    _handleRewardClick(reward, canAfford) {
+        // Always open modal to show reward details (button will be disabled if can't redeem)
+        this._pendingRedemption = {
+            personId: this._config.person_entity,
+            rewardId: reward.id,
+        };
+        this._showConfirmModal = true;
+    }
+    _cancelRedemption() {
+        this._showConfirmModal = false;
+        this._pendingRedemption = null;
+    }
+    async _confirmRedemption() {
+        if (!this._pendingRedemption)
+            return;
+        const { personId, rewardId } = this._pendingRedemption;
+        // Close modal
+        this._showConfirmModal = false;
+        this._pendingRedemption = null;
+        // Set redeeming state
+        this._redeeming = rewardId;
+        try {
+            await this.hass.callService("chorebot", "redeem_reward", {
+                person_id: personId,
+                reward_id: rewardId,
+            });
+            // Show success animation (star shower with themed colors)
+            this._showRedemptionSuccess();
+        }
+        catch (err) {
+            // Show error message
+            const errorMessage = err.message || "Failed to redeem reward. Please try again.";
+            alert(errorMessage);
+        }
+        finally {
+            this._redeeming = null;
+        }
+    }
+    _showRedemptionSuccess() {
+        // Get base color from accent color (fallback to primary color)
+        const baseColor = this._config.accent_color ||
+            getComputedStyle(this).getPropertyValue("--primary-color") ||
+            "#03a9f4";
+        // Extract color variants (lighter and darker shades)
+        const colors = extractColorVariants(baseColor);
+        // Play star shower animation
+        playStarShower(colors, 3000);
+    }
+    _openAddRewardModal() {
+        // Reset form
+        this._rewardFormData = {
+            name: "",
+            cost: 50,
+            icon: "mdi:gift",
+            description: "",
+        };
+        this._showAddRewardModal = true;
+    }
+    _closeAddRewardModal() {
+        this._showAddRewardModal = false;
+    }
+    async _createReward() {
+        if (!this._config)
+            return;
+        const { name, cost, icon, description } = this._rewardFormData;
+        if (!name.trim()) {
+            alert("Reward name is required");
+            return;
+        }
+        try {
+            await this.hass.callService("chorebot", "manage_reward", {
+                name: name.trim(),
+                cost: Math.max(1, Math.min(10000, cost)), // Clamp between 1 and 10000
+                icon: icon || "mdi:gift",
+                description: description.trim(),
+                person_id: this._config.person_entity, // Pre-filled from config
+            });
+            // Close modal
+            this._closeAddRewardModal();
+        }
+        catch (err) {
+            // Show error message
+            const errorMessage = err.message || "Failed to create reward. Please try again.";
+            alert(errorMessage);
+        }
+    }
+    _openEditRewardModal(rewardId) {
+        if (!this.hass)
+            return;
+        // Find reward in sensor attributes
+        const sensor = this.hass.states["sensor.chorebot_points"];
+        if (!sensor)
+            return;
+        const rewards = sensor.attributes.rewards || [];
+        const reward = rewards.find((r) => r.id === rewardId);
+        if (!reward) {
+            alert("Reward not found");
+            return;
+        }
+        // Populate form with existing reward data
+        this._rewardFormData = {
+            name: reward.name,
+            cost: reward.cost,
+            icon: reward.icon,
+            description: reward.description || "",
+        };
+        this._editingRewardId = rewardId;
+        this._showEditRewardModal = true;
+    }
+    _closeEditRewardModal() {
+        this._showEditRewardModal = false;
+        this._editingRewardId = null;
+        // Reset form to defaults
+        this._rewardFormData = {
+            name: "",
+            cost: 50,
+            icon: "mdi:gift",
+            description: "",
+        };
+    }
+    _handleEditButtonClick(rewardId) {
+        // Close redemption modal
+        this._showConfirmModal = false;
+        this._pendingRedemption = null;
+        // Open edit modal
+        this._openEditRewardModal(rewardId);
+    }
+    async _updateReward() {
+        if (!this._config || !this._editingRewardId)
+            return;
+        const { name, cost, icon, description } = this._rewardFormData;
+        if (!name.trim()) {
+            alert("Reward name is required");
+            return;
+        }
+        try {
+            await this.hass.callService("chorebot", "manage_reward", {
+                reward_id: this._editingRewardId, // Key difference from _createReward
+                name: name.trim(),
+                cost: Math.max(1, Math.min(10000, cost)),
+                icon: icon || "mdi:gift",
+                description: description.trim(),
+                person_id: this._config.person_entity,
+            });
+            // Close modal
+            this._closeEditRewardModal();
+        }
+        catch (err) {
+            const errorMessage = err.message || "Failed to update reward. Please try again.";
+            alert(errorMessage);
+        }
+    }
+};
+ChoreBotPersonRewardsCard$1.styles = i$3 `
     :host {
       display: block;
       /* HA Dialog styling */
@@ -1409,83 +5562,696 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
       padding: 32px;
       color: var(--error-color);
     }
-  `,e([pe({attribute:!1})],Ve.prototype,"hass",void 0),e([ue()],Ve.prototype,"_config",void 0),e([ue()],Ve.prototype,"_redeeming",void 0),e([ue()],Ve.prototype,"_showConfirmModal",void 0),e([ue()],Ve.prototype,"_showAddRewardModal",void 0),e([ue()],Ve.prototype,"_pendingRedemption",void 0),e([ue()],Ve.prototype,"_rewardFormData",void 0),e([ue()],Ve.prototype,"_showEditRewardModal",void 0),e([ue()],Ve.prototype,"_editingRewardId",void 0),Ve=e([ce("chorebot-rewards-card")],Ve),window.customCards=window.customCards||[],window.customCards.push({type:"chorebot-rewards-card",name:"ChoreBot Rewards Card",description:"Display person-specific rewards with inline creation and redemption",preview:!0}),console.info("%c CHOREBOT-REWARDS-CARD %c v0.1.0 ","color: white; background: #9C27B0; font-weight: bold;","color: #9C27B0; background: white; font-weight: bold;");let Xe=class extends ne{constructor(){super(...arguments),this._selectedPersonId="",this._dropdownOpen=!1,this._groups=[],this._editDialogOpen=!1,this._editingTask=null,this._saving=!1,this.shades={lighter:"",light:"",base:"",dark:"",darker:""},this.shadesArray=[]}setConfig(e){if(!e.entity)throw new Error("You must specify an entity (todo list)");if(!e.entity.startsWith("todo."))throw new Error("Entity must be a todo list (todo.*)");this._config={show_title:!0,show_progress:!0,show_dateless_tasks:!0,show_future_tasks:!1,show_points:!0,show_add_task_button:!0,show_all_people:!1,hide_person_background:!1,hide_tasks_background:!1,untagged_header:"Untagged",...e}}static getStubConfig(){return{type:"custom:chorebot-person-grouped-card",entity:"",default_person_entity:"",show_all_people:!1,show_progress:!0,show_title:!0,hide_person_background:!1,hide_tasks_background:!1,accent_color:"",show_dateless_tasks:!0,show_future_tasks:!1,show_points:!0,show_add_task_button:!0,untagged_header:"Untagged",tag_group_order:[],filter_section_id:""}}static getConfigForm(){return{schema:[{name:"entity",required:!0,selector:{entity:{filter:{domain:"todo"}}}},{name:"default_person_entity",selector:{entity:{filter:{domain:"person"}}}},{name:"show_all_people",default:!1,selector:{boolean:{}}},{name:"show_progress",default:!0,selector:{boolean:{}}},{name:"show_title",default:!0,selector:{boolean:{}}},{name:"show_dateless_tasks",default:!0,selector:{boolean:{}}},{name:"show_future_tasks",default:!1,selector:{boolean:{}}},{name:"show_points",default:!0,selector:{boolean:{}}},{name:"show_add_task_button",default:!0,selector:{boolean:{}}},{name:"filter_section_id",selector:{text:{}}},{name:"hide_person_background",default:!1,selector:{boolean:{}}},{name:"hide_tasks_background",default:!1,selector:{boolean:{}}},{name:"accent_color",selector:{text:{}}},{name:"task_text_color",selector:{text:{}}},{name:"progress_text_color",selector:{text:{}}},{name:"untagged_header",default:"Untagged",selector:{text:{}}},{name:"tag_group_order",selector:{select:{multiple:!0,custom_value:!0,options:[]}}}],computeLabel:e=>({entity:"Todo Entity",default_person_entity:"Default Person",show_all_people:"Show All People",show_progress:"Show Progress Bar",show_title:"Show Title",show_dateless_tasks:"Show Tasks Without Due Date",show_future_tasks:"Show Future Tasks",show_points:"Show Points Badges",show_add_task_button:"Show Add Task Button",filter_section_id:"Filter by Section",hide_person_background:"Hide Person Background",hide_tasks_background:"Hide Tasks Background",accent_color:"Accent Color",task_text_color:"Task Text Color",progress_text_color:"Progress Text Color",untagged_header:"Untagged Tasks Header",tag_group_order:"Tag Display Order"}[e.name]||void 0),computeHelper:e=>({entity:"Select the ChoreBot todo entity to display",default_person_entity:"Override auto-detected person. Leave empty to auto-detect logged-in user or use first person alphabetically.",show_all_people:"Show all people in dropdown, or only people with tasks in this list",show_progress:"Display progress bar showing completed/total tasks for selected person",show_title:"Show the person's name as card title",show_dateless_tasks:"Show tasks that do not have a due date",show_future_tasks:"Show tasks with future due dates in a collapsible 'Upcoming' section (collapsed by default)",show_points:"Display points badges on task items",show_add_task_button:"Show the 'Add Task' button below tag groups for creating new tasks",filter_section_id:'Additional section filter (e.g., "Morning Routine"). Leave empty to show all sections for selected person.',hide_person_background:"Hide the person section background and shadow for a seamless look",hide_tasks_background:"Hide the tasks section background and shadow for a seamless look",accent_color:"Override accent color for person display and tag headers (hex code or CSS variable). By default inherits from person's profile.",task_text_color:"Text color for task items (hex code or CSS variable)",progress_text_color:"Text color for progress label (hex code or CSS variable)",untagged_header:'Header text for tasks without tags (default: "Untagged")',tag_group_order:"Order to display tag groups. Tags not listed will appear alphabetically after these."}[e.name]||void 0)}}willUpdate(e){if(e.has("hass")&&""===this._selectedPersonId&&(this._selectedPersonId=Ke(this.hass,this._config?.default_person_entity)),(e.has("_config")||e.has("_selectedPersonId"))&&this._config){const e=Ee(this.hass,this._config.accent_color,this._selectedPersonId);this.shades=De(e),this.shadesArray=[this.shades.lighter,this.shades.light,this.shades.base,this.shades.dark,this.shades.darker]}(e.has("hass")||e.has("_config")||e.has("_selectedPersonId"))&&this._updateGroups()}render(){if(!this.hass||!this._config)return L``;if(!this._selectedPersonId)return L`
+  `;
+__decorate([
+    n({ attribute: false })
+], ChoreBotPersonRewardsCard$1.prototype, "hass", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard$1.prototype, "_config", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard$1.prototype, "_redeeming", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard$1.prototype, "_showConfirmModal", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard$1.prototype, "_showAddRewardModal", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard$1.prototype, "_pendingRedemption", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard$1.prototype, "_rewardFormData", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard$1.prototype, "_showEditRewardModal", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard$1.prototype, "_editingRewardId", void 0);
+ChoreBotPersonRewardsCard$1 = __decorate([
+    t("chorebot-rewards-card")
+], ChoreBotPersonRewardsCard$1);
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "chorebot-rewards-card",
+    name: "ChoreBot Rewards Card",
+    description: "Display person-specific rewards with inline creation and redemption",
+    preview: true,
+});
+console.info("%c CHOREBOT-REWARDS-CARD %c v0.1.0 ", "color: white; background: #9C27B0; font-weight: bold;", "color: #9C27B0; background: white; font-weight: bold;");
+
+// ============================================================================
+// Person Dropdown Utilities
+// ============================================================================
+// Shared utilities for rendering person selection dropdowns across multiple
+// ChoreBot cards. Provides person dropdown UI and auto-detection logic.
+/**
+ * Render person dropdown UI with header and collapsible list
+ *
+ * CSS Requirements (must be defined in consuming component):
+ * - .person-section (container for dropdown positioning)
+ * - .person-header (header display with avatar/name/points)
+ * - .person-container, .person-left, .person-info (layout containers)
+ * - .person-header-row (row for name/points/chevron)
+ * - .person-name (person name text)
+ * - .person-points-and-chevron (container for points + chevron)
+ * - .person-points (points display styling)
+ * - .dropdown-chevron (chevron icon with rotation)
+ * - .person-dropdown (dropdown container with grid animation)
+ * - .person-dropdown-inner (scrollable inner container)
+ * - .person-dropdown-item (individual person row)
+ * - .person-dropdown-info (person name/points container)
+ * - .person-dropdown-name (person name in dropdown)
+ * - .person-dropdown-points (points in dropdown)
+ * - .person-avatar (avatar styling - see person-display-utils.ts)
+ * - .progress-bar, .progress-bar-fill, .progress-text (progress bar - see progress-bar-utils.ts)
+ *
+ * Note: CSS cannot be extracted due to LitElement shadow DOM scoping.
+ * Consumers must define these classes in their static styles block.
+ *
+ * @param hass - Home Assistant instance
+ * @param selectedPersonId - Currently selected person entity ID
+ * @param dropdownOpen - Whether dropdown is expanded
+ * @param allPeople - All person profiles to display in dropdown
+ * @param showProgress - Whether to show progress bar in header
+ * @param progress - Progress data for selected person (if showProgress=true)
+ * @param shades - Color shades for styling (computed from accent color)
+ * @param progressTextColor - Text color for progress label (optional)
+ * @param onToggle - Callback when dropdown header is clicked
+ * @param onSelect - Callback when a person is selected from dropdown
+ * @param hideBackground - Whether to hide background styling (default: false)
+ * @returns Template with person header + dropdown
+ */
+function renderPersonDropdown(hass, selectedPersonId, dropdownOpen, allPeople, showProgress, progress, shades, progressTextColor, onToggle, onSelect, hideBackground = false) {
+    const personProfile = selectedPersonId
+        ? allPeople.find((p) => p.entity_id === selectedPersonId)
+        : null;
+    // Determine accent color (precedence: person profile > theme)
+    let baseColor = "var(--primary-color)";
+    if (personProfile?.accent_color) {
+        baseColor = personProfile.accent_color;
+    }
+    return b `
+    <div
+      class="person-section ${hideBackground ? "no-background" : ""} ${dropdownOpen
+        ? "dropdown-open"
+        : ""}"
+    >
+      <!-- Person Header (Collapsed State) -->
+      <div class="person-header" @click=${onToggle}>
+        <div class="person-container">
+          <div class="person-left">
+            ${renderPersonAvatar(hass, selectedPersonId, personProfile, 64)}
+          </div>
+          <div class="person-info">
+            <div class="person-header-row">
+              <div class="person-name">
+                ${getPersonName(hass, selectedPersonId)}
+              </div>
+              <div class="person-points-and-chevron">
+                ${renderPersonPoints(personProfile, hass, baseColor)}
+                <ha-icon
+                  icon="mdi:chevron-down"
+                  class="dropdown-chevron ${dropdownOpen ? "open" : ""}"
+                ></ha-icon>
+              </div>
+            </div>
+            ${showProgress && progress
+        ? renderProgressBar(progress, shades, progressTextColor)
+        : ""}
+          </div>
+        </div>
+      </div>
+
+      <!-- Person Dropdown (Expanded State) -->
+      <div class="person-dropdown ${dropdownOpen ? "open" : ""}">
+        <div class="person-dropdown-inner">
+          ${allPeople.map((person) => {
+        const isSelected = person.entity_id === selectedPersonId;
+        const pointsDisplay = getPointsDisplayParts(hass);
+        return b `
+              <div
+                class="person-dropdown-item ${isSelected ? "selected" : ""}"
+                @click=${() => onSelect(person.entity_id)}
+              >
+                ${renderPersonAvatar(hass, person.entity_id, person, 40)}
+                <div class="person-dropdown-info">
+                  <div class="person-dropdown-name">
+                    ${getPersonName(hass, person.entity_id)}
+                  </div>
+                  <div class="person-dropdown-points">
+                    ${person.points_balance}
+                    ${pointsDisplay.icon
+            ? b `<ha-icon icon="${pointsDisplay.icon}"></ha-icon>`
+            : ""}
+                    ${pointsDisplay.text}
+                  </div>
+                </div>
+                ${isSelected ? b `<ha-icon icon="mdi:check"></ha-icon>` : ""}
+              </div>
+            `;
+    })}
+        </div>
+      </div>
+    </div>
+  `;
+}
+/**
+ * Detect default person to show in dropdown
+ *
+ * Priority order:
+ * 1. Logged-in user's person entity (detected via hass.user.name)
+ * 2. Config default (if provided)
+ * 3. First person alphabetically by entity_id
+ *
+ * @param hass - Home Assistant instance
+ * @param configDefault - Optional default person from card config
+ * @returns Person entity ID or empty string if no people found
+ */
+function detectDefaultPerson(hass, configDefault) {
+    // 1. Try auto-detect logged-in user
+    let detectedPerson = detectCurrentUserPerson(hass);
+    // 2. Fallback to config default
+    if (!detectedPerson && configDefault) {
+        detectedPerson = configDefault;
+    }
+    // 3. Fallback to first person alphabetically
+    if (!detectedPerson) {
+        const allPeople = getAllPeople(hass);
+        if (allPeople.length > 0) {
+            // Sort by entity_id and pick first
+            const sorted = allPeople.sort((a, b) => a.entity_id.localeCompare(b.entity_id));
+            detectedPerson = sorted[0].entity_id;
+        }
+    }
+    // 4. If still no person detected, return empty string
+    return detectedPerson || "";
+}
+
+// ============================================================================
+// ChoreBot Person Grouped Card (TypeScript)
+// ============================================================================
+/**
+ * ChoreBot Person Grouped Card
+ *
+ * Combines person selection dropdown with tag-based grouped task view.
+ * Features:
+ * - Person dropdown with avatar/initials display
+ * - Auto-detection of default person (logged-in user or first with tasks)
+ * - Tag-based task grouping filtered by selected person
+ * - Progress tracking for selected person
+ * - Inherits all grouped-card task management features
+ */
+let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
+    constructor() {
+        super(...arguments);
+        this._selectedPersonId = "";
+        this._dropdownOpen = false;
+        this._groups = [];
+        this._editDialogOpen = false;
+        this._editingTask = null;
+        this._saving = false;
+        // Cached color shades for performance (recalculated when config changes)
+        this.shades = {
+            lighter: "",
+            light: "",
+            base: "",
+            dark: "",
+            darker: "",
+        };
+        this.shadesArray = [];
+    }
+    setConfig(config) {
+        if (!config.entity) {
+            throw new Error("You must specify an entity (todo list)");
+        }
+        // Validate entity format
+        if (!config.entity.startsWith("todo.")) {
+            throw new Error("Entity must be a todo list (todo.*)");
+        }
+        this._config = {
+            show_title: true,
+            show_progress: true,
+            show_dateless_tasks: true,
+            show_future_tasks: false,
+            show_points: true,
+            show_add_task_button: true,
+            show_all_people: false,
+            hide_person_background: false,
+            hide_tasks_background: false,
+            untagged_header: "Untagged",
+            ...config,
+        };
+    }
+    static getStubConfig() {
+        return {
+            type: "custom:chorebot-person-grouped-card",
+            entity: "",
+            default_person_entity: "",
+            show_all_people: false,
+            show_progress: true,
+            show_title: true,
+            hide_person_background: false,
+            hide_tasks_background: false,
+            accent_color: "",
+            show_dateless_tasks: true,
+            show_future_tasks: false,
+            show_points: true,
+            show_add_task_button: true,
+            untagged_header: "Untagged",
+            tag_group_order: [],
+            filter_section_id: "",
+        };
+    }
+    static getConfigForm() {
+        return {
+            schema: [
+                {
+                    name: "entity",
+                    required: true,
+                    selector: {
+                        entity: {
+                            filter: { domain: "todo" },
+                        },
+                    },
+                },
+                {
+                    name: "default_person_entity",
+                    selector: {
+                        entity: {
+                            filter: { domain: "person" },
+                        },
+                    },
+                },
+                {
+                    name: "show_all_people",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_progress",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_title",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_dateless_tasks",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_future_tasks",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_points",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_add_task_button",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "filter_section_id",
+                    selector: { text: {} },
+                },
+                {
+                    name: "hide_person_background",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "hide_tasks_background",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "accent_color",
+                    selector: { text: {} },
+                },
+                {
+                    name: "task_text_color",
+                    selector: { text: {} },
+                },
+                {
+                    name: "progress_text_color",
+                    selector: { text: {} },
+                },
+                {
+                    name: "untagged_header",
+                    default: "Untagged",
+                    selector: { text: {} },
+                },
+                {
+                    name: "tag_group_order",
+                    selector: {
+                        select: {
+                            multiple: true,
+                            custom_value: true,
+                            options: [],
+                        },
+                    },
+                },
+            ],
+            computeLabel: (schema) => {
+                const labels = {
+                    entity: "Todo Entity",
+                    default_person_entity: "Default Person",
+                    show_all_people: "Show All People",
+                    show_progress: "Show Progress Bar",
+                    show_title: "Show Title",
+                    show_dateless_tasks: "Show Tasks Without Due Date",
+                    show_future_tasks: "Show Future Tasks",
+                    show_points: "Show Points Badges",
+                    show_add_task_button: "Show Add Task Button",
+                    filter_section_id: "Filter by Section",
+                    hide_person_background: "Hide Person Background",
+                    hide_tasks_background: "Hide Tasks Background",
+                    accent_color: "Accent Color",
+                    task_text_color: "Task Text Color",
+                    progress_text_color: "Progress Text Color",
+                    untagged_header: "Untagged Tasks Header",
+                    tag_group_order: "Tag Display Order",
+                };
+                return labels[schema.name] || undefined;
+            },
+            computeHelper: (schema) => {
+                const helpers = {
+                    entity: "Select the ChoreBot todo entity to display",
+                    default_person_entity: "Override auto-detected person. Leave empty to auto-detect logged-in user or use first person alphabetically.",
+                    show_all_people: "Show all people in dropdown, or only people with tasks in this list",
+                    show_progress: "Display progress bar showing completed/total tasks for selected person",
+                    show_title: "Show the person's name as card title",
+                    show_dateless_tasks: "Show tasks that do not have a due date",
+                    show_future_tasks: "Show tasks with future due dates in a collapsible 'Upcoming' section (collapsed by default)",
+                    show_points: "Display points badges on task items",
+                    show_add_task_button: "Show the 'Add Task' button below tag groups for creating new tasks",
+                    filter_section_id: 'Additional section filter (e.g., "Morning Routine"). Leave empty to show all sections for selected person.',
+                    hide_person_background: "Hide the person section background and shadow for a seamless look",
+                    hide_tasks_background: "Hide the tasks section background and shadow for a seamless look",
+                    accent_color: "Override accent color for person display and tag headers (hex code or CSS variable). By default inherits from person's profile.",
+                    task_text_color: "Text color for task items (hex code or CSS variable)",
+                    progress_text_color: "Text color for progress label (hex code or CSS variable)",
+                    untagged_header: 'Header text for tasks without tags (default: "Untagged")',
+                    tag_group_order: "Order to display tag groups. Tags not listed will appear alphabetically after these.",
+                };
+                return helpers[schema.name] || undefined;
+            },
+        };
+    }
+    willUpdate(changedProperties) {
+        // Phase 3: Initial person detection
+        if (changedProperties.has("hass") && this._selectedPersonId === "") {
+            // First load - detect default person using utility
+            this._selectedPersonId = detectDefaultPerson(this.hass, this._config?.default_person_entity);
+        }
+        // Phase 3: Color shade recalculation when config or person changes
+        if ((changedProperties.has("_config") || changedProperties.has("_selectedPersonId")) && this._config) {
+            const baseColor = resolveAccentColor(this.hass, this._config.accent_color, this._selectedPersonId);
+            this.shades = calculateColorShades(baseColor);
+            this.shadesArray = [
+                this.shades.lighter,
+                this.shades.light,
+                this.shades.base,
+                this.shades.dark,
+                this.shades.darker,
+            ];
+        }
+        // Phase 4: Rebuild groups when hass, config, or person changes
+        if (changedProperties.has("hass") || changedProperties.has("_config") || changedProperties.has("_selectedPersonId")) {
+            this._updateGroups();
+        }
+    }
+    render() {
+        if (!this.hass || !this._config) {
+            return b ``;
+        }
+        // If no person detected, show error message
+        if (!this._selectedPersonId) {
+            return b `
         <ha-card>
           <div class="error-message">
             Please select a person. No people found with ChoreBot access.
           </div>
         </ha-card>
-      `;const e=this._getAvailablePeople(),t=this._config.show_progress?this._computeProgress():void 0;return L`
+      `;
+        }
+        // Get available people for dropdown
+        const allPeople = this._getAvailablePeople();
+        // Compute progress for selected person (for progress bar in header)
+        const progress = this._config.show_progress ? this._computeProgress() : undefined;
+        return b `
       <div class="card-container">
-        ${Ze(this.hass,this._selectedPersonId,this._dropdownOpen,e,this._config.show_progress??!0,t,this.shades,this._config.progress_text_color,()=>this._toggleDropdown(),e=>this._selectPerson(e),this._config.hide_person_background??!1)}
+        ${renderPersonDropdown(this.hass, this._selectedPersonId, this._dropdownOpen, allPeople, this._config.show_progress ?? true, progress, this.shades, this._config.progress_text_color, () => this._toggleDropdown(), (personId) => this._selectPerson(personId), this._config.hide_person_background ?? false)}
 
-        <div class="tasks-section ${this._config.hide_tasks_background?"no-background":""}">
+        <div class="tasks-section ${this._config.hide_tasks_background ? 'no-background' : ''}">
           ${this._renderGroupedTasks()}
         </div>
       </div>
 
       ${this._renderEditDialog()}
-    `}_computeProgress(){const e=Object.values(this.hass.states).filter(e=>e.entity_id.startsWith("todo.chorebot_"));return ve(xe(e,this._selectedPersonId,!1))}_getAvailablePeople(){const e=Ye(this.hass);if(this._config.show_all_people)return e;const t=this.hass?.states[this._config.entity],o=t?.attributes.chorebot_tasks||[],r=new Set;for(const e of o)e.computed_person_id&&r.add(e.computed_person_id);return e.filter(e=>r.has(e.entity_id))}_toggleDropdown(){this._dropdownOpen=!this._dropdownOpen}_selectPerson(e){this._selectedPersonId=e,this._dropdownOpen=!1}_updateGroups(){if(!this.hass||!this._config)return;const e=this.hass.states[this._config.entity];if(!e)return;let t=ke(e,!1!==this._config.show_dateless_tasks,!0===this._config.show_future_tasks,this._config.untagged_header||"Untagged","Upcoming",this._config.filter_section_id,this._selectedPersonId);t=ye(t,this._config.tag_group_order,this._config.untagged_header,"Upcoming"),this._groups=t.map(e=>({...e,isCollapsed:this._findExistingCollapseState(e.name)}))}_findExistingCollapseState(e){const t=this._groups.find(t=>t.name===e);return void 0!==t?t.isCollapsed:"Upcoming"===e}_renderGroupedTasks(){return 0===this._groups.length?L`<div class="empty-state">No tasks for this person</div>`:L`
+    `;
+    }
+    /**
+     * Compute progress for selected person (for progress bar)
+     * Uses same logic as person-points-card: today's tasks only (due today + overdue), dated tasks only
+     */
+    _computeProgress() {
+        // Get all ChoreBot todo entities
+        const allStates = Object.values(this.hass.states);
+        const todoEntities = allStates.filter((e) => e.entity_id.startsWith("todo.chorebot_"));
+        // Filter tasks assigned to this person (excludes dateless by default)
+        const personTasks = filterTasksByPerson(todoEntities, this._selectedPersonId, false);
+        // Calculate progress for dated tasks only
+        return calculateDatedTasksProgress(personTasks);
+    }
+    /**
+     * Get available people for dropdown
+     */
+    _getAvailablePeople() {
+        const allPeople = getAllPeople(this.hass);
+        // If config says show all, return all
+        if (this._config.show_all_people) {
+            return allPeople;
+        }
+        // Otherwise, filter to people who have tasks in this entity
+        const entity = this.hass?.states[this._config.entity];
+        const tasks = entity?.attributes.chorebot_tasks || [];
+        const peopleWithTasks = new Set();
+        for (const task of tasks) {
+            if (task.computed_person_id) {
+                peopleWithTasks.add(task.computed_person_id);
+            }
+        }
+        return allPeople.filter(p => peopleWithTasks.has(p.entity_id));
+    }
+    /**
+     * Toggle dropdown open/closed
+     */
+    _toggleDropdown() {
+        this._dropdownOpen = !this._dropdownOpen;
+    }
+    /**
+     * Select a person from dropdown
+     */
+    _selectPerson(personId) {
+        this._selectedPersonId = personId;
+        this._dropdownOpen = false; // Close dropdown after selection
+    }
+    // ============================================================================
+    // Phase 4: Task Grouping & Filtering
+    // ============================================================================
+    /**
+     * Update groups with person filtering
+     */
+    _updateGroups() {
+        if (!this.hass || !this._config)
+            return;
+        const entity = this.hass.states[this._config.entity];
+        if (!entity)
+            return;
+        // Use shared utility from task-utils.ts with person filter
+        let newGroups = filterAndGroupTasks(entity, this._config.show_dateless_tasks !== false, this._config.show_future_tasks === true, this._config.untagged_header || "Untagged", "Upcoming", this._config.filter_section_id, this._selectedPersonId);
+        // Sort groups
+        newGroups = sortGroups(newGroups, this._config.tag_group_order, this._config.untagged_header, "Upcoming");
+        // Preserve collapse state from existing groups
+        this._groups = newGroups.map((newGroup) => ({
+            ...newGroup,
+            isCollapsed: this._findExistingCollapseState(newGroup.name),
+        }));
+    }
+    /**
+     * Find existing collapse state for a group
+     */
+    _findExistingCollapseState(groupName) {
+        const existing = this._groups.find((g) => g.name === groupName);
+        if (existing !== undefined)
+            return existing.isCollapsed;
+        // Default: Upcoming starts collapsed, others start expanded
+        return groupName === "Upcoming";
+    }
+    // ============================================================================
+    // Phase 4: Grouped Task View Rendering
+    // ============================================================================
+    _renderGroupedTasks() {
+        if (this._groups.length === 0) {
+            return b `<div class="empty-state">No tasks for this person</div>`;
+        }
+        return b `
       <div class="tag-groups">
         ${this._renderAllGroups(this._groups)}
       </div>
-      ${this._config.show_add_task_button?this._renderAddTaskButton():""}
-    `}_renderAllGroups(e){return e.map(e=>{const t=be(e.tasks),o=this._config.task_text_color||"white",r=e.isCollapsed,s=t.completed===t.total,i=r&&s,a=t.total>0?t.completed/t.total*100:0;return L`
-        <div class="tag-group-container ${r?"collapsed":""}">
+      ${this._config.show_add_task_button ? this._renderAddTaskButton() : ""}
+    `;
+    }
+    _renderAllGroups(groups) {
+        return groups.map((group) => {
+            const progress = calculateProgress(group.tasks);
+            const textColor = this._config.task_text_color || "white";
+            const isCollapsed = group.isCollapsed;
+            const allComplete = progress.completed === progress.total;
+            const showCheckmark = isCollapsed && allComplete;
+            // Calculate progress percentage for progress bar
+            const progressPercent = progress.total > 0 ? (progress.completed / progress.total) * 100 : 0;
+            return b `
+        <div class="tag-group-container ${isCollapsed ? "collapsed" : ""}">
           <div
-            class="tag-group-header ${r?"collapsed":""}"
-            style="background: #${this.shades.light}; color: ${o}; --progress-width: ${a}%; --darker-color: #${this.shades.dark};"
-            @click=${()=>this._toggleGroup(e.name)}
+            class="tag-group-header ${isCollapsed ? "collapsed" : ""}"
+            style="background: #${this.shades
+                .light}; color: ${textColor}; --progress-width: ${progressPercent}%; --darker-color: #${this
+                .shades.dark};"
+            @click=${() => this._toggleGroup(group.name)}
           >
-            <div class="tag-group-header-title">${e.name}</div>
+            <div class="tag-group-header-title">${group.name}</div>
             <div class="tag-group-header-progress">
-              ${i?L`<ha-icon
+              ${showCheckmark
+                ? b `<ha-icon
                     icon="mdi:check"
-                    style="color: ${o}; --mdi-icon-size: 20px;"
-                  ></ha-icon>`:L`${t.completed}/${t.total}`}
+                    style="color: ${textColor}; --mdi-icon-size: 20px;"
+                  ></ha-icon>`
+                : b `${progress.completed}/${progress.total}`}
             </div>
           </div>
-          <div class="tag-group-tasks ${r?"collapsed":""}">
+          <div class="tag-group-tasks ${isCollapsed ? "collapsed" : ""}">
             <div class="tag-group-tasks-inner">
-              ${this._renderTasks(e.tasks,o)}
+              ${this._renderTasks(group.tasks, textColor)}
             </div>
           </div>
         </div>
-      `})}_renderTasks(e,t){return e.map(e=>{const o="completed"===e.status,r=o?`#${this.shades.base}`:this._config?.hide_tasks_background?"transparent":"var(--card-background-color)",s=o?t:"var(--primary-text-color)",i=o?`#${this.shades.dark}`:"transparent",a=o?"white":"var(--divider-color)",n=o?"none":"2px solid var(--divider-color)";return L`
+      `;
+        });
+    }
+    _renderTasks(tasks, textColor) {
+        return tasks.map((task) => {
+            const isCompleted = task.status === "completed";
+            // Task styling based on completion
+            // When hide_tasks_background is enabled, incomplete tasks are transparent
+            const taskBgColor = isCompleted
+                ? `#${this.shades.base}`
+                : (this._config?.hide_tasks_background ? "transparent" : "var(--card-background-color)");
+            const taskTextColor = isCompleted
+                ? textColor
+                : "var(--primary-text-color)";
+            // Completion circle styling
+            const circleBgColor = isCompleted
+                ? `#${this.shades.dark}`
+                : "transparent";
+            const circleIconColor = isCompleted ? "white" : "var(--divider-color)";
+            const circleBorder = isCompleted
+                ? "none"
+                : `2px solid var(--divider-color)`;
+            return b `
         <div
           class="todo-item"
-          style="background: ${r}; color: ${s};"
-          @click=${()=>this._openEditDialog(e)}
+          style="background: ${taskBgColor}; color: ${taskTextColor};"
+          @click=${() => this._openEditDialog(task)}
         >
           <div class="todo-content">
-            <div class="todo-summary">${e.summary}</div>
-            ${e.due||e.points_value||e.parent_uid?L`<div
+            <div class="todo-summary">
+              ${task.summary}
+              ${this._renderStreakIndicator(task)}
+            </div>
+            ${task.due || task.points_value || task.parent_uid
+                ? b `<div
                   class="todo-due-date"
-                  style="color: ${fe(e)?"var(--error-color)":"inherit"}"
+                  style="color: ${isOverdue(task)
+                    ? "var(--error-color)"
+                    : "inherit"}"
                 >
-                  ${e.due?ge(new Date(e.due),e):""}
-                  ${e.parent_uid?L`<ha-icon
+                  ${task.due
+                    ? formatRelativeDate(new Date(task.due), task)
+                    : ""}
+                  ${task.parent_uid
+                    ? b `<ha-icon
                         icon="mdi:sync"
                         class="recurring-icon"
-                      ></ha-icon>`:""}
-                  ${this._renderPointsBadge(e)}
-                </div>`:""}
+                      ></ha-icon>`
+                    : ""}
+                  ${this._renderPointsBadge(task)}
+                </div>`
+                : ""}
           </div>
           <div
             class="completion-circle"
-            style="background: ${i}; border: ${n};"
-            @click=${t=>this._handleCompletionClick(t,e)}
+            style="background: ${circleBgColor}; border: ${circleBorder};"
+            @click=${(e) => this._handleCompletionClick(e, task)}
           >
             <ha-icon
               icon="mdi:check"
-              style="color: ${a};"
+              style="color: ${circleIconColor};"
             ></ha-icon>
           </div>
         </div>
-      `})}_renderPointsBadge(e){const t=this.hass?.states[this._config.entity],o=t?.attributes.chorebot_templates||[],r=this._config.task_text_color||"white";return Ue(e,o,this.shades,this.hass,!1!==this._config?.show_points,r)}_renderAddTaskButton(){if(!this._config?.show_add_task_button)return L``;const e=`#${this.shades.light}`,t=`color-mix(in srgb, #${this.shades.light} 20%, var(--card-background-color))`,o=`#${this.shades.light}`;return L`
+      `;
+        });
+    }
+    _renderPointsBadge(task) {
+        const entity = this.hass?.states[this._config.entity];
+        const templates = entity?.attributes.chorebot_templates || [];
+        const textColor = this._config.task_text_color || "white";
+        return renderPointsBadge(task, templates, this.shades, this.hass, this._config?.show_points !== false, textColor);
+    }
+    _renderStreakIndicator(task) {
+        // Only show for recurring instances
+        if (!task.parent_uid) {
+            return b ``;
+        }
+        // Get template to access streak data
+        const entity = this.hass?.states[this._config.entity];
+        const templates = entity?.attributes.chorebot_templates || [];
+        const template = templates.find((t) => t.uid === task.parent_uid);
+        // Only show if streak exists and is greater than 0
+        if (!template || !template.streak_current || template.streak_current <= 0) {
+            return b ``;
+        }
+        return b `
+      <span class="streak-indicator">
+        <ha-icon icon="mdi:fire"></ha-icon>
+        <span>${template.streak_current}</span>
+      </span>
+    `;
+    }
+    _renderAddTaskButton() {
+        if (!this._config?.show_add_task_button) {
+            return b ``;
+        }
+        // Use the same color shades as the rest of the card
+        const borderColor = `#${this.shades.light}`;
+        const hoverBg = `color-mix(in srgb, #${this.shades.light} 20%, var(--card-background-color))`;
+        const hoverColor = `#${this.shades.light}`;
+        return b `
       <div
         class="add-task-button-container"
-        style="--button-border-color: ${e}; --button-hover-bg: ${t}; --button-hover-color: ${o};"
+        style="--button-border-color: ${borderColor}; --button-hover-bg: ${hoverBg}; --button-hover-color: ${hoverColor};"
       >
         <div class="add-task-card" @click="${this._openAddTaskDialog}">
           <div class="add-task-icon-section">
@@ -1498,7 +6264,252 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
           </div>
         </div>
       </div>
-    `}_toggleGroup(e){const t=this._groups.find(t=>t.name===e);t&&(t.isCollapsed=!t.isCollapsed,this.requestUpdate())}async _toggleTask(e,t){const o="completed"===e.status?"needs_action":"completed";await this.hass.callService("todo","update_item",{entity_id:this._config.entity,item:e.uid,status:o}),"completed"===o&&t&&Ie(t,this.shadesArray)}_handleCompletionClick(e,t){e.stopPropagation();const o=e.currentTarget.getBoundingClientRect(),r={x:(o.left+o.width/2)/window.innerWidth,y:(o.top+o.height/2)/window.innerHeight};this._toggleTask(t,r)}_openEditDialog(e){if(!this.hass||!this._config?.entity)return;const t=this.hass.states[this._config.entity];if(!t)return;const o=t.attributes.chorebot_templates||[];this._editingTask=Ae(e,o),this._editDialogOpen=!0}_closeEditDialog(){this._editDialogOpen=!1,this._editingTask=null}_renderEditDialog(){const e=this.hass?.states[this._config.entity],t=e?.attributes.chorebot_sections||[],o=e?.attributes.chorebot_tags||[];return Re(this._editDialogOpen,this._editingTask,this.hass,t,o,this._saving,()=>this._closeEditDialog(),e=>this._formValueChanged(e),()=>this._saveTask(),()=>this._handleDeleteTask())}_formValueChanged(e){const t=e.detail.value;this._editingTask={...this._editingTask,...t},("has_due_date"in t||"is_all_day"in t||"has_recurrence"in t||"recurrence_frequency"in t)&&this.requestUpdate()}async _saveTask(){if(!this._editingTask||!this._editingTask.summary?.trim()||this._saving)return;this._saving=!0;const e={list_id:this._config.entity,uid:this._editingTask.uid,summary:this._editingTask.summary.trim()};if(this._editingTask.has_due_date&&this._editingTask.due_date){const t=!!this._editingTask.is_all_day;let o;if(t||!this._editingTask.due_time)o=`${this._editingTask.due_date}T00:00:00`;else{const e=3===this._editingTask.due_time.split(":").length?this._editingTask.due_time:`${this._editingTask.due_time}:00`;o=`${this._editingTask.due_date}T${e}`}const r=new Date(o);if(isNaN(r.getTime()))return console.error("Invalid date/time combination:",o),void(this._saving=!1);e.due=r.toISOString(),e.is_all_day=t}else!1===this._editingTask.has_due_date&&(e.due="",e.is_all_day=!1);this._editingTask.description&&(e.description=this._editingTask.description),this._editingTask.section_id&&(e.section_id=this._editingTask.section_id),void 0!==this._editingTask.tags&&(e.tags=this._editingTask.tags);const t=$e(this._editingTask);null!==t?e.rrule=t:!1===this._editingTask.has_recurrence&&(e.rrule=""),void 0!==this._editingTask.points_value&&(e.points_value=this._editingTask.points_value),void 0!==this._editingTask.streak_bonus_points&&(e.streak_bonus_points=this._editingTask.streak_bonus_points),void 0!==this._editingTask.streak_bonus_interval&&(e.streak_bonus_interval=this._editingTask.streak_bonus_interval);!!this._editingTask.parent_uid&&(e.include_future_occurrences=!0);try{await this.hass.callService("chorebot","update_task",e),this._closeEditDialog()}catch(e){console.error("Error saving task:",e),alert("Failed to save task. Please try again.")}finally{this._saving=!1}}async _handleDeleteTask(){if(!this._editingTask||this._saving)return;const e=this._editingTask,t=e.has_recurrence||e.parent_uid;if(confirm(t?"Delete this recurring task? This will remove all future occurrences, but keep completed instances.":"Delete this task? This action cannot be undone.")){this._saving=!0;try{await this.hass.callService("todo","remove_item",{entity_id:this._config.entity,item:e.uid}),this._closeEditDialog()}catch(e){console.error("Error deleting task:",e),alert(`Failed to delete task: ${e}`)}finally{this._saving=!1}}}_openAddTaskDialog(){const e=this.hass?.states[this._config.entity],t=e?.attributes.chorebot_sections||[];this._editingTask=this._createBlankTask(t),this._editDialogOpen=!0}_createBlankTask(e){let t;if(this._config.filter_section_id){let o=e.find(e=>e.id===this._config.filter_section_id);o||(o=e.find(e=>e.name.toLowerCase()===this._config.filter_section_id.toLowerCase())),o&&(t=o.id)}if(!t&&this._selectedPersonId){const o=e.find(e=>e.person_id===this._selectedPersonId);o&&(t=o.id)}return!t&&e.length>0&&(t=e.sort((e,t)=>t.sort_order-e.sort_order)[0].id),{uid:"",summary:"",status:"needs_action",has_due_date:!1,is_all_day:!1,due_date:void 0,due_time:void 0,description:"",section_id:t,tags:[],has_recurrence:!1,recurrence_frequency:"DAILY",recurrence_interval:1,recurrence_byweekday:[],recurrence_bymonthday:1,points_value:0,streak_bonus_points:0,streak_bonus_interval:0}}getCardSize(){return 3}};Xe.styles=a`
+    `;
+    }
+    // ============================================================================
+    // Phase 4: Group Collapse/Expand
+    // ============================================================================
+    _toggleGroup(groupName) {
+        // Find the group and toggle its isCollapsed state
+        const group = this._groups.find((g) => g.name === groupName);
+        if (group) {
+            group.isCollapsed = !group.isCollapsed;
+            this.requestUpdate();
+        }
+    }
+    // ============================================================================
+    // Phase 4: Task Completion Handlers
+    // ============================================================================
+    async _toggleTask(task, confettiOrigin) {
+        const newStatus = task.status === "completed" ? "needs_action" : "completed";
+        await this.hass.callService("todo", "update_item", {
+            entity_id: this._config.entity,
+            item: task.uid,
+            status: newStatus,
+        });
+        // Play confetti animations when completing a task
+        if (newStatus === "completed" && confettiOrigin) {
+            // Play completion burst with themed colors
+            playCompletionBurst(confettiOrigin, this.shadesArray);
+        }
+    }
+    _handleCompletionClick(e, task) {
+        e.stopPropagation();
+        // Capture the position NOW before the async call
+        const target = e.currentTarget;
+        const rect = target.getBoundingClientRect();
+        const origin = {
+            x: (rect.left + rect.width / 2) / window.innerWidth,
+            y: (rect.top + rect.height / 2) / window.innerHeight,
+        };
+        this._toggleTask(task, origin);
+    }
+    // ============================================================================
+    // Phase 4: Edit Dialog Logic
+    // ============================================================================
+    _openEditDialog(task) {
+        if (!this.hass || !this._config?.entity)
+            return;
+        const entity = this.hass.states[this._config.entity];
+        if (!entity)
+            return;
+        const templates = entity.attributes.chorebot_templates || [];
+        this._editingTask = prepareTaskForEditing(task, templates);
+        this._editDialogOpen = true;
+    }
+    _closeEditDialog() {
+        this._editDialogOpen = false;
+        this._editingTask = null;
+    }
+    _renderEditDialog() {
+        // Get sections and tags from entity attributes
+        const entity = this.hass?.states[this._config.entity];
+        const sections = entity?.attributes.chorebot_sections || [];
+        const availableTags = entity?.attributes.chorebot_tags || [];
+        return renderTaskDialog(this._editDialogOpen, this._editingTask, this.hass, sections, availableTags, this._saving, () => this._closeEditDialog(), (ev) => this._formValueChanged(ev), () => this._saveTask(), () => this._handleDeleteTask());
+    }
+    _formValueChanged(ev) {
+        const updatedValues = ev.detail.value;
+        this._editingTask = {
+            ...this._editingTask,
+            ...updatedValues,
+        };
+        if ("has_due_date" in updatedValues ||
+            "is_all_day" in updatedValues ||
+            "has_recurrence" in updatedValues ||
+            "recurrence_frequency" in updatedValues) {
+            this.requestUpdate();
+        }
+    }
+    async _saveTask() {
+        if (!this._editingTask ||
+            !this._editingTask.summary?.trim() ||
+            this._saving) {
+            return;
+        }
+        this._saving = true;
+        const serviceData = {
+            list_id: this._config.entity,
+            uid: this._editingTask.uid,
+            summary: this._editingTask.summary.trim(),
+        };
+        if (this._editingTask.has_due_date && this._editingTask.due_date) {
+            const isAllDay = !!this._editingTask.is_all_day;
+            const timeStr = this._editingTask.due_time || "00:00";
+            try {
+                serviceData.due = createISOString(this._editingTask.due_date, timeStr, isAllDay);
+                serviceData.is_all_day = isAllDay;
+            }
+            catch (error) {
+                console.error("Invalid date/time combination:", error);
+                this._saving = false;
+                return;
+            }
+        }
+        else if (this._editingTask.has_due_date === false) {
+            serviceData.due = "";
+            serviceData.is_all_day = false;
+        }
+        if (this._editingTask.description) {
+            serviceData.description = this._editingTask.description;
+        }
+        if (this._editingTask.section_id) {
+            serviceData.section_id = this._editingTask.section_id;
+        }
+        // Handle tags
+        if (this._editingTask.tags !== undefined) {
+            serviceData.tags = this._editingTask.tags;
+        }
+        // Handle recurrence
+        const rrule = buildRrule(this._editingTask);
+        if (rrule !== null) {
+            serviceData.rrule = rrule;
+        }
+        else if (this._editingTask.has_recurrence === false) {
+            // User explicitly disabled recurrence, send empty string to clear it
+            serviceData.rrule = "";
+        }
+        // Handle points fields
+        if (this._editingTask.points_value !== undefined) {
+            serviceData.points_value = this._editingTask.points_value;
+        }
+        if (this._editingTask.streak_bonus_points !== undefined) {
+            serviceData.streak_bonus_points = this._editingTask.streak_bonus_points;
+        }
+        if (this._editingTask.streak_bonus_interval !== undefined) {
+            serviceData.streak_bonus_interval =
+                this._editingTask.streak_bonus_interval;
+        }
+        // For recurring task instances, always apply changes to future instances
+        const isRecurringInstance = !!this._editingTask.parent_uid;
+        if (isRecurringInstance) {
+            serviceData.include_future_occurrences = true;
+        }
+        try {
+            await this.hass.callService("chorebot", "update_task", serviceData);
+            this._closeEditDialog();
+        }
+        catch (error) {
+            console.error("Error saving task:", error);
+            alert("Failed to save task. Please try again.");
+        }
+        finally {
+            this._saving = false;
+        }
+    }
+    async _handleDeleteTask() {
+        if (!this._editingTask || this._saving) {
+            return;
+        }
+        const task = this._editingTask;
+        const isRecurring = task.has_recurrence || task.parent_uid;
+        // Confirmation message based on task type
+        const message = isRecurring
+            ? "Delete this recurring task? This will remove all future occurrences, but keep completed instances."
+            : "Delete this task? This action cannot be undone.";
+        if (!confirm(message)) {
+            return;
+        }
+        this._saving = true;
+        try {
+            // Call HA service to delete
+            await this.hass.callService("todo", "remove_item", {
+                entity_id: this._config.entity,
+                item: task.uid,
+            });
+            // Close dialog
+            this._closeEditDialog();
+        }
+        catch (error) {
+            console.error("Error deleting task:", error);
+            alert(`Failed to delete task: ${error}`);
+        }
+        finally {
+            this._saving = false;
+        }
+    }
+    // ============================================================================
+    // Phase 4: Add Task Dialog Logic
+    // ============================================================================
+    _openAddTaskDialog() {
+        const entity = this.hass?.states[this._config.entity];
+        const sections = entity?.attributes.chorebot_sections || [];
+        // Create a blank task with smart defaults (person-specific section)
+        this._editingTask = this._createBlankTask(sections);
+        this._editDialogOpen = true;
+    }
+    _createBlankTask(sections) {
+        let defaultSectionId;
+        // Priority 1: Explicit section filter
+        if (this._config.filter_section_id) {
+            // First try to find by ID
+            let filtered = sections.find((s) => s.id === this._config.filter_section_id);
+            // If not found by ID, try by name (case-insensitive)
+            if (!filtered) {
+                filtered = sections.find((s) => s.name.toLowerCase() ===
+                    this._config.filter_section_id.toLowerCase());
+            }
+            if (filtered) {
+                defaultSectionId = filtered.id;
+            }
+        }
+        // Priority 2: Person's assigned section (NEW: prioritize selected person)
+        if (!defaultSectionId && this._selectedPersonId) {
+            const personSection = sections.find((s) => s.person_id === this._selectedPersonId);
+            if (personSection) {
+                defaultSectionId = personSection.id;
+            }
+        }
+        // Priority 3: First section (highest sort_order)
+        if (!defaultSectionId && sections.length > 0) {
+            defaultSectionId = sections.sort((a, b) => b.sort_order - a.sort_order)[0].id;
+        }
+        return {
+            uid: "",
+            summary: "",
+            status: "needs_action",
+            has_due_date: false,
+            is_all_day: false,
+            due_date: undefined,
+            due_time: undefined,
+            description: "",
+            section_id: defaultSectionId,
+            tags: [],
+            has_recurrence: false,
+            recurrence_frequency: "DAILY",
+            recurrence_interval: 1,
+            recurrence_byweekday: [],
+            recurrence_bymonthday: 1,
+            points_value: 0,
+            streak_bonus_points: 0,
+            streak_bonus_interval: 0,
+        };
+    }
+    getCardSize() {
+        return 3;
+    }
+};
+ChoreBotPersonGroupedCard.styles = i$3 `
     :host {
       display: block;
     }
@@ -1957,6 +6968,23 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
       align-items: center;
     }
 
+    .streak-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-left: 8px;
+      font-size: 14px;
+      font-weight: normal;
+      color: var(--warning-color, #ff9800);
+      vertical-align: middle;
+      line-height: 1;
+    }
+
+    .streak-indicator ha-icon {
+      --mdc-icon-size: 13px;
+      display: flex;
+    }
+
     .completion-circle {
       width: 48px;
       height: 48px;
@@ -2094,24 +7122,277 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
         font-size: 18px;
       }
     }
-  `,e([pe({attribute:!1})],Xe.prototype,"hass",void 0),e([ue()],Xe.prototype,"_config",void 0),e([ue()],Xe.prototype,"_selectedPersonId",void 0),e([ue()],Xe.prototype,"_dropdownOpen",void 0),e([ue()],Xe.prototype,"_groups",void 0),e([ue()],Xe.prototype,"_editDialogOpen",void 0),e([ue()],Xe.prototype,"_editingTask",void 0),e([ue()],Xe.prototype,"_saving",void 0),Xe=e([ce("chorebot-person-grouped-card")],Xe),window.customCards=window.customCards||[],window.customCards.push({type:"chorebot-person-grouped-card",name:"ChoreBot Person Grouped Card",description:"Person-filtered tag-based grouped task view with progress tracking",preview:!0}),console.info("%c CHOREBOT-PERSON-GROUPED-CARD %c v0.1.0 ","color: white; background: #9C27B0; font-weight: bold;","color: #9C27B0; background: white; font-weight: bold;");let Je=class extends ne{constructor(){super(...arguments),this._selectedPersonId="",this._dropdownOpen=!1,this._redeeming=null,this._showConfirmModal=!1,this._showAddRewardModal=!1,this._showEditRewardModal=!1,this._pendingRedemption=null,this._rewardFormData={name:"",cost:50,icon:"mdi:gift",description:""},this._editingRewardId=null,this.shades={lighter:"",light:"",base:"",dark:"",darker:""},this._rewardFormSchema=[{name:"name",required:!0,selector:{text:{}}},{name:"cost",selector:{number:{min:1,max:1e4,mode:"box"}}},{name:"icon",selector:{icon:{}}},{name:"description",selector:{text:{multiline:!0}}}],this._computeRewardFieldLabel=e=>{const t=Ce(this.hass);return{name:"Name",cost:`Cost (${t.charAt(0).toUpperCase()+t.slice(1)})`,icon:"Icon",description:"Description (Optional)"}[e.name]||e.name},this._computeRewardFieldHelper=e=>({cost:`Cost between 1 and 10,000 ${Ce(this.hass)}`,icon:"Use Material Design Icons (e.g., mdi:gift, mdi:ice-cream)"}[e.name]||""),this._handleRewardFormChange=e=>{this._rewardFormData=e.detail.value}}setConfig(e){if(!e.type)throw new Error("type is required");this._config={type:"custom:chorebot-person-rewards-card",show_progress:!1!==e.show_progress,hide_rewards_background:!0===e.hide_rewards_background,show_disabled_rewards:!0===e.show_disabled_rewards,sort_by:e.sort_by||"cost",show_add_reward_button:!1!==e.show_add_reward_button,accent_color:e.accent_color||"",progress_text_color:e.progress_text_color||"",default_person_entity:e.default_person_entity||""}}static getStubConfig(){return{type:"custom:chorebot-person-rewards-card",default_person_entity:"",show_progress:!0,hide_rewards_background:!1,show_disabled_rewards:!1,sort_by:"cost",show_add_reward_button:!0,accent_color:"",progress_text_color:""}}static getConfigForm(){return{schema:[{name:"default_person_entity",selector:{entity:{filter:{domain:"person"}}}},{name:"show_progress",default:!0,selector:{boolean:{}}},{name:"hide_rewards_background",default:!1,selector:{boolean:{}}},{name:"show_disabled_rewards",default:!1,selector:{boolean:{}}},{name:"sort_by",default:"cost",selector:{select:{options:[{label:"Cost (Low to High)",value:"cost"},{label:"Name (A-Z)",value:"name"},{label:"Date Created (Oldest First)",value:"created"}]}}},{name:"show_add_reward_button",default:!0,selector:{boolean:{}}},{name:"accent_color",selector:{text:{}}},{name:"progress_text_color",selector:{text:{}}}],computeLabel:e=>({default_person_entity:"Default Person",show_progress:"Show Progress Bar",hide_rewards_background:"Hide Rewards Tile Backgrounds",show_disabled_rewards:"Show Disabled Rewards",sort_by:"Sort Rewards By",show_add_reward_button:"Show Add Reward Button",accent_color:"Accent Color",progress_text_color:"Progress Text Color"}[e.name]||void 0),computeHelper:e=>({default_person_entity:"Override auto-detected person. Leave empty to auto-detect logged-in user or use first person alphabetically.",show_progress:"Display progress bar showing completed/total tasks for selected person",hide_rewards_background:"Hide individual reward tile backgrounds for a seamless look",show_disabled_rewards:"Include rewards that have been disabled in the grid",sort_by:"Choose how to sort the rewards in the grid",show_add_reward_button:"Show the 'Add Reward' card for creating new rewards",accent_color:"Override accent color (hex code or CSS variable). By default inherits from person's profile.",progress_text_color:"Text color for progress label (hex code or CSS variable)"}[e.name]||void 0)}}willUpdate(e){if(e.has("hass")&&""===this._selectedPersonId&&(this._selectedPersonId=Ke(this.hass,this._config?.default_person_entity)),(e.has("_config")||e.has("_selectedPersonId"))&&this._config){const e=Ee(this.hass,this._config.accent_color,this._selectedPersonId);this.shades=De(e)}(e.has("hass")||e.has("_selectedPersonId"))&&(this._progress=this._computeProgress())}render(){if(!this.hass||!this._config)return L`<ha-card><div class="empty-state">Loading...</div></ha-card>`;if(!this.hass.states["sensor.chorebot_points"])return L`<ha-card>
+  `;
+__decorate([
+    n({ attribute: false })
+], ChoreBotPersonGroupedCard.prototype, "hass", void 0);
+__decorate([
+    r()
+], ChoreBotPersonGroupedCard.prototype, "_config", void 0);
+__decorate([
+    r()
+], ChoreBotPersonGroupedCard.prototype, "_selectedPersonId", void 0);
+__decorate([
+    r()
+], ChoreBotPersonGroupedCard.prototype, "_dropdownOpen", void 0);
+__decorate([
+    r()
+], ChoreBotPersonGroupedCard.prototype, "_groups", void 0);
+__decorate([
+    r()
+], ChoreBotPersonGroupedCard.prototype, "_editDialogOpen", void 0);
+__decorate([
+    r()
+], ChoreBotPersonGroupedCard.prototype, "_editingTask", void 0);
+__decorate([
+    r()
+], ChoreBotPersonGroupedCard.prototype, "_saving", void 0);
+ChoreBotPersonGroupedCard = __decorate([
+    t("chorebot-person-grouped-card")
+], ChoreBotPersonGroupedCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "chorebot-person-grouped-card",
+    name: "ChoreBot Person Grouped Card",
+    description: "Person-filtered tag-based grouped task view with progress tracking",
+    preview: true,
+});
+console.info("%c CHOREBOT-PERSON-GROUPED-CARD %c v0.1.0 ", "color: white; background: #9C27B0; font-weight: bold;", "color: #9C27B0; background: white; font-weight: bold;");
+
+// ============================================================================
+// ChoreBot Person Rewards Card (TypeScript)
+// ============================================================================
+/**
+ * ChoreBot Person Rewards Card
+ *
+ * Combines person selection dropdown with rewards list view.
+ * Features:
+ * - Person dropdown with avatar/initials display
+ * - Auto-detection of default person (logged-in user or first alphabetically)
+ * - Rewards list filtered by selected person
+ * - Task progress tracking for selected person
+ * - Click reward card to open confirmation modal
+ * - "Add Reward" placeholder card
+ * - Create/edit reward modals with form fields
+ * - Confetti animation on successful redemption
+ */
+let ChoreBotPersonRewardsCard = class ChoreBotPersonRewardsCard extends i {
+    constructor() {
+        super(...arguments);
+        this._selectedPersonId = "";
+        this._dropdownOpen = false;
+        this._redeeming = null; // reward_id being redeemed
+        this._showConfirmModal = false; // Show redemption confirmation
+        this._showAddRewardModal = false; // Show add reward modal
+        this._showEditRewardModal = false; // Show edit reward modal
+        this._pendingRedemption = null; // Pending redemption details
+        this._rewardFormData = {
+            name: "",
+            cost: 50,
+            icon: "mdi:gift",
+            description: "",
+        }; // Reward form data for ha-form
+        this._editingRewardId = null;
+        // Cached color shades for performance
+        this.shades = {
+            lighter: "",
+            light: "",
+            base: "",
+            dark: "",
+            darker: "",
+        };
+        this._rewardFormSchema = [
+            { name: "name", required: true, selector: { text: {} } },
+            { name: "cost", selector: { number: { min: 1, max: 10000, mode: "box" } } },
+            { name: "icon", selector: { icon: {} } },
+            { name: "description", selector: { text: { multiline: true } } },
+        ];
+        this._computeRewardFieldLabel = (schema) => {
+            const pointsTerm = getPointsTermLowercase(this.hass);
+            const pointsTermCap = pointsTerm.charAt(0).toUpperCase() + pointsTerm.slice(1);
+            const labels = {
+                name: "Name",
+                cost: `Cost (${pointsTermCap})`,
+                icon: "Icon",
+                description: "Description (Optional)",
+            };
+            return labels[schema.name] || schema.name;
+        };
+        this._computeRewardFieldHelper = (schema) => {
+            const pointsTerm = getPointsTermLowercase(this.hass);
+            const helpers = {
+                cost: `Cost between 1 and 10,000 ${pointsTerm}`,
+                icon: "Use Material Design Icons (e.g., mdi:gift, mdi:ice-cream)",
+            };
+            return helpers[schema.name] || "";
+        };
+        this._handleRewardFormChange = (ev) => {
+            this._rewardFormData = ev.detail.value;
+        };
+    }
+    setConfig(config) {
+        if (!config.type) {
+            throw new Error("type is required");
+        }
+        this._config = {
+            type: "custom:chorebot-person-rewards-card",
+            show_progress: config.show_progress !== false,
+            hide_rewards_background: config.hide_rewards_background === true,
+            show_disabled_rewards: config.show_disabled_rewards === true,
+            sort_by: config.sort_by || "cost",
+            show_add_reward_button: config.show_add_reward_button !== false,
+            accent_color: config.accent_color || "",
+            progress_text_color: config.progress_text_color || "",
+            default_person_entity: config.default_person_entity || "",
+        };
+    }
+    static getStubConfig() {
+        return {
+            type: "custom:chorebot-person-rewards-card",
+            default_person_entity: "",
+            show_progress: true,
+            hide_rewards_background: false,
+            show_disabled_rewards: false,
+            sort_by: "cost",
+            show_add_reward_button: true,
+            accent_color: "",
+            progress_text_color: "",
+        };
+    }
+    static getConfigForm() {
+        return {
+            schema: [
+                {
+                    name: "default_person_entity",
+                    selector: {
+                        entity: {
+                            filter: { domain: "person" },
+                        },
+                    },
+                },
+                {
+                    name: "show_progress",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "hide_rewards_background",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_disabled_rewards",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "sort_by",
+                    default: "cost",
+                    selector: {
+                        select: {
+                            options: [
+                                { label: "Cost (Low to High)", value: "cost" },
+                                { label: "Name (A-Z)", value: "name" },
+                                { label: "Date Created (Oldest First)", value: "created" },
+                            ],
+                        },
+                    },
+                },
+                {
+                    name: "show_add_reward_button",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "accent_color",
+                    selector: { text: {} },
+                },
+                {
+                    name: "progress_text_color",
+                    selector: { text: {} },
+                },
+            ],
+            computeLabel: (schema) => {
+                const labels = {
+                    default_person_entity: "Default Person",
+                    show_progress: "Show Progress Bar",
+                    hide_rewards_background: "Hide Rewards Tile Backgrounds",
+                    show_disabled_rewards: "Show Disabled Rewards",
+                    sort_by: "Sort Rewards By",
+                    show_add_reward_button: "Show Add Reward Button",
+                    accent_color: "Accent Color",
+                    progress_text_color: "Progress Text Color",
+                };
+                return labels[schema.name] || undefined;
+            },
+            computeHelper: (schema) => {
+                const helpers = {
+                    default_person_entity: "Override auto-detected person. Leave empty to auto-detect logged-in user or use first person alphabetically.",
+                    show_progress: "Display progress bar showing completed/total tasks for selected person",
+                    hide_rewards_background: "Hide individual reward tile backgrounds for a seamless look",
+                    show_disabled_rewards: "Include rewards that have been disabled in the grid",
+                    sort_by: "Choose how to sort the rewards in the grid",
+                    show_add_reward_button: "Show the 'Add Reward' card for creating new rewards",
+                    accent_color: "Override accent color (hex code or CSS variable). By default inherits from person's profile.",
+                    progress_text_color: "Text color for progress label (hex code or CSS variable)",
+                };
+                return helpers[schema.name] || undefined;
+            },
+        };
+    }
+    willUpdate(changedProperties) {
+        // Phase 1: Initial person detection
+        if (changedProperties.has("hass") && this._selectedPersonId === "") {
+            this._selectedPersonId = detectDefaultPerson(this.hass, this._config?.default_person_entity);
+        }
+        // Phase 2: Color shade recalculation
+        if ((changedProperties.has("_config") ||
+            changedProperties.has("_selectedPersonId")) &&
+            this._config) {
+            const baseColor = resolveAccentColor(this.hass, this._config.accent_color, this._selectedPersonId);
+            this.shades = calculateColorShades(baseColor);
+        }
+        // Phase 3: Calculate task progress for selected person
+        if (changedProperties.has("hass") ||
+            changedProperties.has("_selectedPersonId")) {
+            this._progress = this._computeProgress();
+        }
+    }
+    render() {
+        if (!this.hass || !this._config) {
+            return b `<ha-card><div class="empty-state">Loading...</div></ha-card>`;
+        }
+        // Get points sensor entity
+        const sensor = this.hass.states["sensor.chorebot_points"];
+        if (!sensor) {
+            return b `<ha-card>
         <div class="error-state">
           ChoreBot Points sensor not found. Make sure the integration is set up.
         </div>
-      </ha-card>`;if(!this._selectedPersonId)return L`
+      </ha-card>`;
+        }
+        // If no person detected, show error message
+        if (!this._selectedPersonId) {
+            return b `
         <ha-card>
           <div class="error-state">
             Please select a person. No people found with ChoreBot access.
           </div>
         </ha-card>
-      `;const e=this._getAvailablePeople(),t=this._config.show_progress??!0;return L`
+      `;
+        }
+        // Get available people for dropdown
+        const allPeople = this._getAvailablePeople();
+        const showProgress = this._config.show_progress ?? true;
+        return b `
       <ha-card>
         <div class="card-container">
           <!-- Person Dropdown Section -->
           <div
-            class="person-section ${this._dropdownOpen?"dropdown-open":""}"
+            class="person-section ${this._dropdownOpen ? "dropdown-open" : ""}"
           >
-            ${Ze(this.hass,this._selectedPersonId,this._dropdownOpen,e,t,this._progress,this.shades,this._config.progress_text_color,()=>this._toggleDropdown(),e=>this._selectPerson(e),!1)}
+            ${renderPersonDropdown(this.hass, this._selectedPersonId, this._dropdownOpen, allPeople, showProgress, this._progress, this.shades, this._config.progress_text_color, () => this._toggleDropdown(), (personId) => this._selectPerson(personId), false // Person section always has background
+        )}
           </div>
 
           <!-- Rewards List Section -->
@@ -2121,44 +7402,121 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
         </div>
 
         <!-- Modals -->
-        ${this._showConfirmModal?this._renderConfirmModal():""}
-        ${this._showAddRewardModal?this._renderAddRewardModal():""}
-        ${this._showEditRewardModal?this._renderEditRewardModal():""}
+        ${this._showConfirmModal ? this._renderConfirmModal() : ""}
+        ${this._showAddRewardModal ? this._renderAddRewardModal() : ""}
+        ${this._showEditRewardModal ? this._renderEditRewardModal() : ""}
       </ha-card>
-    `}_computeProgress(){const e=Object.values(this.hass.states).filter(e=>e.entity_id.startsWith("todo.chorebot_"));return ve(xe(e,this._selectedPersonId,!1))}_getAvailablePeople(){return Ye(this.hass)}_toggleDropdown(){this._dropdownOpen=!this._dropdownOpen}_selectPerson(e){this._selectedPersonId=e,this._dropdownOpen=!1}_renderRewardsList(){const e=this.hass?.states["sensor.chorebot_points"],t=e?.attributes.rewards||[],o=e?.attributes.people||{},r=t.filter(e=>e.person_id===this._selectedPersonId),s=r.filter(e=>this._config.show_disabled_rewards||e.enabled),i=this._sortRewards(s),a=o[this._selectedPersonId];return 0!==i.length||this._config.show_add_reward_button?L`
-      <div class="rewards-grid">
-        ${i.map(e=>this._renderRewardCard(e,a))}
-        ${this._config.show_add_reward_button?this._renderAddRewardCard():""}
-      </div>
-    `:L`<div class="empty-state">
+    `;
+    }
+    /**
+     * Compute progress for selected person (for progress bar)
+     * Uses same logic as person-grouped-card: today's tasks only, dated tasks only
+     */
+    _computeProgress() {
+        // Get all ChoreBot todo entities
+        const allStates = Object.values(this.hass.states);
+        const todoEntities = allStates.filter((e) => e.entity_id.startsWith("todo.chorebot_"));
+        // Filter tasks assigned to this person (excludes dateless by default)
+        const personTasks = filterTasksByPerson(todoEntities, this._selectedPersonId, false // Don't include dateless
+        );
+        // Calculate progress for dated tasks only
+        return calculateDatedTasksProgress(personTasks);
+    }
+    /**
+     * Get available people for dropdown
+     */
+    _getAvailablePeople() {
+        return getAllPeople(this.hass);
+    }
+    /**
+     * Toggle dropdown open/closed
+     */
+    _toggleDropdown() {
+        this._dropdownOpen = !this._dropdownOpen;
+    }
+    /**
+     * Select a person from dropdown
+     */
+    _selectPerson(personId) {
+        this._selectedPersonId = personId;
+        this._dropdownOpen = false; // Close dropdown after selection
+    }
+    /**
+     * Render rewards list filtered by selected person
+     */
+    _renderRewardsList() {
+        const sensor = this.hass?.states["sensor.chorebot_points"];
+        const rewards = sensor?.attributes.rewards || [];
+        const people = sensor?.attributes.people || {};
+        // Filter rewards by selected person
+        const personRewards = rewards.filter((r) => r.person_id === this._selectedPersonId);
+        // Filter by enabled/disabled
+        const filteredRewards = personRewards.filter((r) => this._config.show_disabled_rewards || r.enabled);
+        // Sort rewards
+        const sortedRewards = this._sortRewards(filteredRewards);
+        // Get person's balance
+        const person = people[this._selectedPersonId];
+        if (sortedRewards.length === 0 &&
+            !this._config.show_add_reward_button) {
+            return b `<div class="empty-state">
         No rewards configured yet. Use the "Add Reward" button or
         <code>chorebot.manage_reward</code> service to create rewards.
-      </div>`}_renderRewardCard(e,t){const o=!!t&&t.points_balance>=e.cost,r=!e.enabled||!o,s=Te(this.hass),i=this._config?.hide_rewards_background??!1,a=`#${this.shades.base}`,n=`#${this.shades.base}`;return L`
+      </div>`;
+        }
+        return b `
+      <div class="rewards-grid">
+        ${sortedRewards.map((reward) => this._renderRewardCard(reward, person))}
+        ${this._config.show_add_reward_button
+            ? this._renderAddRewardCard()
+            : ""}
+      </div>
+    `;
+    }
+    _renderRewardCard(reward, person) {
+        const canAfford = person ? person.points_balance >= reward.cost : false;
+        const isDisabled = !reward.enabled || !canAfford;
+        const parts = getPointsDisplayParts(this.hass);
+        const hideBackground = this._config?.hide_rewards_background ?? false;
+        // Apply person accent color to reward cards
+        const iconBg = `#${this.shades.base}`;
+        const costColor = `#${this.shades.base}`;
+        return b `
       <div
-        class="reward-card ${r?"disabled":""} ${i?"no-background":""}"
-        @click="${()=>this._handleRewardClick(e,o)}"
+        class="reward-card ${isDisabled ? "disabled" : ""} ${hideBackground
+            ? "no-background"
+            : ""}"
+        @click="${() => this._handleRewardClick(reward, canAfford)}"
       >
-        <div class="reward-icon-section" style="background: ${a};">
+        <div class="reward-icon-section" style="background: ${iconBg};">
           <div class="reward-icon">
-            <ha-icon icon="${e.icon}"></ha-icon>
+            <ha-icon icon="${reward.icon}"></ha-icon>
           </div>
         </div>
         <div class="reward-info">
           <div class="reward-header">
-            <div class="reward-name">${e.name}</div>
-            <div class="reward-cost" style="color: ${n};">
-              ${e.cost}
-              ${s.icon?L`<ha-icon icon="${s.icon}"></ha-icon>`:""}
-              ${s.text?s.text:""}
+            <div class="reward-name">${reward.name}</div>
+            <div class="reward-cost" style="color: ${costColor};">
+              ${reward.cost}
+              ${parts.icon ? b `<ha-icon icon="${parts.icon}"></ha-icon>` : ""}
+              ${parts.text ? parts.text : ""}
             </div>
           </div>
-          ${e.description?L`<div class="reward-description">${e.description}</div>`:""}
+          ${reward.description
+            ? b `<div class="reward-description">${reward.description}</div>`
+            : ""}
         </div>
       </div>
-    `}_renderAddRewardCard(){const e=`#${this.shades.light}`,t=`color-mix(in srgb, #${this.shades.light} 20%, var(--card-background-color))`,o=`#${this.shades.light}`;return L`
+    `;
+    }
+    _renderAddRewardCard() {
+        // Use the same color shades as the rest of the card
+        const borderColor = `#${this.shades.light}`;
+        const hoverBg = `color-mix(in srgb, #${this.shades.light} 20%, var(--card-background-color))`;
+        const hoverColor = `#${this.shades.light}`;
+        return b `
       <div
         class="add-reward-card"
-        style="--button-border-color: ${e}; --button-hover-bg: ${t}; --button-hover-color: ${o};"
+        style="--button-border-color: ${borderColor}; --button-hover-bg: ${hoverBg}; --button-hover-color: ${hoverColor};"
         @click="${this._openAddRewardModal}"
       >
         <div class="add-reward-icon-section">
@@ -2170,18 +7528,60 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
           <div class="add-reward-text">Add Reward</div>
         </div>
       </div>
-    `}_sortRewards(e){const t=[...e];switch(this._config.sort_by){case"name":return t.sort((e,t)=>e.name.localeCompare(t.name));case"created":return t.sort((e,t)=>new Date(e.created||0).getTime()-new Date(t.created||0).getTime());default:return t.sort((e,t)=>e.cost-t.cost)}}_handleRewardClick(e,t){this._pendingRedemption={personId:this._selectedPersonId,rewardId:e.id},this._showConfirmModal=!0}_renderConfirmModal(){if(!this._pendingRedemption||!this._config)return"";const e=this.hass?.states["sensor.chorebot_points"],t=e?.attributes.people||{},o=e?.attributes.rewards||[],{personId:r,rewardId:s}=this._pendingRedemption,i=t[r],a=o.find(e=>e.id===s);if(!i||!a)return"";const n=qe(this.hass,r),d=i.points_balance-a.cost,c=i.points_balance>=a.cost,l=a.enabled&&c,h=Te(this.hass),p=`#${this.shades.base}`,u=`#${this.shades.dark}`;return L`
+    `;
+    }
+    _sortRewards(rewards) {
+        const sorted = [...rewards];
+        switch (this._config.sort_by) {
+            case "name":
+                return sorted.sort((a, b) => a.name.localeCompare(b.name));
+            case "created":
+                return sorted.sort((a, b) => new Date(a.created || 0).getTime() -
+                    new Date(b.created || 0).getTime());
+            case "cost":
+            default:
+                return sorted.sort((a, b) => a.cost - b.cost);
+        }
+    }
+    _handleRewardClick(reward, canAfford) {
+        // Always open modal to show reward details (button will be disabled if can't redeem)
+        this._pendingRedemption = {
+            personId: this._selectedPersonId,
+            rewardId: reward.id,
+        };
+        this._showConfirmModal = true;
+    }
+    _renderConfirmModal() {
+        if (!this._pendingRedemption || !this._config)
+            return "";
+        const sensor = this.hass?.states["sensor.chorebot_points"];
+        const people = sensor?.attributes.people || {};
+        const rewards = sensor?.attributes.rewards || [];
+        const { personId, rewardId } = this._pendingRedemption;
+        const person = people[personId];
+        const reward = rewards.find((r) => r.id === rewardId);
+        if (!person || !reward)
+            return "";
+        const personName = getPersonName(this.hass, personId);
+        const remainingPoints = person.points_balance - reward.cost;
+        const canAfford = person.points_balance >= reward.cost;
+        const canRedeem = reward.enabled && canAfford;
+        const parts = getPointsDisplayParts(this.hass);
+        // Apply person accent color to modal buttons
+        const confirmBg = `#${this.shades.base}`;
+        const confirmHoverBg = `#${this.shades.dark}`;
+        return b `
       <div class="modal-overlay" @click="${this._cancelRedemption}">
         <div
           class="modal-content"
-          style="--modal-confirm-bg: ${p}; --modal-confirm-hover-bg: ${u};"
-          @click="${e=>e.stopPropagation()}"
+          style="--modal-confirm-bg: ${confirmBg}; --modal-confirm-hover-bg: ${confirmHoverBg};"
+          @click="${(e) => e.stopPropagation()}"
         >
           <div class="modal-header">
-            ${l?"Are you sure?":"Reward Details"}
+            ${canRedeem ? "Are you sure?" : "Reward Details"}
             <button
               class="edit-button"
-              @click="${()=>this._handleEditButtonClick(a.id)}"
+              @click="${() => this._handleEditButtonClick(reward.id)}"
               title="Edit Reward"
             >
               <ha-icon icon="mdi:pencil"></ha-icon>
@@ -2191,48 +7591,60 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
             <div class="modal-info">
               <div class="modal-info-row">
                 <span class="modal-info-label">Person:</span>
-                <span class="modal-info-value">${n}</span>
+                <span class="modal-info-value">${personName}</span>
               </div>
               <div class="modal-info-row">
                 <span class="modal-info-label">Reward:</span>
-                <span class="modal-info-value">${a.name}</span>
+                <span class="modal-info-value">${reward.name}</span>
               </div>
               <div class="modal-info-row">
                 <span class="modal-info-label">Cost:</span>
                 <span class="modal-info-value"
-                  >${a.cost}
-                  ${h.icon?L`<ha-icon icon="${h.icon}"></ha-icon>`:""}
-                  ${h.text?h.text:""}</span
+                  >${reward.cost}
+                  ${parts.icon
+            ? b `<ha-icon icon="${parts.icon}"></ha-icon>`
+            : ""}
+                  ${parts.text ? parts.text : ""}</span
                 >
               </div>
               <div class="modal-info-row">
                 <span class="modal-info-label">Current Balance:</span>
                 <span class="modal-info-value"
-                  >${i.points_balance}
-                  ${h.icon?L`<ha-icon icon="${h.icon}"></ha-icon>`:""}
-                  ${h.text?h.text:""}</span
+                  >${person.points_balance}
+                  ${parts.icon
+            ? b `<ha-icon icon="${parts.icon}"></ha-icon>`
+            : ""}
+                  ${parts.text ? parts.text : ""}</span
                 >
               </div>
               <div class="modal-info-row">
                 <span class="modal-info-label">Remaining Balance:</span>
                 <span
                   class="modal-info-value"
-                  style="color: ${d<0?"var(--error-color)":"inherit"}"
-                  >${d}
-                  ${h.icon?L`<ha-icon icon="${h.icon}"></ha-icon>`:""}
-                  ${h.text?h.text:""}</span
+                  style="color: ${remainingPoints < 0
+            ? "var(--error-color)"
+            : "inherit"}"
+                  >${remainingPoints}
+                  ${parts.icon
+            ? b `<ha-icon icon="${parts.icon}"></ha-icon>`
+            : ""}
+                  ${parts.text ? parts.text : ""}</span
                 >
               </div>
-              ${a.enabled?"":L`<div
+              ${!reward.enabled
+            ? b `<div
                     style="margin-top: 12px; color: var(--warning-color); font-size: 14px; text-align: center;"
                   >
                     This reward is currently disabled.
-                  </div>`}
-              ${c?"":L`<div
+                  </div>`
+            : ""}
+              ${!canAfford
+            ? b `<div
                     style="margin-top: 12px; color: var(--error-color); font-size: 14px; text-align: center;"
                   >
                     Not enough points to redeem this reward.
-                  </div>`}
+                  </div>`
+            : ""}
             </div>
           </div>
           <div class="modal-actions">
@@ -2240,11 +7652,11 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
               class="modal-button cancel"
               @click="${this._cancelRedemption}"
             >
-              ${l?"Cancel":"Close"}
+              ${canRedeem ? "Cancel" : "Close"}
             </button>
             <button
               class="modal-button confirm"
-              ?disabled="${!l}"
+              ?disabled="${!canRedeem}"
               @click="${this._confirmRedemption}"
             >
               Redeem
@@ -2252,7 +7664,12 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
           </div>
         </div>
       </div>
-    `}_renderAddRewardModal(){return this._config?L`
+    `;
+    }
+    _renderAddRewardModal() {
+        if (!this._config)
+            return "";
+        return b `
       <ha-dialog
         open
         @closed=${this._closeAddRewardModal}
@@ -2278,7 +7695,12 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
           Cancel
         </ha-button>
       </ha-dialog>
-    `:""}_renderEditRewardModal(){return this._config?L`
+    `;
+    }
+    _renderEditRewardModal() {
+        if (!this._config)
+            return "";
+        return b `
       <ha-dialog
         open
         @closed=${this._closeEditRewardModal}
@@ -2304,7 +7726,157 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
           Cancel
         </ha-button>
       </ha-dialog>
-    `:""}_cancelRedemption(){this._showConfirmModal=!1,this._pendingRedemption=null}async _confirmRedemption(){if(!this._pendingRedemption)return;const{personId:e,rewardId:t}=this._pendingRedemption;this._showConfirmModal=!1,this._pendingRedemption=null,this._redeeming=t;try{await this.hass.callService("chorebot","redeem_reward",{person_id:e,reward_id:t}),this._showRedemptionSuccess()}catch(e){const t=e.message||"Failed to redeem reward. Please try again.";alert(t)}finally{this._redeeming=null}}_showRedemptionSuccess(){Be(Oe(this._config.accent_color||getComputedStyle(this).getPropertyValue("--primary-color")||"#03a9f4"),3e3)}_openAddRewardModal(){this._rewardFormData={name:"",cost:50,icon:"mdi:gift",description:""},this._showAddRewardModal=!0}_closeAddRewardModal(){this._showAddRewardModal=!1}async _createReward(){if(!this._config)return;const{name:e,cost:t,icon:o,description:r}=this._rewardFormData;if(e.trim())try{await this.hass.callService("chorebot","manage_reward",{name:e.trim(),cost:Math.max(1,Math.min(1e4,t)),icon:o||"mdi:gift",description:r.trim(),person_id:this._selectedPersonId}),this._closeAddRewardModal()}catch(e){const t=e.message||"Failed to create reward. Please try again.";alert(t)}else alert("Reward name is required")}_openEditRewardModal(e){if(!this.hass)return;const t=this.hass.states["sensor.chorebot_points"];if(!t)return;const o=(t.attributes.rewards||[]).find(t=>t.id===e);o?(this._rewardFormData={name:o.name,cost:o.cost,icon:o.icon,description:o.description||""},this._editingRewardId=e,this._showEditRewardModal=!0):alert("Reward not found")}_closeEditRewardModal(){this._showEditRewardModal=!1,this._editingRewardId=null,this._rewardFormData={name:"",cost:50,icon:"mdi:gift",description:""}}_handleEditButtonClick(e){this._showConfirmModal=!1,this._pendingRedemption=null,this._openEditRewardModal(e)}async _updateReward(){if(!this._config||!this._editingRewardId)return;const{name:e,cost:t,icon:o,description:r}=this._rewardFormData;if(e.trim())try{await this.hass.callService("chorebot","manage_reward",{reward_id:this._editingRewardId,name:e.trim(),cost:Math.max(1,Math.min(1e4,t)),icon:o||"mdi:gift",description:r.trim(),person_id:this._selectedPersonId}),this._closeEditRewardModal()}catch(e){const t=e.message||"Failed to update reward. Please try again.";alert(t)}else alert("Reward name is required")}getCardSize(){return 3}};Je.styles=a`
+    `;
+    }
+    _cancelRedemption() {
+        this._showConfirmModal = false;
+        this._pendingRedemption = null;
+    }
+    async _confirmRedemption() {
+        if (!this._pendingRedemption)
+            return;
+        const { personId, rewardId } = this._pendingRedemption;
+        // Close modal
+        this._showConfirmModal = false;
+        this._pendingRedemption = null;
+        // Set redeeming state
+        this._redeeming = rewardId;
+        try {
+            await this.hass.callService("chorebot", "redeem_reward", {
+                person_id: personId,
+                reward_id: rewardId,
+            });
+            // Show success animation (star shower with themed colors)
+            this._showRedemptionSuccess();
+        }
+        catch (err) {
+            // Show error message
+            const errorMessage = err.message || "Failed to redeem reward. Please try again.";
+            alert(errorMessage);
+        }
+        finally {
+            this._redeeming = null;
+        }
+    }
+    _showRedemptionSuccess() {
+        // Get base color from accent color (fallback to primary color)
+        const baseColor = this._config.accent_color ||
+            getComputedStyle(this).getPropertyValue("--primary-color") ||
+            "#03a9f4";
+        // Extract color variants (lighter and darker shades)
+        const colors = extractColorVariants(baseColor);
+        // Play star shower animation
+        playStarShower(colors, 3000);
+    }
+    _openAddRewardModal() {
+        // Reset form and prefill person_id
+        this._rewardFormData = {
+            name: "",
+            cost: 50,
+            icon: "mdi:gift",
+            description: "",
+        };
+        this._showAddRewardModal = true;
+    }
+    _closeAddRewardModal() {
+        this._showAddRewardModal = false;
+    }
+    async _createReward() {
+        if (!this._config)
+            return;
+        const { name, cost, icon, description } = this._rewardFormData;
+        if (!name.trim()) {
+            alert("Reward name is required");
+            return;
+        }
+        try {
+            await this.hass.callService("chorebot", "manage_reward", {
+                name: name.trim(),
+                cost: Math.max(1, Math.min(10000, cost)), // Clamp between 1 and 10000
+                icon: icon || "mdi:gift",
+                description: description.trim(),
+                person_id: this._selectedPersonId, // Prefill with selected person
+            });
+            // Close modal
+            this._closeAddRewardModal();
+        }
+        catch (err) {
+            // Show error message
+            const errorMessage = err.message || "Failed to create reward. Please try again.";
+            alert(errorMessage);
+        }
+    }
+    _openEditRewardModal(rewardId) {
+        if (!this.hass)
+            return;
+        // Find reward in sensor attributes
+        const sensor = this.hass.states["sensor.chorebot_points"];
+        if (!sensor)
+            return;
+        const rewards = sensor.attributes.rewards || [];
+        const reward = rewards.find((r) => r.id === rewardId);
+        if (!reward) {
+            alert("Reward not found");
+            return;
+        }
+        // Populate form with existing reward data
+        this._rewardFormData = {
+            name: reward.name,
+            cost: reward.cost,
+            icon: reward.icon,
+            description: reward.description || "",
+        };
+        this._editingRewardId = rewardId;
+        this._showEditRewardModal = true;
+    }
+    _closeEditRewardModal() {
+        this._showEditRewardModal = false;
+        this._editingRewardId = null;
+        // Reset form to defaults
+        this._rewardFormData = {
+            name: "",
+            cost: 50,
+            icon: "mdi:gift",
+            description: "",
+        };
+    }
+    _handleEditButtonClick(rewardId) {
+        // Close redemption modal
+        this._showConfirmModal = false;
+        this._pendingRedemption = null;
+        // Open edit modal
+        this._openEditRewardModal(rewardId);
+    }
+    async _updateReward() {
+        if (!this._config || !this._editingRewardId)
+            return;
+        const { name, cost, icon, description } = this._rewardFormData;
+        if (!name.trim()) {
+            alert("Reward name is required");
+            return;
+        }
+        try {
+            await this.hass.callService("chorebot", "manage_reward", {
+                reward_id: this._editingRewardId, // Key difference from _createReward
+                name: name.trim(),
+                cost: Math.max(1, Math.min(10000, cost)),
+                icon: icon || "mdi:gift",
+                description: description.trim(),
+                person_id: this._selectedPersonId,
+            });
+            // Close modal
+            this._closeEditRewardModal();
+        }
+        catch (err) {
+            const errorMessage = err.message || "Failed to update reward. Please try again.";
+            alert(errorMessage);
+        }
+    }
+    getCardSize() {
+        return 3;
+    }
+};
+ChoreBotPersonRewardsCard.styles = i$3 `
     :host {
       display: block;
       /* HA Dialog styling */
@@ -2985,4 +8557,70 @@ const ce=e=>(t,o)=>{void 0!==o?o.addInitializer(()=>{customElements.define(e,t)}
         max-height: 300px;
       }
     }
-  `,e([pe({attribute:!1})],Je.prototype,"hass",void 0),e([ue()],Je.prototype,"_config",void 0),e([ue()],Je.prototype,"_selectedPersonId",void 0),e([ue()],Je.prototype,"_dropdownOpen",void 0),e([ue()],Je.prototype,"_progress",void 0),e([ue()],Je.prototype,"_redeeming",void 0),e([ue()],Je.prototype,"_showConfirmModal",void 0),e([ue()],Je.prototype,"_showAddRewardModal",void 0),e([ue()],Je.prototype,"_showEditRewardModal",void 0),e([ue()],Je.prototype,"_pendingRedemption",void 0),e([ue()],Je.prototype,"_rewardFormData",void 0),e([ue()],Je.prototype,"_editingRewardId",void 0),Je=e([ce("chorebot-person-rewards-card")],Je),window.customCards=window.customCards||[],window.customCards.push({type:"chorebot-person-rewards-card",name:"ChoreBot Person Rewards Card",description:"Combined person selector and rewards list card with progress tracking",preview:!0}),console.info("%c CHOREBOT-PERSON-REWARDS-CARD %c v1.0.0","color: white; background: #3498db; font-weight: bold;","color: #3498db; background: white; font-weight: bold;"),console.info("%c CHOREBOT-CARDS %c v0.1.0 ","background: #3498db; color: white; font-weight: bold; padding: 2px 4px; border-radius: 3px 0 0 3px;","background: #ecf0f1; color: #3498db; font-weight: bold; padding: 2px 4px; border-radius: 0 3px 3px 0;");
+  `;
+__decorate([
+    n({ attribute: false })
+], ChoreBotPersonRewardsCard.prototype, "hass", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard.prototype, "_config", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard.prototype, "_selectedPersonId", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard.prototype, "_dropdownOpen", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard.prototype, "_progress", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard.prototype, "_redeeming", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard.prototype, "_showConfirmModal", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard.prototype, "_showAddRewardModal", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard.prototype, "_showEditRewardModal", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard.prototype, "_pendingRedemption", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard.prototype, "_rewardFormData", void 0);
+__decorate([
+    r()
+], ChoreBotPersonRewardsCard.prototype, "_editingRewardId", void 0);
+ChoreBotPersonRewardsCard = __decorate([
+    t("chorebot-person-rewards-card")
+], ChoreBotPersonRewardsCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "chorebot-person-rewards-card",
+    name: "ChoreBot Person Rewards Card",
+    description: "Combined person selector and rewards list card with progress tracking",
+    preview: true,
+});
+console.info("%c CHOREBOT-PERSON-REWARDS-CARD %c v1.0.0", "color: white; background: #3498db; font-weight: bold;", "color: #3498db; background: white; font-weight: bold;");
+
+/**
+ * ChoreBot Cards - Single Bundle Entry Point
+ *
+ * This file imports and registers all 6 ChoreBot dashboard cards.
+ * Each card self-registers via customElements.define() in its respective module.
+ *
+ * Cards included:
+ * - chorebot-grouped-card: Tag-based grouped task view with progress tracking
+ * - chorebot-add-task-card: Quick task creation with full field support
+ * - chorebot-person-points-card: Visual points balance display with progress bar
+ * - chorebot-rewards-card: Person-specific rewards with inline redemption
+ * - chorebot-person-grouped-card: Person-filtered tag-based grouped task view
+ * - chorebot-person-rewards-card: Combined person selector and rewards list
+ */
+// Import all card modules - they self-register on import
+// Version banner for browser console
+console.info('%c CHOREBOT-CARDS %c v0.1.0 ', 'background: #3498db; color: white; font-weight: bold; padding: 2px 4px; border-radius: 3px 0 0 3px;', 'background: #ecf0f1; color: #3498db; font-weight: bold; padding: 2px 4px; border-radius: 0 3px 3px 0;');
+//# sourceMappingURL=chorebot-cards.js.map

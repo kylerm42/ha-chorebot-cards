@@ -27,6 +27,7 @@ import {
   formatRelativeDate,
   isOverdue,
   parseUTCToLocal,
+  createISOString,
 } from "./utils/date-utils.js";
 import { buildRrule, parseRrule } from "./utils/rrule-utils.js";
 import {
@@ -587,6 +588,23 @@ export class ChoreBotPersonGroupedCard extends LitElement {
       line-height: 1;
       display: inline-flex;
       align-items: center;
+    }
+
+    .streak-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-left: 8px;
+      font-size: 14px;
+      font-weight: normal;
+      color: var(--warning-color, #ff9800);
+      vertical-align: middle;
+      line-height: 1;
+    }
+
+    .streak-indicator ha-icon {
+      --mdc-icon-size: 13px;
+      display: flex;
     }
 
     .completion-circle {
@@ -1211,7 +1229,10 @@ export class ChoreBotPersonGroupedCard extends LitElement {
           @click=${() => this._openEditDialog(task)}
         >
           <div class="todo-content">
-            <div class="todo-summary">${task.summary}</div>
+            <div class="todo-summary">
+              ${task.summary}
+              ${this._renderStreakIndicator(task)}
+            </div>
             ${task.due || task.points_value || task.parent_uid
               ? html`<div
                   class="todo-due-date"
@@ -1260,6 +1281,30 @@ export class ChoreBotPersonGroupedCard extends LitElement {
       this._config?.show_points !== false,
       textColor
     );
+  }
+
+  private _renderStreakIndicator(task: Task) {
+    // Only show for recurring instances
+    if (!task.parent_uid) {
+      return html``;
+    }
+
+    // Get template to access streak data
+    const entity = this.hass?.states[this._config!.entity];
+    const templates = entity?.attributes.chorebot_templates || [];
+    const template = templates.find((t: any) => t.uid === task.parent_uid);
+
+    // Only show if streak exists and is greater than 0
+    if (!template || !template.streak_current || template.streak_current <= 0) {
+      return html``;
+    }
+
+    return html`
+      <span class="streak-indicator">
+        <ha-icon icon="mdi:fire"></ha-icon>
+        <span>${template.streak_current}</span>
+      </span>
+    `;
   }
 
   private _renderAddTaskButton() {
@@ -1417,27 +1462,20 @@ export class ChoreBotPersonGroupedCard extends LitElement {
 
     if (this._editingTask.has_due_date && this._editingTask.due_date) {
       const isAllDay = !!this._editingTask.is_all_day;
+      const timeStr = this._editingTask.due_time || "00:00";
 
-      let dateTimeString: string;
-      if (isAllDay || !this._editingTask.due_time) {
-        dateTimeString = `${this._editingTask.due_date}T00:00:00`;
-      } else {
-        const timeStr =
-          this._editingTask.due_time.split(":").length === 3
-            ? this._editingTask.due_time
-            : `${this._editingTask.due_time}:00`;
-        dateTimeString = `${this._editingTask.due_date}T${timeStr}`;
-      }
-
-      const dateObj = new Date(dateTimeString);
-      if (isNaN(dateObj.getTime())) {
-        console.error("Invalid date/time combination:", dateTimeString);
+      try {
+        serviceData.due = createISOString(
+          this._editingTask.due_date,
+          timeStr,
+          isAllDay,
+        );
+        serviceData.is_all_day = isAllDay;
+      } catch (error) {
+        console.error("Invalid date/time combination:", error);
         this._saving = false;
         return;
       }
-
-      serviceData.due = dateObj.toISOString();
-      serviceData.is_all_day = isAllDay;
     } else if (this._editingTask.has_due_date === false) {
       serviceData.due = "";
       serviceData.is_all_day = false;

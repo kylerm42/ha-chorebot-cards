@@ -39,7 +39,8 @@ export function prepareTaskForEditing(
 
   // Extract due date/time if present
   if (task.due) {
-    const parsed = parseUTCToLocal(task.due);
+    const isAllDay = task.is_all_day || false;
+    const parsed = parseUTCToLocal(task.due, isAllDay);
     flatTask.due_date = parsed.date ?? undefined;
     flatTask.due_time = parsed.time ?? undefined;
     flatTask.has_due_date = true;
@@ -293,7 +294,7 @@ export function buildEditDialogData(
   let timeValue = task.due_time || null;
 
   if (!dateValue && task.due) {
-    const parsed = parseUTCToLocal(task.due);
+    const parsed = parseUTCToLocal(task.due, isAllDay);
     dateValue = parsed.date;
     timeValue = parsed.time;
   }

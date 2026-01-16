@@ -5,6 +5,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { HomeAssistant, EditingTask, Section } from "./utils/types.js";
 import { buildRrule } from "./utils/rrule-utils.js";
 import { renderTaskDialog } from "./utils/dialog-utils.js";
+import { createISOString } from "./utils/date-utils.js";
 
 // Card-specific config interface
 interface AddTaskConfig {
@@ -299,27 +300,20 @@ export class ChoreBotAddTaskCard extends LitElement {
     // Handle due date
     if (this._newTask.has_due_date && this._newTask.due_date) {
       const isAllDay = !!this._newTask.is_all_day;
+      const timeStr = this._newTask.due_time || "00:00";
 
-      let dateTimeString: string;
-      if (isAllDay || !this._newTask.due_time) {
-        dateTimeString = `${this._newTask.due_date}T00:00:00`;
-      } else {
-        const timeStr =
-          this._newTask.due_time.split(":").length === 3
-            ? this._newTask.due_time
-            : `${this._newTask.due_time}:00`;
-        dateTimeString = `${this._newTask.due_date}T${timeStr}`;
-      }
-
-      const dateObj = new Date(dateTimeString);
-      if (isNaN(dateObj.getTime())) {
-        console.error("Invalid date/time combination:", dateTimeString);
+      try {
+        serviceData.due = createISOString(
+          this._newTask.due_date,
+          timeStr,
+          isAllDay,
+        );
+        serviceData.is_all_day = isAllDay;
+      } catch (error) {
+        console.error("Invalid date/time combination:", error);
         this._saving = false;
         return;
       }
-
-      serviceData.due = dateObj.toISOString();
-      serviceData.is_all_day = isAllDay;
     }
 
     // Handle description
