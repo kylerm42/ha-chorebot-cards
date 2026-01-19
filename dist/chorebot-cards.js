@@ -664,23 +664,6 @@ function getPointsTermCapitalized(hass) {
     }
     return parts.text.charAt(0).toUpperCase() + parts.text.slice(1);
 }
-/**
- * Get lowercase points term for use in helper text.
- * Example: "stars", "coins", "points"
- *
- * Falls back to "points" if sensor is missing or attribute is undefined.
- * Returns empty string if text is intentionally empty (icon-only mode).
- *
- * @param hass - Home Assistant instance
- * @returns Lowercase term string or empty string
- */
-function getPointsTermLowercase(hass) {
-    const parts = getPointsDisplayParts(hass);
-    if (!parts.text) {
-        return "";
-    }
-    return parts.text.toLowerCase();
-}
 
 // ============================================================================
 // Dialog Utility Functions for ChoreBot Cards
@@ -1015,34 +998,45 @@ function renderTaskDialog(isOpen, task, hass, sections, availableTags, saving, o
         @value-changed=${onValueChanged}
       ></ha-form>
 
-      <!-- Delete button (bottom-left positioning via CSS) -->
       ${showDelete && onDelete && task?.uid
         ? b `
             <ha-button
-              slot="primaryAction"
+              slot="secondaryAction"
               @click=${onDelete}
               .disabled=${saving}
               class="delete-button"
+              dialogAction="delete"
             >
               Delete
             </ha-button>
           `
         : ""}
-
-      <ha-button slot="primaryAction" @click=${onSave} .disabled=${saving}>
-        ${saving ? "Saving..." : "Save"}
-      </ha-button>
+      
       <ha-button slot="secondaryAction" @click=${onClose} .disabled=${saving}>
         Cancel
+      </ha-button>
+      
+      <ha-button slot="primaryAction" @click=${onSave} .disabled=${saving}>
+        ${saving ? "Saving..." : "Save"}
       </ha-button>
 
       <style>
         ha-dialog {
           --mdc-dialog-min-width: min(500px, 90vw);
         }
-        .delete-button {
+        
+        /* Position delete button on far left */
+        mwc-button.delete-button,
+        ha-button.delete-button {
           --mdc-theme-primary: var(--error-color, #db4437);
-          margin-right: auto; /* Push to left */
+          --mdc-button-outline-color: var(--error-color, #db4437);
+          --mdc-theme-on-primary: white;
+          --wa-color-fill-loud: var(--error-color, #db4437);
+          --wa-color-neutral-fill-loud: var(--error-color, #db4437);
+          background-color: var(--error-color, #db4437);
+          color: white;
+          position: absolute;
+          left: 16px;
         }
       </style>
     </ha-dialog>
@@ -2317,6 +2311,222 @@ function renderPointsBadge(task, templates, shades, hass, showPoints, textColor)
 }
 
 // ============================================================================
+// Task Detail Utility Functions for Expandable Task Tiles
+// ============================================================================
+/**
+ * Format recurrence pattern into human-readable string
+ * @param rrule - Recurrence rule string (e.g., "FREQ=DAILY;INTERVAL=1")
+ * @returns Human-readable recurrence description
+ */
+function formatRecurrencePattern(rrule) {
+    if (!rrule || rrule.trim() === "") {
+        return "";
+    }
+    const parsed = parseRrule(rrule);
+    if (!parsed || !parsed.frequency) {
+        return "";
+    }
+    const { frequency, interval, byweekday, bymonthday } = parsed;
+    // Helper: Convert 2-letter day codes to full names
+    const dayNameMap = {
+        MO: "Mon",
+        TU: "Tue",
+        WE: "Wed",
+        TH: "Thu",
+        FR: "Fri",
+        SA: "Sat",
+        SU: "Sun",
+    };
+    // Helper: Add ordinal suffix (1st, 2nd, 3rd, 4th, etc.)
+    const getOrdinalSuffix = (day) => {
+        if (day >= 11 && day <= 13)
+            return `${day}th`;
+        const lastDigit = day % 10;
+        if (lastDigit === 1)
+            return `${day}st`;
+        if (lastDigit === 2)
+            return `${day}nd`;
+        if (lastDigit === 3)
+            return `${day}rd`;
+        return `${day}th`;
+    };
+    // Format based on frequency
+    if (frequency === "DAILY") {
+        return interval === 1 ? "Daily" : `Every ${interval} days`;
+    }
+    if (frequency === "WEEKLY") {
+        if (byweekday.length > 0) {
+            const dayNames = byweekday.map((d) => dayNameMap[d.toUpperCase()] || d);
+            const daysStr = dayNames.join(", ");
+            if (interval === 1) {
+                return `Weekly on ${daysStr}`;
+            }
+            else {
+                return `Every ${interval} weeks on ${daysStr}`;
+            }
+        }
+        else {
+            return interval === 1 ? "Weekly" : `Every ${interval} weeks`;
+        }
+    }
+    if (frequency === "MONTHLY") {
+        if (bymonthday !== null) {
+            const dayStr = getOrdinalSuffix(bymonthday);
+            return interval === 1
+                ? `Monthly on ${dayStr}`
+                : `Every ${interval} months on ${dayStr}`;
+        }
+        else {
+            return interval === 1 ? "Monthly" : `Every ${interval} months`;
+        }
+    }
+    // Fallback for unknown patterns
+    return "";
+}
+/**
+ * Format full date and time in user-friendly format
+ * @param isoString - ISO 8601 date string
+ * @param isAllDay - Whether this is an all-day task
+ * @returns Formatted date/time string
+ */
+function formatFullDateTime(isoString, isAllDay = false) {
+    if (!isoString || isoString.trim() === "") {
+        return "";
+    }
+    try {
+        const date = new Date(isoString);
+        if (isNaN(date.getTime())) {
+            return "";
+        }
+        // Format options for date
+        const dateOptions = {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        };
+        // Format options for time (12-hour format)
+        const timeOptions = {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+        };
+        if (isAllDay) {
+            // All-day: "Monday, January 19, 2026"
+            return date.toLocaleDateString(undefined, dateOptions);
+        }
+        else {
+            // Timed: "Monday, January 19, 2026 at 3:00 PM"
+            const datePart = date.toLocaleDateString(undefined, dateOptions);
+            const timePart = date.toLocaleTimeString(undefined, timeOptions);
+            return `${datePart} at ${timePart}`;
+        }
+    }
+    catch (e) {
+        console.error("Date formatting error:", e, isoString);
+        return "";
+    }
+}
+/**
+ * Render expanded task details section
+ * @param options - Configuration object
+ * @returns Lit template for expanded details
+ */
+function renderExpandedDetails(options) {
+    const { task, templates, isExpanded, onEdit, onDelete, shades, textColor } = options;
+    // Determine if task is recurring (has rrule or parent_uid)
+    let recurrencePattern = "";
+    if (task.rrule) {
+        // Task has its own rrule
+        recurrencePattern = formatRecurrencePattern(task.rrule);
+    }
+    else if (task.parent_uid) {
+        // Task is an instance - get rrule from parent template
+        const parentTemplate = templates.find((t) => t.uid === task.parent_uid);
+        if (parentTemplate?.rrule) {
+            recurrencePattern = formatRecurrencePattern(parentTemplate.rrule);
+        }
+    }
+    // Determine streak bonus info (only if applicable)
+    let streakBonusText = "";
+    if (task.streak_bonus_points && task.streak_bonus_points > 0) {
+        const interval = task.streak_bonus_interval || 0;
+        if (interval > 0) {
+            const intervalText = interval === 1 ? "day" : `${interval} days`;
+            streakBonusText = `+${task.streak_bonus_points} pts every ${intervalText}`;
+        }
+    }
+    // Format full due date/time
+    const dueDateTimeText = task.due
+        ? formatFullDateTime(task.due, task.is_all_day || false)
+        : "";
+    // Build detail rows (only show non-empty values)
+    const detailRows = [];
+    if (recurrencePattern) {
+        detailRows.push({
+            icon: "mdi:sync",
+            label: "Repeats:",
+            value: recurrencePattern,
+        });
+    }
+    if (streakBonusText) {
+        detailRows.push({
+            icon: "mdi:trophy-award",
+            label: "Streak Bonus:",
+            value: streakBonusText,
+        });
+    }
+    if (task.description && task.description.trim() !== "") {
+        detailRows.push({
+            icon: "mdi:text",
+            label: "Description:",
+            value: task.description,
+        });
+    }
+    if (dueDateTimeText) {
+        detailRows.push({
+            icon: "mdi:calendar-clock",
+            label: "Due:",
+            value: dueDateTimeText,
+        });
+    }
+    // Always render edit button, even if no detail rows
+    return b `
+    <div class="todo-details ${isExpanded ? "expanded" : "collapsed"}">
+      <div class="todo-details-inner" style="display: flex; align-items: flex-start;">
+        ${detailRows.length > 0
+        ? b `
+              <div class="details-content">
+                ${detailRows.map((row) => b `
+                    <div class="detail-row">
+                      <ha-icon icon="${row.icon}"></ha-icon>
+                      <span class="detail-label">${row.label}</span>
+                      <span class="detail-value">${row.value}</span>
+                    </div>
+                  `)}
+              </div>
+            `
+        : ""}
+        <div class="details-actions">
+          <div
+            class="action-button"
+            @click=${(e) => {
+        e.stopPropagation();
+        onEdit();
+    }}
+            role="button"
+            tabindex="0"
+            aria-label="Edit task"
+          >
+            <ha-icon icon="mdi:pencil"></ha-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
 // ChoreBot Grouped Card (TypeScript)
 // ============================================================================
 /**
@@ -2340,6 +2550,7 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
         this._addTaskDialogOpen = false;
         this._newTask = null;
         this._savingNewTask = false;
+        this._expandedTaskUid = null;
         this._autoCollapseTimeouts = new Map();
         this._previousGroupProgress = new Map();
         // Cached color shades for performance (recalculated when config changes)
@@ -2484,6 +2695,8 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
         });
     }
     _renderTasks(tasks, textColor) {
+        const entity = this.hass?.states[this._config.entity];
+        const templates = entity?.attributes.chorebot_templates || [];
         return tasks.map((task) => {
             const isCompleted = task.status === "completed";
             // Task styling based on completion
@@ -2503,46 +2716,56 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
                 ? "none"
                 : `2px solid var(--divider-color)`;
             return b `
-        <div
-          class="todo-item"
-          style="background: ${taskBgColor}; color: ${taskTextColor};"
-          @click=${() => this._openEditDialog(task)}
-        >
-          <div class="todo-content">
-            <div class="todo-summary">
-              ${task.summary}
-              ${this._renderStreakIndicator(task)}
-            </div>
-            ${task.due || task.points_value || task.parent_uid
+        <div class="todo-item-container" style="background: ${taskBgColor}; color: ${taskTextColor};">
+          <div
+            class="todo-item"
+            @click=${() => this._toggleTaskExpanded(task.uid)}
+          >
+            <div class="todo-content">
+              <div class="todo-summary">
+                ${task.summary}
+                ${this._renderStreakIndicator(task)}
+              </div>
+              ${task.due || task.points_value || task.parent_uid
                 ? b `<div
-                  class="todo-due-date"
-                  style="color: ${isOverdue(task)
+                    class="todo-due-date"
+                    style="color: ${isOverdue(task)
                     ? "var(--error-color)"
                     : "inherit"}"
-                >
-                  ${task.due
+                  >
+                    ${task.due
                     ? formatRelativeDate(new Date(task.due), task)
                     : ""}
-                  ${task.parent_uid
+                    ${task.parent_uid
                     ? b `<ha-icon
-                        icon="mdi:sync"
-                        class="recurring-icon"
-                      ></ha-icon>`
+                          icon="mdi:sync"
+                          class="recurring-icon"
+                        ></ha-icon>`
                     : ""}
-                  ${this._renderPointsBadge(task)}
-                </div>`
+                    ${this._renderPointsBadge(task)}
+                  </div>`
                 : ""}
+            </div>
+            <div
+              class="completion-circle"
+              style="background: ${circleBgColor}; border: ${circleBorder};"
+              @click=${(e) => this._handleCompletionClick(e, task)}
+            >
+              <ha-icon
+                icon="mdi:check"
+                style="color: ${circleIconColor};"
+              ></ha-icon>
+            </div>
           </div>
-          <div
-            class="completion-circle"
-            style="background: ${circleBgColor}; border: ${circleBorder};"
-            @click=${(e) => this._handleCompletionClick(e, task)}
-          >
-            <ha-icon
-              icon="mdi:check"
-              style="color: ${circleIconColor};"
-            ></ha-icon>
-          </div>
+          ${renderExpandedDetails({
+                task,
+                templates,
+                isExpanded: this._expandedTaskUid === task.uid,
+                onEdit: () => this._openEditDialog(task),
+                onDelete: () => this._confirmAndDeleteTask(task),
+                shades: this.shades,
+                textColor: this._config.task_text_color || "white",
+            })}
         </div>
       `;
         });
@@ -2625,6 +2848,17 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
         }
     }
     // ============================================================================
+    // Task Expansion
+    // ============================================================================
+    _toggleTaskExpanded(taskUid) {
+        if (this._expandedTaskUid === taskUid) {
+            this._expandedTaskUid = null; // Collapse
+        }
+        else {
+            this._expandedTaskUid = taskUid; // Expand (and collapse others)
+        }
+    }
+    // ============================================================================
     // Task Completion
     // ============================================================================
     async _toggleTask(task, confettiOrigin) {
@@ -2634,6 +2868,10 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
             item: task.uid,
             status: newStatus,
         });
+        // Auto-collapse if this task was expanded
+        if (newStatus === "completed" && this._expandedTaskUid === task.uid) {
+            this._expandedTaskUid = null;
+        }
         // Play confetti animations when completing a task
         if (newStatus === "completed" && confettiOrigin) {
             // 1. Always play completion burst
@@ -2910,6 +3148,22 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
         }
         finally {
             this._saving = false;
+        }
+    }
+    async _confirmAndDeleteTask(task) {
+        const isRecurring = task.rrule || task.parent_uid;
+        const message = isRecurring
+            ? "Delete this recurring task? This will remove all future occurrences, but keep completed instances."
+            : "Delete this task? This action cannot be undone.";
+        if (!confirm(message))
+            return;
+        await this.hass.callService("todo", "remove_item", {
+            entity_id: this._config.entity,
+            item: task.uid,
+        });
+        // Auto-collapse if this task was expanded
+        if (this._expandedTaskUid === task.uid) {
+            this._expandedTaskUid = null;
         }
     }
     // ============================================================================
@@ -3341,11 +3595,6 @@ ChoreBotGroupedCard.styles = i$3 `
       padding: 16px;
       cursor: pointer;
       transition: filter 0.2s ease;
-      border-bottom: 1px solid var(--divider-color);
-    }
-
-    .todo-item:last-child {
-      border-bottom: none;
     }
 
     .todo-item:hover {
@@ -3535,6 +3784,111 @@ ChoreBotGroupedCard.styles = i$3 `
     ha-dialog {
       --mdc-dialog-min-width: min(500px, 90vw);
     }
+
+    /* Task Container */
+    .todo-item-container {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--divider-color);
+    }
+
+    .todo-item-container:last-child {
+      border-bottom: none;
+    }
+
+    /* Expanded Details Section */
+    .todo-details {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease;
+      overflow: hidden;
+    }
+
+    .todo-details.expanded {
+      grid-template-rows: 1fr;
+    }
+
+    .todo-details-inner {
+      min-height: 0;
+      overflow: hidden;
+      padding: 0 16px;
+      transition: padding 0.3s ease;
+    }
+
+    .todo-details.expanded .todo-details-inner {
+      padding: 0 16px 16px 16px;
+    }
+
+    /* Details Content (Left Side) */
+    .details-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .detail-row ha-icon {
+      --mdc-icon-size: 16px;
+      color: var(--secondary-text-color);
+      flex-shrink: 0;
+    }
+
+    .detail-label {
+      font-weight: 500;
+      color: var(--secondary-text-color);
+      flex-shrink: 0;
+    }
+
+    .detail-value {
+      flex: 1;
+      color: var(--primary-text-color);
+      word-wrap: break-word;
+    }
+
+    /* Edit Button (Inline with Details) */
+    .details-actions {
+      display: flex;
+      align-items: flex-end;
+      height: 100%;
+      margin-left: auto;
+      padding-left: 8px;
+    }
+
+    .action-button {
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      color: var(--secondary-text-color);
+    }
+
+    .action-button:hover {
+      opacity: 0.7;
+    }
+
+    .action-button ha-icon {
+      --mdc-icon-size: 20px;
+    }
+
+    /* Mobile Adjustments */
+    @media (max-width: 600px) {
+      .todo-details-inner {
+        padding: 0 12px;
+      }
+
+      .todo-details.expanded .todo-details-inner {
+        padding: 12px;
+      }
+
+      .detail-row {
+        font-size: 13px;
+      }
+    }
   `;
 __decorate([
     n({ attribute: false })
@@ -3563,6 +3917,9 @@ __decorate([
 __decorate([
     r()
 ], ChoreBotGroupedCard.prototype, "_savingNewTask", void 0);
+__decorate([
+    r()
+], ChoreBotGroupedCard.prototype, "_expandedTaskUid", void 0);
 ChoreBotGroupedCard = __decorate([
     t("chorebot-grouped-card")
 ], ChoreBotGroupedCard);
@@ -4582,25 +4939,30 @@ let ChoreBotPersonRewardsCard$1 = class ChoreBotPersonRewardsCard extends i {
         this._editingRewardId = null;
         this._rewardFormSchema = [
             { name: "name", required: true, selector: { text: {} } },
-            { name: "cost", selector: { number: { min: 1, max: 10000, mode: "box" } } },
+            { name: "cost", required: true, selector: { number: { min: 1, max: 10000, mode: "box" } } },
             { name: "icon", selector: { icon: {} } },
             { name: "description", selector: { text: { multiline: true } } },
         ];
         this._computeRewardFieldLabel = (schema) => {
-            const pointsTerm = getPointsTermLowercase(this.hass);
-            const pointsTermCap = pointsTerm.charAt(0).toUpperCase() + pointsTerm.slice(1);
+            const parts = getPointsDisplayParts(this.hass);
+            // Use only text for label (can't render icon in text field)
+            const displayStr = parts.text
+                ? parts.text.charAt(0).toUpperCase() + parts.text.slice(1)
+                : "Points";
             const labels = {
                 name: "Name",
-                cost: `Cost (${pointsTermCap})`,
+                cost: `Cost (${displayStr})`,
                 icon: "Icon",
                 description: "Description (Optional)",
             };
             return labels[schema.name] || schema.name;
         };
         this._computeRewardFieldHelper = (schema) => {
-            const pointsTerm = getPointsTermLowercase(this.hass);
+            const parts = getPointsDisplayParts(this.hass);
+            // Use only text for helper (can't render icon in text field)
+            const displayStr = parts.text || "points";
             const helpers = {
-                cost: `Cost between 1 and 10,000 ${pointsTerm}`,
+                cost: `Cost between 1 and 10,000 ${displayStr}`,
                 icon: "Use Material Design Icons (e.g., mdi:gift, mdi:ice-cream)",
             };
             return helpers[schema.name] || "";
@@ -4934,15 +5296,38 @@ let ChoreBotPersonRewardsCard$1 = class ChoreBotPersonRewardsCard extends i {
         ></ha-form>
 
         <ha-button
+          slot="secondaryAction"
+          @click=${this._deleteReward}
+          class="delete-button"
+        >
+          Delete
+        </ha-button>
+        
+        <ha-button slot="secondaryAction" @click=${this._closeEditRewardModal}>
+          Cancel
+        </ha-button>
+        
+        <ha-button
           slot="primaryAction"
           @click=${this._updateReward}
           ?disabled=${!this._rewardFormData.name?.trim()}
         >
-          Update
+          Save
         </ha-button>
-        <ha-button slot="secondaryAction" @click=${this._closeEditRewardModal}>
-          Cancel
-        </ha-button>
+        
+        <style>
+          .delete-button {
+            --mdc-theme-primary: var(--error-color, #db4437);
+            --mdc-button-outline-color: var(--error-color, #db4437);
+            --mdc-theme-on-primary: white;
+            --wa-color-fill-loud: var(--error-color, #db4437);
+            --wa-color-neutral-fill-loud: var(--error-color, #db4437);
+            background-color: var(--error-color, #db4437);
+            color: white;
+            position: absolute;
+            left: 16px;
+          }
+        </style>
       </ha-dialog>
     `;
     }
@@ -5183,6 +5568,24 @@ let ChoreBotPersonRewardsCard$1 = class ChoreBotPersonRewardsCard extends i {
             alert(errorMessage);
         }
     }
+    async _deleteReward() {
+        if (!this._config || !this._editingRewardId)
+            return;
+        if (!confirm("Delete this reward? This action cannot be undone.")) {
+            return;
+        }
+        try {
+            await this.hass.callService("chorebot", "delete_reward", {
+                reward_id: this._editingRewardId,
+            });
+            // Close modal
+            this._closeEditRewardModal();
+        }
+        catch (err) {
+            const errorMessage = err.message || "Failed to delete reward. Please try again.";
+            alert(errorMessage);
+        }
+    }
 };
 ChoreBotPersonRewardsCard$1.styles = i$3 `
     :host {
@@ -5212,7 +5615,7 @@ ChoreBotPersonRewardsCard$1.styles = i$3 `
     }
 
     ha-dialog {
-      --mdc-dialog-min-width: 90%;
+      --mdc-dialog-min-width: min(500px, 90vw);
     }
 
     ha-form {
@@ -5773,6 +6176,7 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
         this._editDialogOpen = false;
         this._editingTask = null;
         this._saving = false;
+        this._expandedTaskUid = null;
         // Cached color shades for performance (recalculated when config changes)
         this.shades = {
             lighter: "",
@@ -6151,6 +6555,8 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
         });
     }
     _renderTasks(tasks, textColor) {
+        const entity = this.hass?.states[this._config.entity];
+        const templates = entity?.attributes.chorebot_templates || [];
         return tasks.map((task) => {
             const isCompleted = task.status === "completed";
             // Task styling based on completion
@@ -6170,46 +6576,56 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
                 ? "none"
                 : `2px solid var(--divider-color)`;
             return b `
-        <div
-          class="todo-item"
-          style="background: ${taskBgColor}; color: ${taskTextColor};"
-          @click=${() => this._openEditDialog(task)}
-        >
-          <div class="todo-content">
-            <div class="todo-summary">
-              ${task.summary}
-              ${this._renderStreakIndicator(task)}
-            </div>
-            ${task.due || task.points_value || task.parent_uid
+        <div class="todo-item-container" style="background: ${taskBgColor}; color: ${taskTextColor};">
+          <div
+            class="todo-item"
+            @click=${() => this._toggleTaskExpanded(task.uid)}
+          >
+            <div class="todo-content">
+              <div class="todo-summary">
+                ${task.summary}
+                ${this._renderStreakIndicator(task)}
+              </div>
+              ${task.due || task.points_value || task.parent_uid
                 ? b `<div
-                  class="todo-due-date"
-                  style="color: ${isOverdue(task)
+                    class="todo-due-date"
+                    style="color: ${isOverdue(task)
                     ? "var(--error-color)"
                     : "inherit"}"
-                >
-                  ${task.due
+                  >
+                    ${task.due
                     ? formatRelativeDate(new Date(task.due), task)
                     : ""}
-                  ${task.parent_uid
+                    ${task.parent_uid
                     ? b `<ha-icon
-                        icon="mdi:sync"
-                        class="recurring-icon"
-                      ></ha-icon>`
+                          icon="mdi:sync"
+                          class="recurring-icon"
+                        ></ha-icon>`
                     : ""}
-                  ${this._renderPointsBadge(task)}
-                </div>`
+                    ${this._renderPointsBadge(task)}
+                  </div>`
                 : ""}
+            </div>
+            <div
+              class="completion-circle"
+              style="background: ${circleBgColor}; border: ${circleBorder};"
+              @click=${(e) => this._handleCompletionClick(e, task)}
+            >
+              <ha-icon
+                icon="mdi:check"
+                style="color: ${circleIconColor};"
+              ></ha-icon>
+            </div>
           </div>
-          <div
-            class="completion-circle"
-            style="background: ${circleBgColor}; border: ${circleBorder};"
-            @click=${(e) => this._handleCompletionClick(e, task)}
-          >
-            <ha-icon
-              icon="mdi:check"
-              style="color: ${circleIconColor};"
-            ></ha-icon>
-          </div>
+          ${renderExpandedDetails({
+                task,
+                templates,
+                isExpanded: this._expandedTaskUid === task.uid,
+                onEdit: () => this._openEditDialog(task),
+                onDelete: () => this._confirmAndDeleteTask(task),
+                shades: this.shades,
+                textColor: this._config.task_text_color || "white",
+            })}
         </div>
       `;
         });
@@ -6278,6 +6694,17 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
         }
     }
     // ============================================================================
+    // Task Expansion
+    // ============================================================================
+    _toggleTaskExpanded(taskUid) {
+        if (this._expandedTaskUid === taskUid) {
+            this._expandedTaskUid = null; // Collapse
+        }
+        else {
+            this._expandedTaskUid = taskUid; // Expand (and collapse others)
+        }
+    }
+    // ============================================================================
     // Phase 4: Task Completion Handlers
     // ============================================================================
     async _toggleTask(task, confettiOrigin) {
@@ -6287,6 +6714,10 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
             item: task.uid,
             status: newStatus,
         });
+        // Auto-collapse if this task was expanded
+        if (newStatus === "completed" && this._expandedTaskUid === task.uid) {
+            this._expandedTaskUid = null;
+        }
         // Play confetti animations when completing a task
         if (newStatus === "completed" && confettiOrigin) {
             // Play completion burst with themed colors
@@ -6446,6 +6877,22 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
         }
         finally {
             this._saving = false;
+        }
+    }
+    async _confirmAndDeleteTask(task) {
+        const isRecurring = task.rrule || task.parent_uid;
+        const message = isRecurring
+            ? "Delete this recurring task? This will remove all future occurrences, but keep completed instances."
+            : "Delete this task? This action cannot be undone.";
+        if (!confirm(message))
+            return;
+        await this.hass.callService("todo", "remove_item", {
+            entity_id: this._config.entity,
+            item: task.uid,
+        });
+        // Auto-collapse if this task was expanded
+        if (this._expandedTaskUid === task.uid) {
+            this._expandedTaskUid = null;
         }
     }
     // ============================================================================
@@ -6889,11 +7336,6 @@ ChoreBotPersonGroupedCard.styles = i$3 `
       padding: 16px;
       cursor: pointer;
       transition: filter 0.2s ease;
-      border-bottom: 1px solid var(--divider-color);
-    }
-
-    .todo-item:last-child {
-      border-bottom: none;
     }
 
     .todo-item:hover {
@@ -7078,6 +7520,96 @@ ChoreBotPersonGroupedCard.styles = i$3 `
       --mdc-dialog-min-width: min(500px, 90vw);
     }
 
+    /* Task Container */
+    .todo-item-container {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--divider-color);
+    }
+
+    .todo-item-container:last-child {
+      border-bottom: none;
+    }
+
+    /* Expanded Details Section */
+    .todo-details {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease;
+      overflow: hidden;
+    }
+
+    .todo-details.expanded {
+      grid-template-rows: 1fr;
+    }
+
+    .todo-details-inner {
+      min-height: 0;
+      overflow: hidden;
+      padding: 0 16px;
+      transition: padding 0.3s ease;
+    }
+
+    .todo-details.expanded .todo-details-inner {
+      padding: 0 16px 16px 16px;
+    }
+
+    /* Details Content (Left Side) */
+    .details-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .detail-row ha-icon {
+      --mdc-icon-size: 16px;
+      color: var(--secondary-text-color);
+      flex-shrink: 0;
+    }
+
+    .detail-label {
+      font-weight: 500;
+      color: var(--secondary-text-color);
+      flex-shrink: 0;
+    }
+
+    .detail-value {
+      flex: 1;
+      color: var(--primary-text-color);
+      word-wrap: break-word;
+    }
+
+    /* Edit Button (Inline with Details) */
+    .details-actions {
+      display: flex;
+      align-items: flex-end;
+      height: 100%;
+      margin-left: auto;
+      padding-left: 8px;
+    }
+
+    .action-button {
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      color: var(--secondary-text-color);
+    }
+
+    .action-button:hover {
+      opacity: 0.7;
+    }
+
+    .action-button ha-icon {
+      --mdc-icon-size: 20px;
+    }
+
     /* Responsive: Smaller elements on mobile */
     @media (max-width: 600px) {
       .person-header {
@@ -7121,6 +7653,18 @@ ChoreBotPersonGroupedCard.styles = i$3 `
       .todo-summary {
         font-size: 18px;
       }
+
+      .todo-details-inner {
+        padding: 0 12px;
+      }
+
+      .todo-details.expanded .todo-details-inner {
+        padding: 12px;
+      }
+
+      .detail-row {
+        font-size: 13px;
+      }
     }
   `;
 __decorate([
@@ -7147,6 +7691,9 @@ __decorate([
 __decorate([
     r()
 ], ChoreBotPersonGroupedCard.prototype, "_saving", void 0);
+__decorate([
+    r()
+], ChoreBotPersonGroupedCard.prototype, "_expandedTaskUid", void 0);
 ChoreBotPersonGroupedCard = __decorate([
     t("chorebot-person-grouped-card")
 ], ChoreBotPersonGroupedCard);
@@ -7203,25 +7750,30 @@ let ChoreBotPersonRewardsCard = class ChoreBotPersonRewardsCard extends i {
         };
         this._rewardFormSchema = [
             { name: "name", required: true, selector: { text: {} } },
-            { name: "cost", selector: { number: { min: 1, max: 10000, mode: "box" } } },
+            { name: "cost", required: true, selector: { number: { min: 1, max: 10000, mode: "box" } } },
             { name: "icon", selector: { icon: {} } },
             { name: "description", selector: { text: { multiline: true } } },
         ];
         this._computeRewardFieldLabel = (schema) => {
-            const pointsTerm = getPointsTermLowercase(this.hass);
-            const pointsTermCap = pointsTerm.charAt(0).toUpperCase() + pointsTerm.slice(1);
+            const parts = getPointsDisplayParts(this.hass);
+            // Use only text for label (can't render icon in text field)
+            const displayStr = parts.text
+                ? parts.text.charAt(0).toUpperCase() + parts.text.slice(1)
+                : "Points";
             const labels = {
                 name: "Name",
-                cost: `Cost (${pointsTermCap})`,
+                cost: `Cost (${displayStr})`,
                 icon: "Icon",
                 description: "Description (Optional)",
             };
             return labels[schema.name] || schema.name;
         };
         this._computeRewardFieldHelper = (schema) => {
-            const pointsTerm = getPointsTermLowercase(this.hass);
+            const parts = getPointsDisplayParts(this.hass);
+            // Use only text for helper (can't render icon in text field)
+            const displayStr = parts.text || "points";
             const helpers = {
-                cost: `Cost between 1 and 10,000 ${pointsTerm}`,
+                cost: `Cost between 1 and 10,000 ${displayStr}`,
                 icon: "Use Material Design Icons (e.g., mdi:gift, mdi:ice-cream)",
             };
             return helpers[schema.name] || "";
@@ -7716,15 +8268,38 @@ let ChoreBotPersonRewardsCard = class ChoreBotPersonRewardsCard extends i {
         ></ha-form>
 
         <ha-button
+          slot="secondaryAction"
+          @click=${this._deleteReward}
+          class="delete-button"
+        >
+          Delete
+        </ha-button>
+        
+        <ha-button slot="secondaryAction" @click=${this._closeEditRewardModal}>
+          Cancel
+        </ha-button>
+        
+        <ha-button
           slot="primaryAction"
           @click=${this._updateReward}
           ?disabled=${!this._rewardFormData.name?.trim()}
         >
-          Update
+          Save
         </ha-button>
-        <ha-button slot="secondaryAction" @click=${this._closeEditRewardModal}>
-          Cancel
-        </ha-button>
+        
+        <style>
+          .delete-button {
+            --mdc-theme-primary: var(--error-color, #db4437);
+            --mdc-button-outline-color: var(--error-color, #db4437);
+            --mdc-theme-on-primary: white;
+            --wa-color-fill-loud: var(--error-color, #db4437);
+            --wa-color-neutral-fill-loud: var(--error-color, #db4437);
+            background-color: var(--error-color, #db4437);
+            color: white;
+            position: absolute;
+            left: 16px;
+          }
+        </style>
       </ha-dialog>
     `;
     }
@@ -7872,6 +8447,24 @@ let ChoreBotPersonRewardsCard = class ChoreBotPersonRewardsCard extends i {
             alert(errorMessage);
         }
     }
+    async _deleteReward() {
+        if (!this._config || !this._editingRewardId)
+            return;
+        if (!confirm("Delete this reward? This action cannot be undone.")) {
+            return;
+        }
+        try {
+            await this.hass.callService("chorebot", "delete_reward", {
+                reward_id: this._editingRewardId,
+            });
+            // Close modal
+            this._closeEditRewardModal();
+        }
+        catch (err) {
+            const errorMessage = err.message || "Failed to delete reward. Please try again.";
+            alert(errorMessage);
+        }
+    }
     getCardSize() {
         return 3;
     }
@@ -7901,7 +8494,7 @@ ChoreBotPersonRewardsCard.styles = i$3 `
     }
 
     ha-dialog {
-      --mdc-dialog-min-width: 90%;
+      --mdc-dialog-min-width: min(500px, 90vw);
     }
 
     ha-form {

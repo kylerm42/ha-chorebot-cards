@@ -44,6 +44,7 @@ import {
   playPointsAnimation,
 } from "./utils/confetti-utils.js";
 import { renderPointsBadge } from "./utils/points-badge-utils.js";
+import { renderExpandedDetails } from "./utils/task-detail-utils.js";
 
 // Card-specific config interface
 interface ChoreBotGroupedConfig extends ChoreBotBaseConfig {
@@ -80,6 +81,7 @@ export class ChoreBotGroupedCard extends LitElement {
   @state() private _addTaskDialogOpen = false;
   @state() private _newTask: EditingTask | null = null;
   @state() private _savingNewTask = false;
+  @state() private _expandedTaskUid: string | null = null;
   private _autoCollapseTimeouts = new Map<string, number>();
   private _previousGroupProgress = new Map<
     string,
@@ -208,11 +210,6 @@ export class ChoreBotGroupedCard extends LitElement {
       padding: 16px;
       cursor: pointer;
       transition: filter 0.2s ease;
-      border-bottom: 1px solid var(--divider-color);
-    }
-
-    .todo-item:last-child {
-      border-bottom: none;
     }
 
     .todo-item:hover {
@@ -402,6 +399,111 @@ export class ChoreBotGroupedCard extends LitElement {
     ha-dialog {
       --mdc-dialog-min-width: min(500px, 90vw);
     }
+
+    /* Task Container */
+    .todo-item-container {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--divider-color);
+    }
+
+    .todo-item-container:last-child {
+      border-bottom: none;
+    }
+
+    /* Expanded Details Section */
+    .todo-details {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease;
+      overflow: hidden;
+    }
+
+    .todo-details.expanded {
+      grid-template-rows: 1fr;
+    }
+
+    .todo-details-inner {
+      min-height: 0;
+      overflow: hidden;
+      padding: 0 16px;
+      transition: padding 0.3s ease;
+    }
+
+    .todo-details.expanded .todo-details-inner {
+      padding: 0 16px 16px 16px;
+    }
+
+    /* Details Content (Left Side) */
+    .details-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .detail-row ha-icon {
+      --mdc-icon-size: 16px;
+      color: var(--secondary-text-color);
+      flex-shrink: 0;
+    }
+
+    .detail-label {
+      font-weight: 500;
+      color: var(--secondary-text-color);
+      flex-shrink: 0;
+    }
+
+    .detail-value {
+      flex: 1;
+      color: var(--primary-text-color);
+      word-wrap: break-word;
+    }
+
+    /* Edit Button (Inline with Details) */
+    .details-actions {
+      display: flex;
+      align-items: flex-end;
+      height: 100%;
+      margin-left: auto;
+      padding-left: 8px;
+    }
+
+    .action-button {
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      color: var(--secondary-text-color);
+    }
+
+    .action-button:hover {
+      opacity: 0.7;
+    }
+
+    .action-button ha-icon {
+      --mdc-icon-size: 20px;
+    }
+
+    /* Mobile Adjustments */
+    @media (max-width: 600px) {
+      .todo-details-inner {
+        padding: 0 12px;
+      }
+
+      .todo-details.expanded .todo-details-inner {
+        padding: 12px;
+      }
+
+      .detail-row {
+        font-size: 13px;
+      }
+    }
   `;
 
   setConfig(config: ChoreBotGroupedConfig) {
@@ -573,6 +675,9 @@ export class ChoreBotGroupedCard extends LitElement {
   }
 
   private _renderTasks(tasks: Task[], textColor: string) {
+    const entity = this.hass?.states[this._config!.entity];
+    const templates = entity?.attributes.chorebot_templates || [];
+
     return tasks.map((task) => {
       const isCompleted = task.status === "completed";
 
@@ -595,46 +700,56 @@ export class ChoreBotGroupedCard extends LitElement {
         : `2px solid var(--divider-color)`;
 
       return html`
-        <div
-          class="todo-item"
-          style="background: ${taskBgColor}; color: ${taskTextColor};"
-          @click=${() => this._openEditDialog(task)}
-        >
-          <div class="todo-content">
-            <div class="todo-summary">
-              ${task.summary}
-              ${this._renderStreakIndicator(task)}
-            </div>
-            ${task.due || task.points_value || task.parent_uid
-              ? html`<div
-                  class="todo-due-date"
-                  style="color: ${isOverdue(task)
-                    ? "var(--error-color)"
-                    : "inherit"}"
-                >
-                  ${task.due
-                    ? formatRelativeDate(new Date(task.due), task)
-                    : ""}
-                  ${task.parent_uid
-                    ? html`<ha-icon
-                        icon="mdi:sync"
-                        class="recurring-icon"
-                      ></ha-icon>`
-                    : ""}
-                  ${this._renderPointsBadge(task)}
-                </div>`
-              : ""}
-          </div>
+        <div class="todo-item-container" style="background: ${taskBgColor}; color: ${taskTextColor};">
           <div
-            class="completion-circle"
-            style="background: ${circleBgColor}; border: ${circleBorder};"
-            @click=${(e: Event) => this._handleCompletionClick(e, task)}
+            class="todo-item"
+            @click=${() => this._toggleTaskExpanded(task.uid)}
           >
-            <ha-icon
-              icon="mdi:check"
-              style="color: ${circleIconColor};"
-            ></ha-icon>
+            <div class="todo-content">
+              <div class="todo-summary">
+                ${task.summary}
+                ${this._renderStreakIndicator(task)}
+              </div>
+              ${task.due || task.points_value || task.parent_uid
+                ? html`<div
+                    class="todo-due-date"
+                    style="color: ${isOverdue(task)
+                      ? "var(--error-color)"
+                      : "inherit"}"
+                  >
+                    ${task.due
+                      ? formatRelativeDate(new Date(task.due), task)
+                      : ""}
+                    ${task.parent_uid
+                      ? html`<ha-icon
+                          icon="mdi:sync"
+                          class="recurring-icon"
+                        ></ha-icon>`
+                      : ""}
+                    ${this._renderPointsBadge(task)}
+                  </div>`
+                : ""}
+            </div>
+            <div
+              class="completion-circle"
+              style="background: ${circleBgColor}; border: ${circleBorder};"
+              @click=${(e: Event) => this._handleCompletionClick(e, task)}
+            >
+              <ha-icon
+                icon="mdi:check"
+                style="color: ${circleIconColor};"
+              ></ha-icon>
+            </div>
           </div>
+          ${renderExpandedDetails({
+            task,
+            templates,
+            isExpanded: this._expandedTaskUid === task.uid,
+            onEdit: () => this._openEditDialog(task),
+            onDelete: () => this._confirmAndDeleteTask(task),
+            shades: this.shades,
+            textColor: this._config!.task_text_color || "white",
+          })}
         </div>
       `;
     });
@@ -752,6 +867,18 @@ export class ChoreBotGroupedCard extends LitElement {
   }
 
   // ============================================================================
+  // Task Expansion
+  // ============================================================================
+
+  private _toggleTaskExpanded(taskUid: string) {
+    if (this._expandedTaskUid === taskUid) {
+      this._expandedTaskUid = null; // Collapse
+    } else {
+      this._expandedTaskUid = taskUid; // Expand (and collapse others)
+    }
+  }
+
+  // ============================================================================
   // Task Completion
   // ============================================================================
 
@@ -767,6 +894,11 @@ export class ChoreBotGroupedCard extends LitElement {
       item: task.uid,
       status: newStatus,
     });
+
+    // Auto-collapse if this task was expanded
+    if (newStatus === "completed" && this._expandedTaskUid === task.uid) {
+      this._expandedTaskUid = null;
+    }
 
     // Play confetti animations when completing a task
     if (newStatus === "completed" && confettiOrigin) {
@@ -1105,6 +1237,25 @@ export class ChoreBotGroupedCard extends LitElement {
       alert(`Failed to delete task: ${error}`);
     } finally {
       this._saving = false;
+    }
+  }
+
+  private async _confirmAndDeleteTask(task: Task) {
+    const isRecurring = task.rrule || task.parent_uid;
+    const message = isRecurring
+      ? "Delete this recurring task? This will remove all future occurrences, but keep completed instances."
+      : "Delete this task? This action cannot be undone.";
+    
+    if (!confirm(message)) return;
+    
+    await this.hass!.callService("todo", "remove_item", {
+      entity_id: this._config!.entity,
+      item: task.uid,
+    });
+    
+    // Auto-collapse if this task was expanded
+    if (this._expandedTaskUid === task.uid) {
+      this._expandedTaskUid = null;
     }
   }
 

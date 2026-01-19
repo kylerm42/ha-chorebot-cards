@@ -90,7 +90,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
 
   private _rewardFormSchema = [
     { name: "name", required: true, selector: { text: {} } },
-    { name: "cost", selector: { number: { min: 1, max: 10000, mode: "box" } } },
+    { name: "cost", required: true, selector: { number: { min: 1, max: 10000, mode: "box" } } },
     { name: "icon", selector: { icon: {} } },
     { name: "description", selector: { text: { multiline: true } } },
   ];
@@ -120,7 +120,7 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     }
 
     ha-dialog {
-      --mdc-dialog-min-width: 90%;
+      --mdc-dialog-min-width: min(500px, 90vw);
     }
 
     ha-form {
@@ -1297,12 +1297,16 @@ export class ChoreBotPersonRewardsCard extends LitElement {
   }
 
   private _computeRewardFieldLabel = (schema: any): string => {
-    const pointsTerm = getPointsTermLowercase(this.hass!);
-    const pointsTermCap =
-      pointsTerm.charAt(0).toUpperCase() + pointsTerm.slice(1);
+    const parts = getPointsDisplayParts(this.hass!);
+    
+    // Use only text for label (can't render icon in text field)
+    const displayStr = parts.text 
+      ? parts.text.charAt(0).toUpperCase() + parts.text.slice(1)
+      : "Points";
+    
     const labels: { [key: string]: string } = {
       name: "Name",
-      cost: `Cost (${pointsTermCap})`,
+      cost: `Cost (${displayStr})`,
       icon: "Icon",
       description: "Description (Optional)",
     };
@@ -1310,9 +1314,13 @@ export class ChoreBotPersonRewardsCard extends LitElement {
   };
 
   private _computeRewardFieldHelper = (schema: any): string => {
-    const pointsTerm = getPointsTermLowercase(this.hass!);
+    const parts = getPointsDisplayParts(this.hass!);
+    
+    // Use only text for helper (can't render icon in text field)
+    const displayStr = parts.text || "points";
+    
     const helpers: { [key: string]: string } = {
-      cost: `Cost between 1 and 10,000 ${pointsTerm}`,
+      cost: `Cost between 1 and 10,000 ${displayStr}`,
       icon: "Use Material Design Icons (e.g., mdi:gift, mdi:ice-cream)",
     };
     return helpers[schema.name] || "";
@@ -1373,15 +1381,38 @@ export class ChoreBotPersonRewardsCard extends LitElement {
         ></ha-form>
 
         <ha-button
+          slot="secondaryAction"
+          @click=${this._deleteReward}
+          class="delete-button"
+        >
+          Delete
+        </ha-button>
+        
+        <ha-button slot="secondaryAction" @click=${this._closeEditRewardModal}>
+          Cancel
+        </ha-button>
+        
+        <ha-button
           slot="primaryAction"
           @click=${this._updateReward}
           ?disabled=${!this._rewardFormData.name?.trim()}
         >
-          Update
+          Save
         </ha-button>
-        <ha-button slot="secondaryAction" @click=${this._closeEditRewardModal}>
-          Cancel
-        </ha-button>
+        
+        <style>
+          .delete-button {
+            --mdc-theme-primary: var(--error-color, #db4437);
+            --mdc-button-outline-color: var(--error-color, #db4437);
+            --mdc-theme-on-primary: white;
+            --wa-color-fill-loud: var(--error-color, #db4437);
+            --wa-color-neutral-fill-loud: var(--error-color, #db4437);
+            background-color: var(--error-color, #db4437);
+            color: white;
+            position: absolute;
+            left: 16px;
+          }
+        </style>
       </ha-dialog>
     `;
   }
@@ -1552,6 +1583,27 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     } catch (err: any) {
       const errorMessage =
         err.message || "Failed to update reward. Please try again.";
+      alert(errorMessage);
+    }
+  }
+
+  private async _deleteReward() {
+    if (!this._config || !this._editingRewardId) return;
+
+    if (!confirm("Delete this reward? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await this.hass!.callService("chorebot", "delete_reward", {
+        reward_id: this._editingRewardId,
+      });
+
+      // Close modal
+      this._closeEditRewardModal();
+    } catch (err: any) {
+      const errorMessage =
+        err.message || "Failed to delete reward. Please try again.";
       alert(errorMessage);
     }
   }

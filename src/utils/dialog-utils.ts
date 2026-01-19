@@ -404,34 +404,45 @@ export function renderTaskDialog(
         @value-changed=${onValueChanged}
       ></ha-form>
 
-      <!-- Delete button (bottom-left positioning via CSS) -->
       ${showDelete && onDelete && task?.uid
         ? html`
             <ha-button
-              slot="primaryAction"
+              slot="secondaryAction"
               @click=${onDelete}
               .disabled=${saving}
               class="delete-button"
+              dialogAction="delete"
             >
               Delete
             </ha-button>
           `
         : ""}
-
-      <ha-button slot="primaryAction" @click=${onSave} .disabled=${saving}>
-        ${saving ? "Saving..." : "Save"}
-      </ha-button>
+      
       <ha-button slot="secondaryAction" @click=${onClose} .disabled=${saving}>
         Cancel
+      </ha-button>
+      
+      <ha-button slot="primaryAction" @click=${onSave} .disabled=${saving}>
+        ${saving ? "Saving..." : "Save"}
       </ha-button>
 
       <style>
         ha-dialog {
           --mdc-dialog-min-width: min(500px, 90vw);
         }
-        .delete-button {
+        
+        /* Position delete button on far left */
+        mwc-button.delete-button,
+        ha-button.delete-button {
           --mdc-theme-primary: var(--error-color, #db4437);
-          margin-right: auto; /* Push to left */
+          --mdc-button-outline-color: var(--error-color, #db4437);
+          --mdc-theme-on-primary: white;
+          --wa-color-fill-loud: var(--error-color, #db4437);
+          --wa-color-neutral-fill-loud: var(--error-color, #db4437);
+          background-color: var(--error-color, #db4437);
+          color: white;
+          position: absolute;
+          left: 16px;
         }
       </style>
     </ha-dialog>
