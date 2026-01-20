@@ -3812,11 +3812,13 @@ ChoreBotGroupedCard.styles = i$3 `
       min-height: 0;
       overflow: hidden;
       padding: 0 16px;
-      transition: padding 0.3s ease;
+      opacity: 0;
+      transition: padding 0.3s ease, opacity 0.3s ease-in;
     }
 
     .todo-details.expanded .todo-details-inner {
       padding: 0 16px 16px 16px;
+      opacity: 1;
     }
 
     /* Details Content (Left Side) */
@@ -7547,11 +7549,13 @@ ChoreBotPersonGroupedCard.styles = i$3 `
       min-height: 0;
       overflow: hidden;
       padding: 0 16px;
-      transition: padding 0.3s ease;
+      opacity: 0;
+      transition: padding 0.3s ease, opacity 0.3s ease-in;
     }
 
     .todo-details.expanded .todo-details-inner {
       padding: 0 16px 16px 16px;
+      opacity: 1;
     }
 
     /* Details Content (Left Side) */
