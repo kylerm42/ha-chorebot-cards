@@ -514,8 +514,6 @@ export class ChoreBotGroupedCard extends LitElement {
     }
     this._config = {
       entity: config.entity,
-      title: config.title || "Tasks",
-      show_title: config.show_title !== false,
       show_dateless_tasks: config.show_dateless_tasks !== false,
       hide_card_background: config.hide_card_background === true,
       accent_color: config.accent_color || "",
@@ -612,9 +610,6 @@ export class ChoreBotGroupedCard extends LitElement {
       <ha-card
         class="${this._config.hide_card_background ? "no-background" : ""}"
       >
-        ${this._config.show_title
-          ? html`<div class="card-header">${this._config.title}</div>`
-          : ""}
         ${this._groups.length === 0
           ? html`<div class="empty-state">No tasks</div>`
           : html`<div class="tag-groups">
@@ -1510,8 +1505,6 @@ export class ChoreBotGroupedCard extends LitElement {
   static getStubConfig() {
     return {
       entity: "",
-      title: "Tasks",
-      show_title: true,
       show_dateless_tasks: true,
       show_future_tasks: false,
       filter_section_id: "",
@@ -1536,16 +1529,6 @@ export class ChoreBotGroupedCard extends LitElement {
               filter: { domain: "todo" },
             },
           },
-        },
-        {
-          name: "title",
-          default: "Tasks",
-          selector: { text: {} },
-        },
-        {
-          name: "show_title",
-          default: true,
-          selector: { boolean: {} },
         },
         {
           name: "show_dateless_tasks",
@@ -1606,8 +1589,6 @@ export class ChoreBotGroupedCard extends LitElement {
       computeLabel: (schema: any) => {
         const labels: { [key: string]: string } = {
           entity: "Todo Entity",
-          title: "Card Title",
-          show_title: "Show Title",
           show_dateless_tasks: "Show Tasks Without Due Date",
           show_future_tasks: "Show Future Tasks",
           filter_section_id: "Filter by Section",
@@ -1624,8 +1605,6 @@ export class ChoreBotGroupedCard extends LitElement {
       computeHelper: (schema: any) => {
         const helpers: { [key: string]: string } = {
           entity: "Select the ChoreBot todo entity to display",
-          title: "Custom title for the card",
-          show_title: "Show the card title",
           show_dateless_tasks: "Show tasks that do not have a due date",
           show_future_tasks:
             "Show tasks with future due dates in a collapsible 'Upcoming' section (collapsed by default)",

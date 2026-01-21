@@ -50,8 +50,6 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
       ...config,
       entity: config.entity || "",
       person_entities: config.person_entities || [],
-      title: config.title || "Family Tasks",
-      show_title: config.show_title !== false, // Default: true
       hide_card_background: config.hide_card_background || false,
       show_dateless_tasks: config.show_dateless_tasks !== false, // Default: true
     };
@@ -145,24 +143,12 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
 
     return html`
       <ha-card class="${cardClass}">
-        ${this.config.show_title ? this._renderTitle() : ""}
         <div class="card-content">
           ${this.config.person_entities.map((personId) =>
             this._renderPersonSection(personId),
           )}
         </div>
       </ha-card>
-    `;
-  }
-
-  /**
-   * Render card title bar
-   */
-  private _renderTitle(): TemplateResult {
-    return html`
-      <div class="card-header">
-        <div class="name">${this.config.title}</div>
-      </div>
     `;
   }
 
@@ -341,8 +327,6 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
       type: "custom:chorebot-multi-person-overview-card",
       entity: "",
       person_entities: [],
-      title: "Family Tasks",
-      show_title: true,
       hide_card_background: false,
       show_dateless_tasks: true,
       filter_section_id: "",
@@ -375,16 +359,6 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
           },
         },
         {
-          name: "title",
-          default: "Family Tasks",
-          selector: { text: {} },
-        },
-        {
-          name: "show_title",
-          default: true,
-          selector: { boolean: {} },
-        },
-        {
           name: "hide_card_background",
           default: false,
           selector: { boolean: {} },
@@ -403,8 +377,6 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
         const labels: { [key: string]: string } = {
           entity: "Todo Entity",
           person_entities: "People to Display",
-          title: "Card Title",
-          show_title: "Show Title",
           hide_card_background: "Hide Card Background",
           show_dateless_tasks: "Show Tasks Without Due Date",
           filter_section_id: "Filter by Section",
@@ -416,8 +388,6 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
           entity: "Select the ChoreBot todo entity to display",
           person_entities:
             "Select the people whose tasks should appear in this card",
-          title: "Title shown at the top of the card",
-          show_title: "Show or hide the card title",
           hide_card_background:
             "Remove card background and shadow for a seamless look",
           show_dateless_tasks: "Include tasks that do not have a due date",

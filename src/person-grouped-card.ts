@@ -72,8 +72,6 @@ interface ChoreBotPersonGroupedConfig extends ChoreBotBaseConfig {
   show_all_people?: boolean; // Default: false - show all people OR only people with tasks
 
   // Display Options
-  title?: string; // Card title (default: person's name)
-  show_title?: boolean; // Show title bar (default: true)
   show_progress?: boolean; // Show progress bar in person display (default: true)
   hide_person_background?: boolean; // Hide person section background (default: false)
   hide_tasks_background?: boolean; // Hide tasks section background (default: false)
@@ -858,7 +856,6 @@ export class ChoreBotPersonGroupedCard extends LitElement {
     }
 
     this._config = {
-      show_title: true,
       show_progress: true,
       show_dateless_tasks: true,
       show_future_tasks: false,
@@ -879,7 +876,6 @@ export class ChoreBotPersonGroupedCard extends LitElement {
       default_person_entity: "",
       show_all_people: false,
       show_progress: true,
-      show_title: true,
       hide_person_background: false,
       hide_tasks_background: false,
       accent_color: "",
@@ -920,11 +916,6 @@ export class ChoreBotPersonGroupedCard extends LitElement {
         },
         {
           name: "show_progress",
-          default: true,
-          selector: { boolean: {} },
-        },
-        {
-          name: "show_title",
           default: true,
           selector: { boolean: {} },
         },
@@ -996,7 +987,6 @@ export class ChoreBotPersonGroupedCard extends LitElement {
           default_person_entity: "Default Person",
           show_all_people: "Show All People",
           show_progress: "Show Progress Bar",
-          show_title: "Show Title",
           show_dateless_tasks: "Show Tasks Without Due Date",
           show_future_tasks: "Show Future Tasks",
           show_points: "Show Points Badges",
@@ -1021,7 +1011,6 @@ export class ChoreBotPersonGroupedCard extends LitElement {
             "Show all people in dropdown, or only people with tasks in this list",
           show_progress:
             "Display progress bar showing completed/total tasks for selected person",
-          show_title: "Show the person's name as card title",
           show_dateless_tasks: "Show tasks that do not have a due date",
           show_future_tasks:
             "Show tasks with future due dates in a collapsible 'Upcoming' section (collapsed by default)",

@@ -452,8 +452,6 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     this._config = {
       type: "custom:chorebot-rewards-card",
       person_entity: config.person_entity,
-      title: config.title || undefined, // Will default to "{Name}'s Rewards" in render
-      show_title: config.show_title !== false,
       hide_card_background: config.hide_card_background === true,
       show_disabled_rewards: config.show_disabled_rewards === true,
       sort_by: config.sort_by || "cost",
@@ -466,8 +464,6 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     return {
       type: "custom:chorebot-rewards-card",
       person_entity: "person.example",
-      title: "My Rewards",
-      show_title: true,
       hide_card_background: false,
       show_disabled_rewards: false,
       sort_by: "cost",
@@ -487,15 +483,6 @@ export class ChoreBotPersonRewardsCard extends LitElement {
           name: "person_entity",
           required: true,
           selector: { entity: { domain: "person" } },
-        },
-        {
-          name: "title",
-          selector: { text: {} },
-        },
-        {
-          name: "show_title",
-          default: true,
-          selector: { boolean: {} },
         },
         {
           name: "hide_card_background",
@@ -533,8 +520,6 @@ export class ChoreBotPersonRewardsCard extends LitElement {
       computeLabel: (schema: any) => {
         const labels: { [key: string]: string } = {
           person_entity: "Person Entity",
-          title: "Card Title",
-          show_title: "Show Title",
           hide_card_background: "Hide Card Background",
           show_disabled_rewards: "Show Disabled Rewards",
           sort_by: "Sort Rewards By",
@@ -546,9 +531,6 @@ export class ChoreBotPersonRewardsCard extends LitElement {
       computeHelper: (schema: any) => {
         const helpers: { [key: string]: string } = {
           person_entity: "Select the person whose rewards to display",
-          title:
-            'Custom title for the card (defaults to "{Person Name}\'s Rewards")',
-          show_title: "Show the card title",
           hide_card_background:
             "Hide the card background and padding for a seamless look",
           show_disabled_rewards:
@@ -612,17 +594,10 @@ export class ChoreBotPersonRewardsCard extends LitElement {
     // Set CSS variable for accent color
     this.style.setProperty("--accent-color", accentColor);
 
-    // Get person name for default title
-    const personName = getPersonName(this.hass, this._config.person_entity);
-    const cardTitle = this._config.title || `${personName}'s Rewards`;
-
     return html`
       <ha-card
         class="${this._config.hide_card_background ? "no-background" : ""}"
       >
-        ${this._config.show_title
-          ? html`<div class="card-header">${cardTitle}</div>`
-          : ""}
         ${this._renderRewardsGrid(rewards, people)}
       </ha-card>
       ${this._showConfirmModal ? this._renderConfirmModal(people, rewards) : ""}

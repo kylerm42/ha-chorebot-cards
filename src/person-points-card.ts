@@ -228,8 +228,6 @@ export class ChoreBotPersonPointsCard extends LitElement {
     this._config = {
       type: "custom:chorebot-person-points-card",
       person_entity: config.person_entity,
-      title: config.title || "Points",
-      show_title: config.show_title !== false,
       hide_card_background: config.hide_card_background === true,
       show_progress: config.show_progress !== false, // Default: true
       accent_color: config.accent_color || "",
@@ -294,8 +292,6 @@ export class ChoreBotPersonPointsCard extends LitElement {
     return {
       type: "custom:chorebot-person-points-card",
       person_entity: "",
-      title: "Points",
-      show_title: true,
       hide_card_background: false,
       show_progress: true,
       accent_color: "",
@@ -314,16 +310,6 @@ export class ChoreBotPersonPointsCard extends LitElement {
               filter: { domain: "person" },
             },
           },
-        },
-        {
-          name: "title",
-          default: "Points",
-          selector: { text: {} },
-        },
-        {
-          name: "show_title",
-          default: true,
-          selector: { boolean: {} },
         },
         {
           name: "hide_card_background",
@@ -347,8 +333,6 @@ export class ChoreBotPersonPointsCard extends LitElement {
       computeLabel: (schema: any) => {
         const labels: { [key: string]: string } = {
           person_entity: "Person Entity",
-          title: "Card Title",
-          show_title: "Show Title",
           hide_card_background: "Hide Card Background",
           show_progress: "Show Progress Bar",
           accent_color: "Accent Color",
@@ -359,8 +343,6 @@ export class ChoreBotPersonPointsCard extends LitElement {
       computeHelper: (schema: any) => {
         const helpers: { [key: string]: string } = {
           person_entity: "Select the person entity to display points for",
-          title: "Custom title for the card",
-          show_title: "Show the card title",
           hide_card_background:
             "Hide the card background and padding for a seamless look",
           show_progress:
@@ -422,9 +404,6 @@ export class ChoreBotPersonPointsCard extends LitElement {
       <ha-card
         class="${this._config.hide_card_background ? "no-background" : ""}"
       >
-        ${this._config.show_title
-          ? html`<div class="card-header">${this._config.title}</div>`
-          : ""}
         ${this._renderPersonDisplay(personEntity, personData)}
       </ha-card>
     `;

@@ -48,7 +48,6 @@ Tag-based task grouping with per-group progress tracking.
 type: custom:chorebot-grouped-card
 entity: todo.chorebot_family_tasks
 person_entity: person.kyle  # Optional: Filter tasks by person
-title: "My Tasks"
 show_progress: true
 show_points: true
 tag_group_order:
@@ -61,7 +60,6 @@ untagged_header: "Other Tasks"
 **Options:**
 - `entity` (required): ChoreBot todo entity
 - `person_entity` (optional): Filter tasks by person + inherit their accent color
-- `title` (optional): Card title (default: entity friendly name)
 - `show_progress` (optional): Show progress indicator (default: true)
 - `show_points` (optional): Show points badges on tasks (default: true)
 - `tag_group_order` (optional): Custom tag display order
@@ -75,13 +73,11 @@ Visual points balance display with progress bar.
 ```yaml
 type: custom:chorebot-person-points-card
 person_entity: person.kyle
-title: "Kyle's Points"
 accent_color: "#3498db"  # Optional: Override person's accent color
 ```
 
 **Options:**
 - `person_entity` (required): Home Assistant person entity
-- `title` (optional): Card title (default: "{Person}'s Points")
 - `accent_color` (optional): Override accent color from person profile
 
 ### Person Rewards Card
@@ -91,14 +87,12 @@ Person-specific rewards catalog with redemption buttons.
 ```yaml
 type: custom:chorebot-person-rewards-card
 person_entity: person.kyle
-title: "Available Rewards"
 show_disabled_rewards: false
 sort_by: cost  # Options: cost, name, created
 ```
 
 **Options:**
 - `person_entity` (required): Home Assistant person entity
-- `title` (optional): Card title (default: "Rewards")
 - `show_disabled_rewards` (optional): Include disabled rewards (default: false)
 - `sort_by` (optional): Sort order - "cost", "name", or "created" (default: "cost")
 - `accent_color` (optional): Override accent color from person profile

@@ -33,8 +33,6 @@ export interface Section {
 
 export interface ChoreBotBaseConfig {
   entity: string;
-  title?: string;
-  show_title?: boolean;
   show_progress?: boolean;
   hide_card_background?: boolean;
   show_dateless_tasks?: boolean;
@@ -119,8 +117,6 @@ export interface GroupState {
 
 export interface ChoreBotRewardsConfig {
   type: "custom:chorebot-rewards-card";
-  title?: string;
-  show_title?: boolean;
   hide_card_background?: boolean;
   show_people_section?: boolean; // Default: true
   show_disabled_rewards?: boolean; // Default: false
@@ -130,8 +126,6 @@ export interface ChoreBotRewardsConfig {
 export interface ChoreBotPersonPointsConfig {
   type: "custom:chorebot-person-points-card";
   person_entity: string; // Required - e.g., "person.kyle"
-  title?: string;
-  show_title?: boolean;
   hide_card_background?: boolean;
   show_progress?: boolean; // Default: true
   accent_color?: string; // Default: var(--primary-color) - used for progress bar and points text
@@ -141,8 +135,6 @@ export interface ChoreBotPersonPointsConfig {
 export interface ChoreBotSinglePersonRewardsConfig {
   type: "custom:chorebot-rewards-card";
   person_entity: string; // Required - e.g., "person.kyle"
-  title?: string;
-  show_title?: boolean;
   hide_card_background?: boolean;
   show_disabled_rewards?: boolean; // Default: false
   sort_by?: "cost" | "name" | "created"; // Default: "cost"
@@ -205,8 +197,6 @@ export interface ChoreBotMultiPersonOverviewConfig {
   person_entities: string[]; // Required - ordered list of person IDs
 
   // Optional Display Options
-  title?: string; // Card title (default: "Family Tasks")
-  show_title?: boolean; // Show title bar (default: true)
   hide_card_background?: boolean; // Remove card background (default: false)
   show_dateless_tasks?: boolean; // Include dateless tasks (default: true)
 
