@@ -354,6 +354,58 @@ function groupTasksByTag(tasks, untaggedHeader = "Untagged") {
     return groups;
 }
 /**
+ * Group tasks by person assignment
+ * Returns a Map where keys are person IDs and values are arrays of tasks assigned to that person
+ * @param tasks - Array of tasks to group
+ * @param personIds - Ordered array of person entity IDs (maintains display order)
+ * @returns Map of person ID to task array (initialized for all provided persons)
+ */
+function groupTasksByPerson(tasks, personIds) {
+    const groups = new Map();
+    // Initialize empty arrays for each configured person (maintains order)
+    for (const personId of personIds) {
+        groups.set(personId, []);
+    }
+    // Group tasks by computed_person_id
+    for (const task of tasks) {
+        const personId = task.computed_person_id;
+        if (personId && groups.has(personId)) {
+            groups.get(personId).push(task);
+        }
+    }
+    // Sort each person's tasks: overdue first, then today, then dateless
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (const personTasks of groups.values()) {
+        personTasks.sort((a, b) => {
+            const aHasDue = !!a.due;
+            const bHasDue = !!b.due;
+            // Dateless tasks go last
+            if (!aHasDue && bHasDue)
+                return 1;
+            if (aHasDue && !bHasDue)
+                return -1;
+            if (!aHasDue && !bHasDue)
+                return 0;
+            // Both have due dates - check overdue status
+            const aDueDate = new Date(a.due);
+            const bDueDate = new Date(b.due);
+            aDueDate.setHours(0, 0, 0, 0);
+            bDueDate.setHours(0, 0, 0, 0);
+            const aIsOverdue = aDueDate < today;
+            const bIsOverdue = bDueDate < today;
+            // Overdue tasks come first
+            if (aIsOverdue && !bIsOverdue)
+                return -1;
+            if (!aIsOverdue && bIsOverdue)
+                return 1;
+            // Both overdue or both not overdue - sort by due date (earliest first)
+            return aDueDate.getTime() - bDueDate.getTime();
+        });
+    }
+    return groups;
+}
+/**
  * Sort groups by custom order (works with GroupState[])
  * @param groups - Array of GroupState objects
  * @param tagOrder - Optional array specifying desired tag order
@@ -9204,9 +9256,464 @@ window.customCards.push({
 console.info("%c CHOREBOT-PERSON-REWARDS-CARD %c v1.0.0", "color: white; background: #3498db; font-weight: bold;", "color: #3498db; background: white; font-weight: bold;");
 
 /**
+ * ChoreBot Multi-Person Overview Card
+ *
+ * Displays a vertical list of multiple people with their assigned tasks shown in
+ * a simple, ungrouped format. Designed for quick family-wide status checks.
+ *
+ * Example Configuration:
+ * ```yaml
+ * type: custom:chorebot-multi-person-overview-card
+ * entity: todo.chorebot_family_tasks
+ * person_entities:
+ *   - person.kyle
+ *   - person.campbell
+ *   - person.sarah
+ * title: "Family Tasks Overview"
+ * show_title: true
+ * show_dateless_tasks: true
+ * ```
+ */
+let ChoreBotMultiPersonOverviewCard = class ChoreBotMultiPersonOverviewCard extends i {
+    constructor() {
+        super(...arguments);
+        this._groupedTasks = new Map();
+    }
+    /**
+     * Set and validate card configuration
+     * Note: Accepts empty config for preview mode - validation happens in visual editor
+     */
+    setConfig(config) {
+        // Set configuration with defaults (don't throw errors - let preview render)
+        this.config = {
+            ...config,
+            entity: config.entity || "",
+            person_entities: config.person_entities || [],
+            title: config.title || "Family Tasks",
+            show_title: config.show_title !== false, // Default: true
+            hide_card_background: config.hide_card_background || false,
+            show_dateless_tasks: config.show_dateless_tasks !== false, // Default: true
+        };
+    }
+    /**
+     * Lifecycle hook: Triggered when properties change
+     * Processes tasks when entity updates
+     */
+    updated(changedProps) {
+        super.updated(changedProps);
+        if (changedProps.has("hass") || changedProps.has("config")) {
+            this._updateGroupedTasks();
+        }
+    }
+    /**
+     * Process and group tasks by person
+     */
+    _updateGroupedTasks() {
+        if (!this.hass || !this.config)
+            return;
+        // Handle empty entity gracefully (preview mode)
+        if (!this.config.entity) {
+            this._groupedTasks = new Map();
+            return;
+        }
+        const entity = this.hass.states[this.config.entity];
+        if (!entity) {
+            this._groupedTasks = new Map();
+            return;
+        }
+        // Handle empty person_entities gracefully (preview mode)
+        if (!this.config.person_entities || this.config.person_entities.length === 0) {
+            this._groupedTasks = new Map();
+            return;
+        }
+        // Filter to today's tasks
+        const filteredTasks = filterTodayTasks(entity, this.config.show_dateless_tasks, this.config.filter_section_id);
+        // Group by person
+        this._groupedTasks = groupTasksByPerson(filteredTasks, this.config.person_entities);
+    }
+    /**
+     * Main render method
+     */
+    render() {
+        if (!this.hass || !this.config) {
+            return b `<ha-card>
+        <div class="card-content">Loading...</div>
+      </ha-card>`;
+        }
+        // Show placeholder if entity not configured (preview mode)
+        if (!this.config.entity) {
+            return b `<ha-card>
+        <div class="card-content">
+          <div class="empty-state">
+            Please configure a todo entity
+          </div>
+        </div>
+      </ha-card>`;
+        }
+        // Show placeholder if no people configured (preview mode)
+        if (!this.config.person_entities || this.config.person_entities.length === 0) {
+            return b `<ha-card>
+        <div class="card-content">
+          <div class="empty-state">
+            Please select at least one person
+          </div>
+        </div>
+      </ha-card>`;
+        }
+        const cardClass = this.config.hide_card_background
+            ? "no-background"
+            : "";
+        return b `
+      <ha-card class="${cardClass}">
+        ${this.config.show_title ? this._renderTitle() : ""}
+        <div class="card-content">
+          ${this.config.person_entities.map((personId) => this._renderPersonSection(personId))}
+        </div>
+      </ha-card>
+    `;
+    }
+    /**
+     * Render card title bar
+     */
+    _renderTitle() {
+        return b `
+      <div class="card-header">
+        <div class="name">${this.config.title}</div>
+      </div>
+    `;
+    }
+    /**
+     * Render a person section with their tasks
+     */
+    _renderPersonSection(personId) {
+        const tasks = this._groupedTasks.get(personId) || [];
+        const personName = getPersonName(this.hass, personId);
+        return b `
+      <div class="person-section">
+        <div class="person-header">${personName}</div>
+        ${tasks.length > 0
+            ? b `<div class="task-list">
+              ${tasks.map((task) => this._renderTaskRow(task))}
+            </div>`
+            : b `<div class="empty-state">No tasks for today</div>`}
+      </div>
+    `;
+    }
+    /**
+     * Render a single task row
+     */
+    _renderTaskRow(task) {
+        const isCompleted = task.status === "completed";
+        const isTaskOverdue = isOverdue(task);
+        // Determine styling classes
+        const classes = [
+            "task-row",
+            isCompleted ? "completed" : "",
+            isTaskOverdue ? "overdue" : "",
+        ]
+            .filter(Boolean)
+            .join(" ");
+        return b `
+      <div class="${classes}">
+        <ha-checkbox
+          .checked=${isCompleted}
+          @change=${(e) => this._handleTaskToggle(task, e)}
+        ></ha-checkbox>
+        <span class="task-title">${task.summary}</span>
+      </div>
+    `;
+    }
+    /**
+     * Handle task completion toggle
+     */
+    async _handleTaskToggle(task, event) {
+        event.stopPropagation();
+        const checkbox = event.target;
+        const newStatus = checkbox.checked ? "completed" : "needs_action";
+        try {
+            await this.hass.callService("todo", "update_item", {
+                entity_id: this.config.entity,
+                item: task.uid,
+                status: newStatus,
+            });
+        }
+        catch (error) {
+            console.error("Failed to update task:", error);
+            // Show error notification
+            const event = new CustomEvent("hass-notification", {
+                detail: {
+                    message: `Failed to update task: ${error}`,
+                    duration: 3000,
+                },
+                bubbles: true,
+                composed: true,
+            });
+            this.dispatchEvent(event);
+        }
+    }
+    /**
+     * Component styles
+     */
+    static get styles() {
+        return i$3 `
+      :host {
+        display: block;
+      }
+
+      ha-card {
+        overflow: hidden;
+      }
+
+      ha-card.no-background {
+        background: none;
+        box-shadow: none;
+      }
+
+      .card-header {
+        padding: 16px;
+        border-bottom: 1px solid var(--divider-color);
+      }
+
+      .card-header .name {
+        font-size: 24px;
+        font-weight: 500;
+        color: var(--primary-text-color);
+      }
+
+      .card-content {
+        padding: 0;
+      }
+
+      /* Person Section Styles */
+      .person-section {
+        padding: 16px;
+        border-bottom: 1px solid var(--divider-color);
+      }
+
+      .person-section:last-child {
+        border-bottom: none;
+      }
+
+      .person-header {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary-text-color);
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+      }
+
+      /* Task List Styles */
+      .task-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .task-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        min-height: 44px; /* Accessible touch target */
+      }
+
+      .task-row:hover {
+        background: var(--divider-color, rgba(255, 255, 255, 0.05));
+        border-radius: 4px;
+        margin: 0 -8px;
+        padding: 8px 8px;
+      }
+
+      .task-title {
+        flex: 1;
+        font-size: 16px;
+        color: var(--primary-text-color);
+        line-height: 1.4;
+      }
+
+      /* Status Styling */
+      .task-row.completed .task-title {
+        text-decoration: line-through;
+        opacity: 0.6;
+      }
+
+      .task-row.overdue .task-title {
+        color: var(--error-color, #f44336);
+        font-weight: 500;
+      }
+
+      /* Empty State */
+      .empty-state {
+        font-style: italic;
+        color: var(--secondary-text-color);
+        padding: 12px 0;
+        text-align: center;
+        opacity: 0.7;
+      }
+
+      /* Checkbox Styling */
+      ha-checkbox {
+        --mdc-checkbox-size: 20px;
+        min-width: 20px;
+      }
+
+      /* Mobile Responsiveness */
+      @media (max-width: 600px) {
+        .card-header .name {
+          font-size: 20px;
+        }
+
+        .person-header {
+          font-size: 16px;
+        }
+
+        .task-title {
+          font-size: 14px;
+        }
+
+        .person-section {
+          padding: 12px;
+        }
+      }
+
+      /* Desktop Enhancements */
+      @media (min-width: 601px) {
+        .task-row {
+          padding: 10px 0;
+        }
+
+        .person-section {
+          padding: 20px;
+        }
+      }
+    `;
+    }
+    /**
+     * Return card element height stub for HA layout system
+     */
+    getCardSize() {
+        const numPeople = this.config?.person_entities?.length || 0;
+        const avgTasksPerPerson = 3; // Rough estimate
+        return 1 + numPeople * (1 + avgTasksPerPerson * 0.5);
+    }
+    /**
+     * Return stub config for card picker
+     */
+    static getStubConfig() {
+        return {
+            type: "custom:chorebot-multi-person-overview-card",
+            entity: "",
+            person_entities: [],
+            title: "Family Tasks",
+            show_title: true,
+            hide_card_background: false,
+            show_dateless_tasks: true,
+            filter_section_id: "",
+        };
+    }
+    /**
+     * Return config form schema for visual editor
+     */
+    static getConfigForm() {
+        return {
+            schema: [
+                {
+                    name: "entity",
+                    required: true,
+                    selector: {
+                        entity: {
+                            filter: { domain: "todo" },
+                        },
+                    },
+                },
+                {
+                    name: "person_entities",
+                    required: true,
+                    selector: {
+                        entity: {
+                            multiple: true,
+                            filter: { domain: "person" },
+                        },
+                    },
+                },
+                {
+                    name: "title",
+                    default: "Family Tasks",
+                    selector: { text: {} },
+                },
+                {
+                    name: "show_title",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "hide_card_background",
+                    default: false,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "show_dateless_tasks",
+                    default: true,
+                    selector: { boolean: {} },
+                },
+                {
+                    name: "filter_section_id",
+                    selector: { text: {} },
+                },
+            ],
+            computeLabel: (schema) => {
+                const labels = {
+                    entity: "Todo Entity",
+                    person_entities: "People to Display",
+                    title: "Card Title",
+                    show_title: "Show Title",
+                    hide_card_background: "Hide Card Background",
+                    show_dateless_tasks: "Show Tasks Without Due Date",
+                    filter_section_id: "Filter by Section",
+                };
+                return labels[schema.name] || undefined;
+            },
+            computeHelper: (schema) => {
+                const helpers = {
+                    entity: "Select the ChoreBot todo entity to display",
+                    person_entities: "Select the people whose tasks should appear in this card",
+                    title: "Title shown at the top of the card",
+                    show_title: "Show or hide the card title",
+                    hide_card_background: "Remove card background and shadow for a seamless look",
+                    show_dateless_tasks: "Include tasks that do not have a due date",
+                    filter_section_id: 'Optional: Show only tasks from a specific section (e.g., "Morning Routine")',
+                };
+                return helpers[schema.name] || undefined;
+            },
+        };
+    }
+};
+__decorate([
+    n({ attribute: false })
+], ChoreBotMultiPersonOverviewCard.prototype, "hass", void 0);
+__decorate([
+    n({ attribute: false })
+], ChoreBotMultiPersonOverviewCard.prototype, "config", void 0);
+__decorate([
+    r()
+], ChoreBotMultiPersonOverviewCard.prototype, "_groupedTasks", void 0);
+ChoreBotMultiPersonOverviewCard = __decorate([
+    t("chorebot-multi-person-overview-card")
+], ChoreBotMultiPersonOverviewCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "chorebot-multi-person-overview-card",
+    name: "ChoreBot Multi-Person Overview Card",
+    description: "Vertical list showing multiple people with their assigned tasks for quick family-wide status checks",
+    preview: true,
+});
+console.info("%c CHOREBOT-MULTI-PERSON-OVERVIEW-CARD %c v1.0.0 ", "color: white; background: #9C27B0; font-weight: bold;", "color: #9C27B0; background: white; font-weight: bold;");
+
+/**
  * ChoreBot Cards - Single Bundle Entry Point
  *
- * This file imports and registers all 6 ChoreBot dashboard cards.
+ * This file imports and registers all 7 ChoreBot dashboard cards.
  * Each card self-registers via customElements.define() in its respective module.
  *
  * Cards included:
@@ -9216,6 +9723,7 @@ console.info("%c CHOREBOT-PERSON-REWARDS-CARD %c v1.0.0", "color: white; backgro
  * - chorebot-rewards-card: Person-specific rewards with inline redemption
  * - chorebot-person-grouped-card: Person-filtered tag-based grouped task view
  * - chorebot-person-rewards-card: Combined person selector and rewards list
+ * - chorebot-multi-person-overview-card: Simple multi-person task overview
  */
 // Import all card modules - they self-register on import
 // Version banner for browser console

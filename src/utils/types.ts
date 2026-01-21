@@ -194,3 +194,22 @@ export interface Transaction {
   type: string;
   metadata: { [key: string]: any };
 }
+
+// ============================================================================
+// Multi-Person Overview Card Interface
+// ============================================================================
+
+export interface ChoreBotMultiPersonOverviewConfig {
+  type: "custom:chorebot-multi-person-overview-card";
+  entity: string; // Required - todo entity (e.g., todo.chorebot_family_tasks)
+  person_entities: string[]; // Required - ordered list of person IDs
+
+  // Optional Display Options
+  title?: string; // Card title (default: "Family Tasks")
+  show_title?: boolean; // Show title bar (default: true)
+  hide_card_background?: boolean; // Remove card background (default: false)
+  show_dateless_tasks?: boolean; // Include dateless tasks (default: true)
+
+  // Optional Section Filtering (can combine with person filter)
+  filter_section_id?: string; // Optional section filter (e.g., "Morning Routine")
+}

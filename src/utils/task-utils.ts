@@ -149,47 +149,64 @@ export function groupTasksByTag(
 }
 
 /**
- * Sort tag groups by custom order
- * @param groups - Map of tag groups
- * @param tagOrder - Optional array specifying desired tag order
- * @param untaggedHeader - Header text for untagged tasks (placed last if not in tagOrder)
- * @returns Array of [tag, tasks] entries in sorted order
+ * Group tasks by person assignment
+ * Returns a Map where keys are person IDs and values are arrays of tasks assigned to that person
+ * @param tasks - Array of tasks to group
+ * @param personIds - Ordered array of person entity IDs (maintains display order)
+ * @returns Map of person ID to task array (initialized for all provided persons)
  */
-export function sortTagGroups(
-  groups: Map<string, Task[]>,
-  tagOrder?: string[],
-  untaggedHeader: string = "Untagged",
-): Array<[string, Task[]]> {
-  const entries = Array.from(groups.entries());
+export function groupTasksByPerson(
+  tasks: Task[],
+  personIds: string[],
+): Map<string, Task[]> {
+  const groups = new Map<string, Task[]>();
 
-  if (!tagOrder || tagOrder.length === 0) {
-    // No custom order - sort alphabetically, with untagged last
-    return entries.sort((a, b) => {
-      if (a[0] === untaggedHeader) return 1;
-      if (b[0] === untaggedHeader) return -1;
-      return a[0].localeCompare(b[0]);
+  // Initialize empty arrays for each configured person (maintains order)
+  for (const personId of personIds) {
+    groups.set(personId, []);
+  }
+
+  // Group tasks by computed_person_id
+  for (const task of tasks) {
+    const personId = task.computed_person_id;
+    if (personId && groups.has(personId)) {
+      groups.get(personId)!.push(task);
+    }
+  }
+
+  // Sort each person's tasks: overdue first, then today, then dateless
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (const personTasks of groups.values()) {
+    personTasks.sort((a, b) => {
+      const aHasDue = !!a.due;
+      const bHasDue = !!b.due;
+
+      // Dateless tasks go last
+      if (!aHasDue && bHasDue) return 1;
+      if (aHasDue && !bHasDue) return -1;
+      if (!aHasDue && !bHasDue) return 0;
+
+      // Both have due dates - check overdue status
+      const aDueDate = new Date(a.due!);
+      const bDueDate = new Date(b.due!);
+      aDueDate.setHours(0, 0, 0, 0);
+      bDueDate.setHours(0, 0, 0, 0);
+
+      const aIsOverdue = aDueDate < today;
+      const bIsOverdue = bDueDate < today;
+
+      // Overdue tasks come first
+      if (aIsOverdue && !bIsOverdue) return -1;
+      if (!aIsOverdue && bIsOverdue) return 1;
+
+      // Both overdue or both not overdue - sort by due date (earliest first)
+      return aDueDate.getTime() - bDueDate.getTime();
     });
   }
 
-  // Sort by custom order
-  return entries.sort((a, b) => {
-    const indexA = tagOrder.indexOf(a[0]);
-    const indexB = tagOrder.indexOf(b[0]);
-
-    // If both are in the order list, sort by their position
-    if (indexA !== -1 && indexB !== -1) {
-      return indexA - indexB;
-    }
-
-    // If only one is in the order list, it comes first
-    if (indexA !== -1) return -1;
-    if (indexB !== -1) return 1;
-
-    // If neither is in the order list, put untagged last and sort others alphabetically
-    if (a[0] === untaggedHeader) return 1;
-    if (b[0] === untaggedHeader) return -1;
-    return a[0].localeCompare(b[0]);
-  });
+  return groups;
 }
 
 /**
