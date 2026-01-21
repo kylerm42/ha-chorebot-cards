@@ -203,44 +203,12 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
 
     return html`
       <div class="${classes}">
-        <ha-checkbox
-          .checked=${isCompleted}
-          @change=${(e: Event) => this._handleTaskToggle(task, e)}
-        ></ha-checkbox>
         <span class="task-title">${task.summary}</span>
       </div>
     `;
   }
 
-  /**
-   * Handle task completion toggle
-   */
-  private async _handleTaskToggle(task: Task, event: Event): Promise<void> {
-    event.stopPropagation();
 
-    const checkbox = event.target as any;
-    const newStatus = checkbox.checked ? "completed" : "needs_action";
-
-    try {
-      await this.hass.callService("todo", "update_item", {
-        entity_id: this.config.entity,
-        item: task.uid,
-        status: newStatus,
-      });
-    } catch (error) {
-      console.error("Failed to update task:", error);
-      // Show error notification
-      const event = new CustomEvent("hass-notification", {
-        detail: {
-          message: `Failed to update task: ${error}`,
-          duration: 3000,
-        },
-        bubbles: true,
-        composed: true,
-      });
-      this.dispatchEvent(event);
-    }
-  }
 
   /**
    * Component styles
@@ -253,6 +221,7 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
 
       ha-card {
         overflow: hidden;
+        padding: 16px;
       }
 
       ha-card.no-background {
@@ -261,6 +230,7 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
       }
 
       .card-header {
+        margin: -16px -16px 16px -16px;
         padding: 16px;
         border-bottom: 1px solid var(--divider-color);
       }
@@ -273,16 +243,14 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
 
       .card-content {
         padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
 
       /* Person Section Styles */
       .person-section {
-        padding: 16px;
-        border-bottom: 1px solid var(--divider-color);
-      }
-
-      .person-section:last-child {
-        border-bottom: none;
+        padding: 0;
       }
 
       .person-header {
@@ -298,29 +266,25 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
       .task-list {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 2px;
+        padding-left: 20px;
       }
 
       .task-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 8px 0;
-        min-height: 44px; /* Accessible touch target */
+        display: list-item;
+        list-style-type: disc;
+        padding: 2px 0;
+        color: var(--secondary-text-color);
       }
 
-      .task-row:hover {
-        background: var(--divider-color, rgba(255, 255, 255, 0.05));
-        border-radius: 4px;
-        margin: 0 -8px;
-        padding: 8px 8px;
+      .task-row::marker {
+        color: var(--secondary-text-color);
       }
 
       .task-title {
-        flex: 1;
-        font-size: 16px;
+        font-size: 14px;
         color: var(--primary-text-color);
-        line-height: 1.4;
+        line-height: 1.3;
       }
 
       /* Status Styling */
@@ -338,15 +302,9 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
       .empty-state {
         font-style: italic;
         color: var(--secondary-text-color);
-        padding: 12px 0;
+        padding: 12px 0 0 0;
         text-align: center;
         opacity: 0.7;
-      }
-
-      /* Checkbox Styling */
-      ha-checkbox {
-        --mdc-checkbox-size: 20px;
-        min-width: 20px;
       }
 
       /* Mobile Responsiveness */
@@ -360,22 +318,7 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
         }
 
         .task-title {
-          font-size: 14px;
-        }
-
-        .person-section {
-          padding: 12px;
-        }
-      }
-
-      /* Desktop Enhancements */
-      @media (min-width: 601px) {
-        .task-row {
-          padding: 10px 0;
-        }
-
-        .person-section {
-          padding: 20px;
+          font-size: 13px;
         }
       }
     `;
