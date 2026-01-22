@@ -257,14 +257,32 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
       }
 
       .task-row {
-        display: list-item;
-        list-style-type: disc;
+        display: flex;
+        align-items: baseline;
         padding: 2px 0;
         color: var(--secondary-text-color);
       }
 
-      .task-row::marker {
+      /* Custom bullet points using ::before pseudo-elements */
+      .task-row::before {
+        content: "☐"; /* Default: square outline for incomplete tasks */
+        width: 14px;
+        margin-right: 8px;
+        flex-shrink: 0;
+        text-align: center;
         color: var(--secondary-text-color);
+      }
+
+      .task-row.overdue::before {
+        content: "!"; /* Overdue tasks get exclamation mark */
+        color: var(--error-color, #f44336);
+        font-weight: bold;
+      }
+
+      .task-row.completed::before {
+        content: "✓"; /* Completed tasks get checkmark */
+        color: var(--success-color, #4caf50);
+        font-weight: bold;
       }
 
       .task-title {
@@ -276,7 +294,7 @@ export class ChoreBotMultiPersonOverviewCard extends LitElement {
       /* Status Styling */
       .task-row.completed .task-title {
         text-decoration: line-through;
-        opacity: 0.6;
+        color: var(--success-color, #4caf50);
       }
 
       .task-row.overdue .task-title {
