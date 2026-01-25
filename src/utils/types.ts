@@ -57,6 +57,7 @@ export interface Task {
   streak_bonus_points?: number;
   streak_bonus_interval?: number;
   occurrence_index?: number;
+  streak_when_created?: number; // Template's streak when instance was created
   rrule?: string;
   sync?: { [backend: string]: any };
   /**
@@ -65,6 +66,12 @@ export interface Task {
    * Read-only field computed in extra_state_attributes
    */
   computed_person_id?: string;
+  /**
+   * Completion metadata fields (set when task is marked completed)
+   */
+  completed_on_time?: boolean; // Was this completed on or before its due date?
+  points_earned?: number; // Total points awarded for this completion (base + bonus)
+  streak_at_completion?: number; // Template's streak value after this completion
 }
 
 export interface RecurringTemplate {

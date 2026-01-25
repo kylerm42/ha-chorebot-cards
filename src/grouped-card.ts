@@ -257,21 +257,28 @@ export class ChoreBotGroupedCard extends LitElement {
       display: flex;
     }
 
+    .points-badge.bonus-awarded {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      border: 1px solid #FF8C00;
+      color: #000;
+      font-weight: 600;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
     .points-badge.bonus-pending {
-      background: linear-gradient(135deg, #ffd700, #ffa500) !important;
-      border: 1px solid currentColor !important;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.8) 0%, rgb(255, 165, 0) 100%);
+      border: 1px solid rgba(255, 140, 0, 0.6);
       animation: glow 2s ease-in-out infinite;
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     @keyframes glow {
-      0%,
-      100% {
-        opacity: 0.9;
-      }
-      50% {
-        opacity: 1;
-      }
+      0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+      50% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
     }
 
     .recurring-icon {
@@ -452,19 +459,19 @@ export class ChoreBotGroupedCard extends LitElement {
 
     .detail-row ha-icon {
       --mdc-icon-size: 16px;
-      color: var(--secondary-text-color);
+      color: inherit;
       flex-shrink: 0;
     }
 
     .detail-label {
       font-weight: 500;
-      color: var(--secondary-text-color);
+      color: inherit;
       flex-shrink: 0;
     }
 
     .detail-value {
       flex: 1;
-      color: var(--primary-text-color);
+      color: inherit;
       word-wrap: break-word;
     }
 
@@ -480,7 +487,7 @@ export class ChoreBotGroupedCard extends LitElement {
     .action-button {
       cursor: pointer;
       transition: opacity 0.2s ease;
-      color: var(--secondary-text-color);
+      color: inherit;
     }
 
     .action-button:hover {
@@ -772,20 +779,23 @@ export class ChoreBotGroupedCard extends LitElement {
       return html``;
     }
 
-    // Get template to access streak data
+    // Get template to check current streak
     const entity = this.hass?.states[this._config!.entity];
     const templates = entity?.attributes.chorebot_templates || [];
     const template = templates.find((t: any) => t.uid === task.parent_uid);
 
-    // Only show if streak exists and is greater than 0
-    if (!template || !template.streak_current || template.streak_current <= 0) {
+    // Show if instance has valid streak value within current streak progression
+    const streakValue = task.streak_when_created || 0;
+    const currentStreak = template?.streak_current || 0;
+    
+    if (streakValue === 0 || streakValue > currentStreak) {
       return html``;
     }
 
     return html`
       <span class="streak-indicator">
         <ha-icon icon="mdi:fire"></ha-icon>
-        <span>${template.streak_current}</span>
+        <span>${streakValue}</span>
       </span>
     `;
   }
@@ -1085,6 +1095,28 @@ export class ChoreBotGroupedCard extends LitElement {
   private _formValueChanged(ev: CustomEvent) {
     const updatedValues = ev.detail.value;
 
+    // Handle has_due_date toggling logic
+    if ("has_due_date" in updatedValues) {
+      if (updatedValues.has_due_date === true) {
+        // When enabling due date: set All Day to true and due date to today
+        if (!this._editingTask?.has_due_date) {
+          updatedValues.is_all_day = true;
+          
+          // Set due_date to today in YYYY-MM-DD format
+          const today = new Date();
+          const year = today.getFullYear();
+          const month = String(today.getMonth() + 1).padStart(2, '0');
+          const day = String(today.getDate()).padStart(2, '0');
+          updatedValues.due_date = `${year}-${month}-${day}`;
+        }
+      } else if (updatedValues.has_due_date === false) {
+        // When disabling due date: clear scheduled recurrence if set
+        if (this._editingTask?.recurrence_type === "scheduled") {
+          updatedValues.recurrence_type = "none";
+        }
+      }
+    }
+
     this._editingTask = {
       ...this._editingTask!,
       ...updatedValues,
@@ -1094,7 +1126,8 @@ export class ChoreBotGroupedCard extends LitElement {
       "has_due_date" in updatedValues ||
       "is_all_day" in updatedValues ||
       "has_recurrence" in updatedValues ||
-      "recurrence_frequency" in updatedValues
+      "recurrence_frequency" in updatedValues ||
+      "recurrence_type" in updatedValues
     ) {
       this.requestUpdate();
     }
@@ -1107,6 +1140,20 @@ export class ChoreBotGroupedCard extends LitElement {
       this._saving
     ) {
       return;
+    }
+
+    // Validate streak bonus fields (mutually required, interval cannot be 1)
+    const bonusPoints = this._editingTask.streak_bonus_points || 0;
+    const bonusInterval = this._editingTask.streak_bonus_interval || 0;
+    
+    if (bonusPoints > 0 && bonusInterval === 0) {
+      return; // Silent rejection: bonus points set but no interval
+    }
+    if (bonusInterval > 0 && bonusPoints === 0) {
+      return; // Silent rejection: interval set but no bonus points
+    }
+    if (bonusInterval === 1) {
+      return; // Silent rejection: interval cannot be 1
     }
 
     this._saving = true;
@@ -1393,6 +1440,28 @@ export class ChoreBotGroupedCard extends LitElement {
   private _formValueChangedForNewTask(ev: CustomEvent) {
     const updatedValues = ev.detail.value;
 
+    // Handle has_due_date toggling logic
+    if ("has_due_date" in updatedValues) {
+      if (updatedValues.has_due_date === true) {
+        // When enabling due date: set All Day to true and due date to today
+        if (!this._newTask?.has_due_date) {
+          updatedValues.is_all_day = true;
+          
+          // Set due_date to today in YYYY-MM-DD format
+          const today = new Date();
+          const year = today.getFullYear();
+          const month = String(today.getMonth() + 1).padStart(2, '0');
+          const day = String(today.getDate()).padStart(2, '0');
+          updatedValues.due_date = `${year}-${month}-${day}`;
+        }
+      } else if (updatedValues.has_due_date === false) {
+        // When disabling due date: clear scheduled recurrence if set
+        if (this._newTask?.recurrence_type === "scheduled") {
+          updatedValues.recurrence_type = "none";
+        }
+      }
+    }
+
     this._newTask = {
       ...this._newTask!,
       ...updatedValues,
@@ -1403,7 +1472,8 @@ export class ChoreBotGroupedCard extends LitElement {
       "has_due_date" in updatedValues ||
       "is_all_day" in updatedValues ||
       "has_recurrence" in updatedValues ||
-      "recurrence_frequency" in updatedValues
+      "recurrence_frequency" in updatedValues ||
+      "recurrence_type" in updatedValues
     ) {
       this.requestUpdate();
     }
@@ -1412,6 +1482,20 @@ export class ChoreBotGroupedCard extends LitElement {
   private async _saveNewTask() {
     if (!this._newTask || !this._newTask.summary?.trim() || this._savingNewTask) {
       return;
+    }
+
+    // Validate streak bonus fields (mutually required, interval cannot be 1)
+    const bonusPoints = this._newTask.streak_bonus_points || 0;
+    const bonusInterval = this._newTask.streak_bonus_interval || 0;
+    
+    if (bonusPoints > 0 && bonusInterval === 0) {
+      return; // Silent rejection: bonus points set but no interval
+    }
+    if (bonusInterval > 0 && bonusPoints === 0) {
+      return; // Silent rejection: interval set but no bonus points
+    }
+    if (bonusInterval === 1) {
+      return; // Silent rejection: interval cannot be 1
     }
 
     this._savingNewTask = true;

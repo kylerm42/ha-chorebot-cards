@@ -93,22 +93,31 @@ export function prepareTaskForEditing(
 }
 
 /**
- * Build the schema for the edit dialog form
+ * Build the schema for the edit dialog form (split into sections)
  * @param task - Task being edited
  * @param sections - Available sections from entity
  * @param availableTags - Available tags from entity
- * @returns Array of form schema objects
+ * @returns Object with separate schemas for each section
  */
 export function buildEditDialogSchema(
   task: EditingTask,
   sections: Section[],
   availableTags: string[],
-): any[] {
+): {
+  detailsSchema: any[];
+  scheduleSchema: any[];
+  pointsSchema: any[];
+} {
   const hasDueDate =
     task.has_due_date !== undefined ? task.has_due_date : !!task.due;
   const isAllDay = task.is_all_day !== undefined ? task.is_all_day : false;
+  const recurrenceType = task.recurrence_type || "none";
+  const isRecurring = recurrenceType === "scheduled" || recurrenceType === "on_completion";
 
-  const schema: any[] = [
+  // ============================================================================
+  // Details Section
+  // ============================================================================
+  const detailsSchema: any[] = [
     {
       name: "summary",
       required: true,
@@ -122,10 +131,11 @@ export function buildEditDialogSchema(
 
   // Add section dropdown if sections are available
   if (sections.length > 0) {
-    schema.push({
+    detailsSchema.push({
       name: "section_id",
       selector: {
         select: {
+          mode: "dropdown",
           options: sections
             .sort((a: Section, b: Section) => b.sort_order - a.sort_order)
             .map((section: Section) => ({
@@ -138,7 +148,7 @@ export function buildEditDialogSchema(
   }
 
   // Add tags multi-select
-  schema.push({
+  detailsSchema.push({
     name: "tags",
     selector: {
       select: {
@@ -152,44 +162,52 @@ export function buildEditDialogSchema(
     },
   });
 
-  schema.push({
-    name: "has_due_date",
-    selector: { boolean: {} },
-  });
+  // ============================================================================
+  // Schedule Section
+  // ============================================================================
+  const scheduleSchema: any[] = [
+    {
+      name: "has_due_date",
+      selector: { boolean: {} },
+    },
+  ];
 
   if (hasDueDate) {
-    schema.push({
+    scheduleSchema.push({
       name: "due_date",
       selector: { date: {} },
     });
 
+    scheduleSchema.push({
+      name: "is_all_day",
+      selector: { boolean: {} },
+    });
+
     if (!isAllDay) {
-      schema.push({
+      scheduleSchema.push({
         name: "due_time",
         selector: { time: {} },
       });
     }
-
-    schema.push({
-      name: "is_all_day",
-      selector: { boolean: {} },
-    });
   }
 
-  // Recurrence section - radio button group for recurrence type
-  const recurrenceType = task.recurrence_type || "none";
+  // Add recurrence type selector (hide "On a schedule" if no due date)
+  const recurrenceOptions = [
+    { label: "None", value: "none" },
+    { label: "On completion", value: "on_completion" },
+  ];
   
-  // Add recurrence type radio buttons
-  schema.push({
+  // Only show "On a schedule" option if task has a due date
+  if (hasDueDate) {
+    recurrenceOptions.splice(1, 0, { label: "On a schedule", value: "scheduled" });
+  }
+  
+  scheduleSchema.push({
     name: "recurrence_type",
     label: "Repeat",
     selector: {
       select: {
-        options: [
-          { label: "None", value: "none" },
-          { label: "On a schedule", value: "scheduled" },
-          { label: "On completion", value: "on_completion" },
-        ],
+        options: recurrenceOptions,
       },
     },
   });
@@ -198,7 +216,7 @@ export function buildEditDialogSchema(
   if (recurrenceType === "scheduled" && hasDueDate) {
     const recurrenceFrequency = task.recurrence_frequency || "DAILY";
 
-    schema.push({
+    scheduleSchema.push({
       name: "recurrence_frequency",
       selector: {
         select: {
@@ -211,20 +229,20 @@ export function buildEditDialogSchema(
       },
     });
 
-      schema.push({
-        name: "recurrence_interval",
-        selector: {
-          number: {
-            min: 1,
-            max: 999,
-            mode: "box",
-          },
+    scheduleSchema.push({
+      name: "recurrence_interval",
+      selector: {
+        number: {
+          min: 1,
+          max: 999,
+          mode: "box",
         },
-      });
+      },
+    });
 
     // Frequency-specific fields
     if (recurrenceFrequency === "WEEKLY") {
-      schema.push({
+      scheduleSchema.push({
         name: "recurrence_byweekday",
         selector: {
           select: {
@@ -242,7 +260,7 @@ export function buildEditDialogSchema(
         },
       });
     } else if (recurrenceFrequency === "MONTHLY") {
-      schema.push({
+      scheduleSchema.push({
         name: "recurrence_bymonthday",
         selector: {
           number: {
@@ -255,22 +273,25 @@ export function buildEditDialogSchema(
     }
   }
 
-  // Points section
-  schema.push({
-    name: "points_value",
-    selector: {
-      number: {
-        min: 0,
-        max: 10000,
-        mode: "box",
+  // ============================================================================
+  // Points Section
+  // ============================================================================
+  const pointsSchema: any[] = [
+    {
+      name: "points_value",
+      selector: {
+        number: {
+          min: 0,
+          max: 10000,
+          mode: "box",
+        },
       },
     },
-  });
+  ];
 
-  // Streak bonus section (only for recurring tasks - scheduled OR dateless)
-  const isRecurring = recurrenceType === "scheduled" || recurrenceType === "on_completion";
+  // Streak bonus fields (only for recurring tasks - scheduled OR on_completion)
   if (isRecurring) {
-    schema.push({
+    pointsSchema.push({
       name: "streak_bonus_points",
       selector: {
         number: {
@@ -286,7 +307,7 @@ export function buildEditDialogSchema(
       ? "Bonus Every X Completions (0 = no bonus)"
       : "Bonus Every X Days (0 = no bonus)";
 
-    schema.push({
+    pointsSchema.push({
       name: "streak_bonus_interval",
       label: intervalLabel,
       selector: {
@@ -299,7 +320,7 @@ export function buildEditDialogSchema(
     });
   }
 
-  return schema;
+  return { detailsSchema, scheduleSchema, pointsSchema };
 }
 
 /**
@@ -418,19 +439,51 @@ export function renderTaskDialog(
     return html``;
   }
 
-  const schema = buildEditDialogSchema(task, sections, availableTags);
+  const { detailsSchema, scheduleSchema, pointsSchema } = buildEditDialogSchema(
+    task,
+    sections,
+    availableTags,
+  );
   const data = buildEditDialogData(task, sections);
   const computeLabel = getFieldLabels(hass);
 
   return html`
     <ha-dialog open @closed=${onClose} .heading=${dialogTitle}>
-      <ha-form
-        .hass=${hass}
-        .schema=${schema}
-        .data=${data}
-        .computeLabel=${computeLabel}
-        @value-changed=${onValueChanged}
-      ></ha-form>
+      <!-- Details Section -->
+      <div class="dialog-section">
+        <h3 class="section-header">Details</h3>
+        <ha-form
+          .hass=${hass}
+          .schema=${detailsSchema}
+          .data=${data}
+          .computeLabel=${computeLabel}
+          @value-changed=${onValueChanged}
+        ></ha-form>
+      </div>
+
+      <!-- Schedule Section -->
+      <div class="dialog-section">
+        <h3 class="section-header">Schedule</h3>
+        <ha-form
+          .hass=${hass}
+          .schema=${scheduleSchema}
+          .data=${data}
+          .computeLabel=${computeLabel}
+          @value-changed=${onValueChanged}
+        ></ha-form>
+      </div>
+
+      <!-- Points Section -->
+      <div class="dialog-section">
+        <h3 class="section-header">Points</h3>
+        <ha-form
+          .hass=${hass}
+          .schema=${pointsSchema}
+          .data=${data}
+          .computeLabel=${computeLabel}
+          @value-changed=${onValueChanged}
+        ></ha-form>
+      </div>
 
       ${showDelete && onDelete && task?.uid
         ? html`
@@ -457,6 +510,26 @@ export function renderTaskDialog(
       <style>
         ha-dialog {
           --mdc-dialog-min-width: min(500px, 90vw);
+        }
+        
+        /* Section styling */
+        .dialog-section {
+          margin-top: 24px;
+        }
+        
+        .dialog-section:first-child {
+          margin-top: 0;
+        }
+        
+        .section-header {
+          margin: 0 0 12px 0;
+          padding: 0;
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--primary-text-color);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          opacity: 0.7;
         }
         
         /* Position delete button on far left */

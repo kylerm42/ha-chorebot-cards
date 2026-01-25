@@ -793,16 +793,21 @@ function prepareTaskForEditing(task, templates) {
     return flatTask;
 }
 /**
- * Build the schema for the edit dialog form
+ * Build the schema for the edit dialog form (split into sections)
  * @param task - Task being edited
  * @param sections - Available sections from entity
  * @param availableTags - Available tags from entity
- * @returns Array of form schema objects
+ * @returns Object with separate schemas for each section
  */
 function buildEditDialogSchema(task, sections, availableTags) {
     const hasDueDate = task.has_due_date !== undefined ? task.has_due_date : !!task.due;
     const isAllDay = task.is_all_day !== undefined ? task.is_all_day : false;
-    const schema = [
+    const recurrenceType = task.recurrence_type || "none";
+    const isRecurring = recurrenceType === "scheduled" || recurrenceType === "on_completion";
+    // ============================================================================
+    // Details Section
+    // ============================================================================
+    const detailsSchema = [
         {
             name: "summary",
             required: true,
@@ -815,10 +820,11 @@ function buildEditDialogSchema(task, sections, availableTags) {
     ];
     // Add section dropdown if sections are available
     if (sections.length > 0) {
-        schema.push({
+        detailsSchema.push({
             name: "section_id",
             selector: {
                 select: {
+                    mode: "dropdown",
                     options: sections
                         .sort((a, b) => b.sort_order - a.sort_order)
                         .map((section) => ({
@@ -830,7 +836,7 @@ function buildEditDialogSchema(task, sections, availableTags) {
         });
     }
     // Add tags multi-select
-    schema.push({
+    detailsSchema.push({
         name: "tags",
         selector: {
             select: {
@@ -843,46 +849,53 @@ function buildEditDialogSchema(task, sections, availableTags) {
             },
         },
     });
-    schema.push({
-        name: "has_due_date",
-        selector: { boolean: {} },
-    });
+    // ============================================================================
+    // Schedule Section
+    // ============================================================================
+    const scheduleSchema = [
+        {
+            name: "has_due_date",
+            selector: { boolean: {} },
+        },
+    ];
     if (hasDueDate) {
-        schema.push({
+        scheduleSchema.push({
             name: "due_date",
             selector: { date: {} },
         });
+        scheduleSchema.push({
+            name: "is_all_day",
+            selector: { boolean: {} },
+        });
         if (!isAllDay) {
-            schema.push({
+            scheduleSchema.push({
                 name: "due_time",
                 selector: { time: {} },
             });
         }
-        schema.push({
-            name: "is_all_day",
-            selector: { boolean: {} },
-        });
     }
-    // Recurrence section - radio button group for recurrence type
-    const recurrenceType = task.recurrence_type || "none";
-    // Add recurrence type radio buttons
-    schema.push({
+    // Add recurrence type selector (hide "On a schedule" if no due date)
+    const recurrenceOptions = [
+        { label: "None", value: "none" },
+        { label: "On completion", value: "on_completion" },
+    ];
+    // Only show "On a schedule" option if task has a due date
+    if (hasDueDate) {
+        recurrenceOptions.splice(1, 0, { label: "On a schedule", value: "scheduled" });
+    }
+    scheduleSchema.push({
         name: "recurrence_type",
         label: "Repeat",
         selector: {
             select: {
-                options: [
-                    { label: "None", value: "none" },
-                    { label: "On a schedule", value: "scheduled" },
-                    { label: "On completion", value: "on_completion" },
-                ],
+                options: recurrenceOptions,
             },
         },
     });
     // If scheduled recurrence is selected AND task has due date, show recurrence pattern fields
     if (recurrenceType === "scheduled" && hasDueDate) {
         const recurrenceFrequency = task.recurrence_frequency || "DAILY";
-        schema.push({
+        scheduleSchema.push({
             name: "recurrence_frequency",
             selector: {
                 select: {
@@ -894,7 +907,7 @@ function buildEditDialogSchema(task, sections, availableTags) {
                 },
             },
         });
-        schema.push({
+        scheduleSchema.push({
             name: "recurrence_interval",
             selector: {
                 number: {
@@ -906,7 +919,7 @@ function buildEditDialogSchema(task, sections, availableTags) {
         });
         // Frequency-specific fields
         if (recurrenceFrequency === "WEEKLY") {
-            schema.push({
+            scheduleSchema.push({
                 name: "recurrence_byweekday",
                 selector: {
                     select: {
@@ -925,7 +938,7 @@ function buildEditDialogSchema(task, sections, availableTags) {
             });
         }
         else if (recurrenceFrequency === "MONTHLY") {
-            schema.push({
+            scheduleSchema.push({
                 name: "recurrence_bymonthday",
                 selector: {
                     number: {
@@ -937,21 +950,24 @@ function buildEditDialogSchema(task, sections, availableTags) {
             });
         }
     }
-    // Points section
-    schema.push({
-        name: "points_value",
-        selector: {
-            number: {
-                min: 0,
-                max: 10000,
-                mode: "box",
+    // ============================================================================
+    // Points Section
+    // ============================================================================
+    const pointsSchema = [
+        {
+            name: "points_value",
+            selector: {
+                number: {
+                    min: 0,
+                    max: 10000,
+                    mode: "box",
+                },
             },
         },
-    });
-    // Streak bonus section (only for recurring tasks - scheduled OR dateless)
-    const isRecurring = recurrenceType === "scheduled" || recurrenceType === "on_completion";
+    ];
+    // Streak bonus fields (only for recurring tasks - scheduled OR on_completion)
     if (isRecurring) {
-        schema.push({
+        pointsSchema.push({
             name: "streak_bonus_points",
             selector: {
                 number: {
@@ -965,7 +981,7 @@ function buildEditDialogSchema(task, sections, availableTags) {
         const intervalLabel = recurrenceType === "on_completion"
             ? "Bonus Every X Completions (0 = no bonus)"
             : "Bonus Every X Days (0 = no bonus)";
-        schema.push({
+        pointsSchema.push({
             name: "streak_bonus_interval",
             label: intervalLabel,
             selector: {
@@ -977,7 +993,7 @@ function buildEditDialogSchema(task, sections, availableTags) {
             },
         });
     }
-    return schema;
+    return { detailsSchema, scheduleSchema, pointsSchema };
 }
 /**
  * Build the initial data object for the edit dialog form
@@ -1068,18 +1084,46 @@ function renderTaskDialog(isOpen, task, hass, sections, availableTags, saving, o
     if (!isOpen || !task) {
         return b ``;
     }
-    const schema = buildEditDialogSchema(task, sections, availableTags);
+    const { detailsSchema, scheduleSchema, pointsSchema } = buildEditDialogSchema(task, sections, availableTags);
     const data = buildEditDialogData(task, sections);
     const computeLabel = getFieldLabels(hass);
     return b `
     <ha-dialog open @closed=${onClose} .heading=${dialogTitle}>
-      <ha-form
-        .hass=${hass}
-        .schema=${schema}
-        .data=${data}
-        .computeLabel=${computeLabel}
-        @value-changed=${onValueChanged}
-      ></ha-form>
+      <!-- Details Section -->
+      <div class="dialog-section">
+        <h3 class="section-header">Details</h3>
+        <ha-form
+          .hass=${hass}
+          .schema=${detailsSchema}
+          .data=${data}
+          .computeLabel=${computeLabel}
+          @value-changed=${onValueChanged}
+        ></ha-form>
+      </div>
+
+      <!-- Schedule Section -->
+      <div class="dialog-section">
+        <h3 class="section-header">Schedule</h3>
+        <ha-form
+          .hass=${hass}
+          .schema=${scheduleSchema}
+          .data=${data}
+          .computeLabel=${computeLabel}
+          @value-changed=${onValueChanged}
+        ></ha-form>
+      </div>
+
+      <!-- Points Section -->
+      <div class="dialog-section">
+        <h3 class="section-header">Points</h3>
+        <ha-form
+          .hass=${hass}
+          .schema=${pointsSchema}
+          .data=${data}
+          .computeLabel=${computeLabel}
+          @value-changed=${onValueChanged}
+        ></ha-form>
+      </div>
 
       ${showDelete && onDelete && task?.uid
         ? b `
@@ -1106,6 +1150,26 @@ function renderTaskDialog(isOpen, task, hass, sections, availableTags, saving, o
       <style>
         ha-dialog {
           --mdc-dialog-min-width: min(500px, 90vw);
+        }
+        
+        /* Section styling */
+        .dialog-section {
+          margin-top: 24px;
+        }
+        
+        .dialog-section:first-child {
+          margin-top: 0;
+        }
+        
+        .section-header {
+          margin: 0 0 12px 0;
+          padding: 0;
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--primary-text-color);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          opacity: 0.7;
         }
         
         /* Position delete button on far left */
@@ -2345,6 +2409,22 @@ function playPointsAnimation(origin, totalPoints) {
 // ============================================================================
 // Shared utility for rendering points badges with bonus detection
 /**
+ * Check if task would be on-time if completed NOW.
+ * Uses date-only comparison (treats timed tasks as all-day for streak purposes).
+ * @param task - Task to check
+ * @returns True if would be on-time, false if late
+ */
+function checkIfWouldBeOnTime(task) {
+    if (!task.due)
+        return true; // No due date = always on-time
+    const dueDate = new Date(task.due);
+    const now = new Date();
+    // Always compare dates only (user requirement: treat all tasks as all-day for streaks)
+    const dueDay = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return today <= dueDay;
+}
+/**
  * Render a points badge for a task with automatic bonus detection
  * @param task - Task object to render badge for
  * @param templates - Array of recurring task templates (for bonus detection)
@@ -2361,15 +2441,46 @@ function renderPointsBadge(task, templates, shades, hass, showPoints, textColor)
     }
     // Get configured points display parts
     const parts = getPointsDisplayParts(hass);
-    // Check if this is a recurring task with upcoming bonus
-    if (task.parent_uid) {
+    // === HISTORICAL MODE: For COMPLETED tasks ===
+    if (task.status === "completed" && task.points_earned !== undefined) {
+        const base = task.points_value;
+        const bonus = task.points_earned - base;
+        if (bonus > 0) {
+            // Bonus was awarded at completion
+            return b `<span
+        class="points-badge bonus-awarded"
+        style="color: ${textColor};"
+      >
+        +${base} + ${bonus}
+        ${parts.icon ? b `<ha-icon icon="${parts.icon}"></ha-icon>` : ""}
+        ${parts.text ? parts.text : ""}
+      </span>`;
+        }
+        // Completed but no bonus
+        return b `<span
+      class="points-badge"
+      style="background: #${shades
+            .lighter}; color: ${textColor}; border: 1px solid ${textColor};"
+    >
+      +${task.points_earned}
+      ${parts.icon ? b `<ha-icon icon="${parts.icon}"></ha-icon>` : ""}
+      ${parts.text ? parts.text : ""}
+    </span>`;
+    }
+    // === PREDICTIVE MODE: For INCOMPLETE recurring tasks ===
+    if (task.parent_uid && task.status === "needs_action") {
         const template = templates.find((t) => t.uid === task.parent_uid);
         if (template &&
             template.streak_bonus_points &&
             template.streak_bonus_interval) {
-            const nextStreak = template.streak_current + 1;
-            if (nextStreak % template.streak_bonus_interval === 0) {
-                // Next completion will award bonus!
+            // Check if would be on-time if completed NOW (date-only comparison)
+            const isOnTime = checkIfWouldBeOnTime(task);
+            const predictedStreak = isOnTime ? template.streak_current + 1 : 0;
+            // Check if predicted streak is milestone
+            if (isOnTime &&
+                predictedStreak > 0 &&
+                predictedStreak % template.streak_bonus_interval === 0) {
+                // Next completion will award bonus if done on-time!
                 return b `<span
           class="points-badge bonus-pending"
           style="color: ${textColor};"
@@ -2381,7 +2492,7 @@ function renderPointsBadge(task, templates, shades, hass, showPoints, textColor)
             }
         }
     }
-    // Regular points badge (no bonus)
+    // === DEFAULT MODE: Base points only ===
     return b `<span
     class="points-badge"
     style="background: #${shades
@@ -2859,18 +2970,20 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
         if (!task.parent_uid) {
             return b ``;
         }
-        // Get template to access streak data
+        // Get template to check current streak
         const entity = this.hass?.states[this._config.entity];
         const templates = entity?.attributes.chorebot_templates || [];
         const template = templates.find((t) => t.uid === task.parent_uid);
-        // Only show if streak exists and is greater than 0
-        if (!template || !template.streak_current || template.streak_current <= 0) {
+        // Show if instance has valid streak value within current streak progression
+        const streakValue = task.streak_when_created || 0;
+        const currentStreak = template?.streak_current || 0;
+        if (streakValue === 0 || streakValue > currentStreak) {
             return b ``;
         }
         return b `
       <span class="streak-indicator">
         <ha-icon icon="mdi:fire"></ha-icon>
-        <span>${template.streak_current}</span>
+        <span>${streakValue}</span>
       </span>
     `;
     }
@@ -3103,6 +3216,27 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
     }
     _formValueChanged(ev) {
         const updatedValues = ev.detail.value;
+        // Handle has_due_date toggling logic
+        if ("has_due_date" in updatedValues) {
+            if (updatedValues.has_due_date === true) {
+                // When enabling due date: set All Day to true and due date to today
+                if (!this._editingTask?.has_due_date) {
+                    updatedValues.is_all_day = true;
+                    // Set due_date to today in YYYY-MM-DD format
+                    const today = new Date();
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const day = String(today.getDate()).padStart(2, '0');
+                    updatedValues.due_date = `${year}-${month}-${day}`;
+                }
+            }
+            else if (updatedValues.has_due_date === false) {
+                // When disabling due date: clear scheduled recurrence if set
+                if (this._editingTask?.recurrence_type === "scheduled") {
+                    updatedValues.recurrence_type = "none";
+                }
+            }
+        }
         this._editingTask = {
             ...this._editingTask,
             ...updatedValues,
@@ -3110,7 +3244,8 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
         if ("has_due_date" in updatedValues ||
             "is_all_day" in updatedValues ||
             "has_recurrence" in updatedValues ||
-            "recurrence_frequency" in updatedValues) {
+            "recurrence_frequency" in updatedValues ||
+            "recurrence_type" in updatedValues) {
             this.requestUpdate();
         }
     }
@@ -3119,6 +3254,18 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
             !this._editingTask.summary?.trim() ||
             this._saving) {
             return;
+        }
+        // Validate streak bonus fields (mutually required, interval cannot be 1)
+        const bonusPoints = this._editingTask.streak_bonus_points || 0;
+        const bonusInterval = this._editingTask.streak_bonus_interval || 0;
+        if (bonusPoints > 0 && bonusInterval === 0) {
+            return; // Silent rejection: bonus points set but no interval
+        }
+        if (bonusInterval > 0 && bonusPoints === 0) {
+            return; // Silent rejection: interval set but no bonus points
+        }
+        if (bonusInterval === 1) {
+            return; // Silent rejection: interval cannot be 1
         }
         this._saving = true;
         const serviceData = {
@@ -3343,6 +3490,27 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
     }
     _formValueChangedForNewTask(ev) {
         const updatedValues = ev.detail.value;
+        // Handle has_due_date toggling logic
+        if ("has_due_date" in updatedValues) {
+            if (updatedValues.has_due_date === true) {
+                // When enabling due date: set All Day to true and due date to today
+                if (!this._newTask?.has_due_date) {
+                    updatedValues.is_all_day = true;
+                    // Set due_date to today in YYYY-MM-DD format
+                    const today = new Date();
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const day = String(today.getDate()).padStart(2, '0');
+                    updatedValues.due_date = `${year}-${month}-${day}`;
+                }
+            }
+            else if (updatedValues.has_due_date === false) {
+                // When disabling due date: clear scheduled recurrence if set
+                if (this._newTask?.recurrence_type === "scheduled") {
+                    updatedValues.recurrence_type = "none";
+                }
+            }
+        }
         this._newTask = {
             ...this._newTask,
             ...updatedValues,
@@ -3351,13 +3519,26 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
         if ("has_due_date" in updatedValues ||
             "is_all_day" in updatedValues ||
             "has_recurrence" in updatedValues ||
-            "recurrence_frequency" in updatedValues) {
+            "recurrence_frequency" in updatedValues ||
+            "recurrence_type" in updatedValues) {
             this.requestUpdate();
         }
     }
     async _saveNewTask() {
         if (!this._newTask || !this._newTask.summary?.trim() || this._savingNewTask) {
             return;
+        }
+        // Validate streak bonus fields (mutually required, interval cannot be 1)
+        const bonusPoints = this._newTask.streak_bonus_points || 0;
+        const bonusInterval = this._newTask.streak_bonus_interval || 0;
+        if (bonusPoints > 0 && bonusInterval === 0) {
+            return; // Silent rejection: bonus points set but no interval
+        }
+        if (bonusInterval > 0 && bonusPoints === 0) {
+            return; // Silent rejection: interval set but no bonus points
+        }
+        if (bonusInterval === 1) {
+            return; // Silent rejection: interval cannot be 1
         }
         this._savingNewTask = true;
         const serviceData = {
@@ -3712,21 +3893,28 @@ ChoreBotGroupedCard.styles = i$3 `
       display: flex;
     }
 
+    .points-badge.bonus-awarded {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      border: 1px solid #FF8C00;
+      color: #000;
+      font-weight: 600;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
     .points-badge.bonus-pending {
-      background: linear-gradient(135deg, #ffd700, #ffa500) !important;
-      border: 1px solid currentColor !important;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.8) 0%, rgb(255, 165, 0) 100%);
+      border: 1px solid rgba(255, 140, 0, 0.6);
       animation: glow 2s ease-in-out infinite;
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     @keyframes glow {
-      0%,
-      100% {
-        opacity: 0.9;
-      }
-      50% {
-        opacity: 1;
-      }
+      0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+      50% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
     }
 
     .recurring-icon {
@@ -3907,19 +4095,19 @@ ChoreBotGroupedCard.styles = i$3 `
 
     .detail-row ha-icon {
       --mdc-icon-size: 16px;
-      color: var(--secondary-text-color);
+      color: inherit;
       flex-shrink: 0;
     }
 
     .detail-label {
       font-weight: 500;
-      color: var(--secondary-text-color);
+      color: inherit;
       flex-shrink: 0;
     }
 
     .detail-value {
       flex: 1;
-      color: var(--primary-text-color);
+      color: inherit;
       word-wrap: break-word;
     }
 
@@ -3935,7 +4123,7 @@ ChoreBotGroupedCard.styles = i$3 `
     .action-button {
       cursor: pointer;
       transition: opacity 0.2s ease;
-      color: var(--secondary-text-color);
+      color: inherit;
     }
 
     .action-button:hover {
@@ -6659,18 +6847,20 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
         if (!task.parent_uid) {
             return b ``;
         }
-        // Get template to access streak data
+        // Get template to check current streak
         const entity = this.hass?.states[this._config.entity];
         const templates = entity?.attributes.chorebot_templates || [];
         const template = templates.find((t) => t.uid === task.parent_uid);
-        // Only show if streak exists and is greater than 0
-        if (!template || !template.streak_current || template.streak_current <= 0) {
+        // Show if instance has valid streak value within current streak progression
+        const streakValue = task.streak_when_created || 0;
+        const currentStreak = template?.streak_current || 0;
+        if (streakValue === 0 || streakValue > currentStreak) {
             return b ``;
         }
         return b `
       <span class="streak-indicator">
         <ha-icon icon="mdi:fire"></ha-icon>
-        <span>${template.streak_current}</span>
+        <span>${streakValue}</span>
       </span>
     `;
     }
@@ -6779,6 +6969,27 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
     }
     _formValueChanged(ev) {
         const updatedValues = ev.detail.value;
+        // Handle has_due_date toggling logic
+        if ("has_due_date" in updatedValues) {
+            if (updatedValues.has_due_date === true) {
+                // When enabling due date: set All Day to true and due date to today
+                if (!this._editingTask?.has_due_date) {
+                    updatedValues.is_all_day = true;
+                    // Set due_date to today in YYYY-MM-DD format
+                    const today = new Date();
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const day = String(today.getDate()).padStart(2, '0');
+                    updatedValues.due_date = `${year}-${month}-${day}`;
+                }
+            }
+            else if (updatedValues.has_due_date === false) {
+                // When disabling due date: clear scheduled recurrence if set
+                if (this._editingTask?.recurrence_type === "scheduled") {
+                    updatedValues.recurrence_type = "none";
+                }
+            }
+        }
         this._editingTask = {
             ...this._editingTask,
             ...updatedValues,
@@ -6786,7 +6997,8 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
         if ("has_due_date" in updatedValues ||
             "is_all_day" in updatedValues ||
             "has_recurrence" in updatedValues ||
-            "recurrence_frequency" in updatedValues) {
+            "recurrence_frequency" in updatedValues ||
+            "recurrence_type" in updatedValues) {
             this.requestUpdate();
         }
     }
@@ -6795,6 +7007,18 @@ let ChoreBotPersonGroupedCard = class ChoreBotPersonGroupedCard extends i {
             !this._editingTask.summary?.trim() ||
             this._saving) {
             return;
+        }
+        // Validate streak bonus fields (mutually required, interval cannot be 1)
+        const bonusPoints = this._editingTask.streak_bonus_points || 0;
+        const bonusInterval = this._editingTask.streak_bonus_interval || 0;
+        if (bonusPoints > 0 && bonusInterval === 0) {
+            return; // Silent rejection: bonus points set but no interval
+        }
+        if (bonusInterval > 0 && bonusPoints === 0) {
+            return; // Silent rejection: interval set but no bonus points
+        }
+        if (bonusInterval === 1) {
+            return; // Silent rejection: interval cannot be 1
         }
         this._saving = true;
         const serviceData = {
@@ -7402,21 +7626,28 @@ ChoreBotPersonGroupedCard.styles = i$3 `
       display: flex;
     }
 
+    .points-badge.bonus-awarded {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      border: 1px solid #FF8C00;
+      color: #000;
+      font-weight: 600;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
     .points-badge.bonus-pending {
-      background: linear-gradient(135deg, #ffd700, #ffa500) !important;
-      border: 1px solid currentColor !important;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.8) 0%, rgb(255, 165, 0) 100%);
+      border: 1px solid rgba(255, 140, 0, 0.6);
       animation: glow 2s ease-in-out infinite;
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     @keyframes glow {
-      0%,
-      100% {
-        opacity: 0.9;
-      }
-      50% {
-        opacity: 1;
-      }
+      0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+      50% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
     }
 
     .recurring-icon {
@@ -7591,19 +7822,19 @@ ChoreBotPersonGroupedCard.styles = i$3 `
 
     .detail-row ha-icon {
       --mdc-icon-size: 16px;
-      color: var(--secondary-text-color);
+      color: inherit;
       flex-shrink: 0;
     }
 
     .detail-label {
       font-weight: 500;
-      color: var(--secondary-text-color);
+      color: inherit;
       flex-shrink: 0;
     }
 
     .detail-value {
       flex: 1;
-      color: var(--primary-text-color);
+      color: inherit;
       word-wrap: break-word;
     }
 
@@ -7619,7 +7850,7 @@ ChoreBotPersonGroupedCard.styles = i$3 `
     .action-button {
       cursor: pointer;
       transition: opacity 0.2s ease;
-      color: var(--secondary-text-color);
+      color: inherit;
     }
 
     .action-button:hover {
