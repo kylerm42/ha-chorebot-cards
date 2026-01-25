@@ -520,25 +520,48 @@ function filterAndGroupTasks(entity, showDatelessTasks = true, showFutureTasks =
         }
         else if (task.due) {
             const dueDate = new Date(task.due);
-            // Check if future task (after end of today)
-            if (showFutureTasks && dueDate > endOfToday) {
-                isFutureTask = true;
-            }
-            else {
-                // Check if today task
-                const dueDateOnly = new Date(dueDate);
-                dueDateOnly.setHours(0, 0, 0, 0);
-                const isToday = isSameDay(dueDateOnly, today);
-                const isOverdue = dueDateOnly < today;
-                if (isCompleted) {
-                    if (task.last_completed) {
-                        if (isSameDay(new Date(task.last_completed), new Date())) {
+            // All-day tasks are stored at midnight UTC - must compare UTC dates only
+            // Timed tasks use datetime comparison with timezone awareness
+            if (task.is_all_day) {
+                // All-day: Compare UTC date components only (ignore time)
+                const dueUTCDateOnly = new Date(Date.UTC(dueDate.getUTCFullYear(), dueDate.getUTCMonth(), dueDate.getUTCDate()));
+                const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+                if (showFutureTasks && dueUTCDateOnly > todayUTC) {
+                    isFutureTask = true;
+                }
+                else {
+                    const isToday = dueUTCDateOnly.getTime() === todayUTC.getTime();
+                    const isOverdue = dueUTCDateOnly < todayUTC;
+                    if (isCompleted) {
+                        if (task.last_completed &&
+                            isSameDay(new Date(task.last_completed), new Date())) {
                             isTodayTask = true; // Show if completed today (regardless of due date)
                         }
                     }
+                    else if (isToday || isOverdue) {
+                        isTodayTask = true;
+                    }
                 }
-                else if (isToday || isOverdue) {
-                    isTodayTask = true;
+            }
+            else {
+                // Timed task: Use datetime comparison with local timezone
+                if (showFutureTasks && dueDate > endOfToday) {
+                    isFutureTask = true;
+                }
+                else {
+                    const dueDateOnly = new Date(dueDate);
+                    dueDateOnly.setHours(0, 0, 0, 0);
+                    const isToday = isSameDay(dueDateOnly, today);
+                    const isOverdue = dueDateOnly < today;
+                    if (isCompleted) {
+                        if (task.last_completed &&
+                            isSameDay(new Date(task.last_completed), new Date())) {
+                            isTodayTask = true; // Show if completed today (regardless of due date)
+                        }
+                    }
+                    else if (isToday || isOverdue) {
+                        isTodayTask = true;
+                    }
                 }
             }
         }
@@ -2607,7 +2630,12 @@ function formatFullDateTime(isoString, isAllDay = false) {
         };
         if (isAllDay) {
             // All-day: "Monday, January 19, 2026"
-            return date.toLocaleDateString(undefined, dateOptions);
+            // CRITICAL: Force UTC timezone to prevent local timezone conversion
+            // which would shift dates by one day (e.g., 2026-01-22T00:00:00Z → Jan 21 in EST)
+            return date.toLocaleDateString(undefined, {
+                ...dateOptions,
+                timeZone: 'UTC'
+            });
         }
         else {
             // Timed: "Monday, January 19, 2026 at 3:00 PM"

@@ -124,7 +124,12 @@ export function formatFullDateTime(
 
     if (isAllDay) {
       // All-day: "Monday, January 19, 2026"
-      return date.toLocaleDateString(undefined, dateOptions);
+      // CRITICAL: Force UTC timezone to prevent local timezone conversion
+      // which would shift dates by one day (e.g., 2026-01-22T00:00:00Z → Jan 21 in EST)
+      return date.toLocaleDateString(undefined, {
+        ...dateOptions,
+        timeZone: 'UTC'
+      });
     } else {
       // Timed: "Monday, January 19, 2026 at 3:00 PM"
       const datePart = date.toLocaleDateString(undefined, dateOptions);
