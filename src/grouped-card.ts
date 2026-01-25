@@ -16,7 +16,6 @@ import {
   calculateProgress,
   calculateDatedTasksProgress,
   groupTasksByTag,
-  sortTagGroups,
   filterAndGroupTasks,
   sortGroups,
 } from "./utils/task-utils.js";
@@ -1156,10 +1155,13 @@ export class ChoreBotGroupedCard extends LitElement {
     const rrule = buildRrule(this._editingTask);
     if (rrule !== null) {
       serviceData.rrule = rrule;
-    } else if (this._editingTask.has_recurrence === false) {
+    } else if (this._editingTask.recurrence_type === "none" || this._editingTask.has_recurrence === false) {
       // User explicitly disabled recurrence, send empty string to clear it
       serviceData.rrule = "";
     }
+
+    // Handle dateless recurring (cannot be updated via update_task - would require recreating template)
+    // Skip for now - dateless recurring tasks can only be created, not converted from existing tasks
 
     // Handle points fields
     if (this._editingTask.points_value !== undefined) {
@@ -1455,8 +1457,14 @@ export class ChoreBotGroupedCard extends LitElement {
 
     // Handle recurrence
     const rrule = buildRrule(this._newTask);
+    const isDatelessRecurring = this._newTask.recurrence_type === "on_completion";
+    
     if (rrule !== null) {
       serviceData.rrule = rrule;
+    }
+    
+    if (isDatelessRecurring) {
+      serviceData.is_dateless_recurring = true;
     }
 
     // Handle points
@@ -1467,8 +1475,9 @@ export class ChoreBotGroupedCard extends LitElement {
       serviceData.points_value = this._newTask.points_value;
     }
 
-    // Handle streak bonus (only for recurring tasks)
-    if (rrule !== null) {
+    // Handle streak bonus (only for recurring tasks - scheduled OR dateless)
+    const isRecurring = rrule !== null || isDatelessRecurring;
+    if (isRecurring) {
       if (
         this._newTask.streak_bonus_points !== undefined &&
         this._newTask.streak_bonus_points > 0

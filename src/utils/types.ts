@@ -75,7 +75,8 @@ export interface RecurringTemplate {
   modified: string;
   description?: string;
   tags?: string[];
-  rrule: string;
+  rrule?: string; // Optional for dateless recurring templates
+  is_dateless_recurring?: boolean; // True for dateless recurring templates
   streak_current: number;
   streak_longest: number;
   is_template: boolean;
@@ -90,7 +91,8 @@ export interface EditingTask extends Task {
   has_due_date?: boolean;
   due_date?: string | null;
   due_time?: string;
-  has_recurrence?: boolean;
+  recurrence_type?: "none" | "scheduled" | "on_completion"; // Radio button selection
+  has_recurrence?: boolean; // Deprecated - kept for backwards compatibility
   recurrence_frequency?: "DAILY" | "WEEKLY" | "MONTHLY";
   recurrence_interval?: number;
   recurrence_byweekday?: string[];

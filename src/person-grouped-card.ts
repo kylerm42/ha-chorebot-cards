@@ -18,7 +18,6 @@ import {
   calculateProgress,
   calculateDatedTasksProgress,
   groupTasksByTag,
-  sortTagGroups,
   filterAndGroupTasks,
   sortGroups,
   filterTasksByPerson,

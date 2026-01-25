@@ -645,7 +645,10 @@ function parseRrule(rrule) {
  * @returns rrule string or null if recurrence disabled
  */
 function buildRrule(editingTask) {
-    if (!editingTask || !editingTask.has_recurrence) {
+    // Use recurrence_type if available, fall back to has_recurrence for backwards compat
+    const isScheduledRecurring = editingTask.recurrence_type === "scheduled" ||
+        (editingTask.recurrence_type === undefined && editingTask.has_recurrence);
+    if (!editingTask || !isScheduledRecurring) {
         return null;
     }
     const { recurrence_frequency, recurrence_interval, recurrence_byweekday, recurrence_bymonthday, } = editingTask;
@@ -747,28 +750,41 @@ function prepareTaskForEditing(task, templates) {
     else {
         flatTask.has_due_date = false;
     }
-    // For recurring instances, look up the template to get rrule and bonus fields
+    // For recurring instances, look up the template to get rrule/dateless status and bonus fields
     let rruleToUse = task.rrule;
+    let isDatelessRecurring = false;
     if (task.parent_uid && templates) {
         const template = templates.find((t) => t.uid === task.parent_uid);
         if (template) {
             rruleToUse = template.rrule;
+            isDatelessRecurring = template.is_dateless_recurring || false;
             // Also use template's bonus fields if instance doesn't have them
             flatTask.streak_bonus_points = template.streak_bonus_points || 0;
             flatTask.streak_bonus_interval = template.streak_bonus_interval || 0;
         }
     }
+    // Determine recurrence type
+    if (isDatelessRecurring) {
+        flatTask.recurrence_type = "on_completion";
+        flatTask.has_recurrence = false; // For backwards compat
+    }
+    else if (rruleToUse) {
+        flatTask.recurrence_type = "scheduled";
+        flatTask.has_recurrence = true; // For backwards compat
+    }
+    else {
+        flatTask.recurrence_type = "none";
+        flatTask.has_recurrence = false;
+    }
     // Parse existing rrule if present
     const parsedRrule = parseRrule(rruleToUse);
     if (parsedRrule) {
-        flatTask.has_recurrence = true;
         flatTask.recurrence_frequency = parsedRrule.frequency;
         flatTask.recurrence_interval = parsedRrule.interval;
         flatTask.recurrence_byweekday = parsedRrule.byweekday;
         flatTask.recurrence_bymonthday = parsedRrule.bymonthday || 1;
     }
     else {
-        flatTask.has_recurrence = false;
         flatTask.recurrence_frequency = "DAILY";
         flatTask.recurrence_interval = 1;
         flatTask.recurrence_byweekday = [];
@@ -847,71 +863,78 @@ function buildEditDialogSchema(task, sections, availableTags) {
             selector: { boolean: {} },
         });
     }
-    // Recurrence section - only show if task has a due date
-    if (hasDueDate) {
-        const hasRecurrence = task.has_recurrence !== undefined ? task.has_recurrence : false;
+    // Recurrence section - radio button group for recurrence type
+    const recurrenceType = task.recurrence_type || "none";
+    // Add recurrence type radio buttons
+    schema.push({
+        name: "recurrence_type",
+        label: "Repeat",
+        selector: {
+            select: {
+                options: [
+                    { label: "None", value: "none" },
+                    { label: "On a schedule", value: "scheduled" },
+                    { label: "On completion", value: "on_completion" },
+                ],
+            },
+        },
+    });
+    // If scheduled recurrence is selected AND task has due date, show recurrence pattern fields
+    if (recurrenceType === "scheduled" && hasDueDate) {
         const recurrenceFrequency = task.recurrence_frequency || "DAILY";
-        // Add recurrence toggle
         schema.push({
-            name: "has_recurrence",
-            selector: { boolean: {} },
+            name: "recurrence_frequency",
+            selector: {
+                select: {
+                    options: [
+                        { label: "Daily", value: "DAILY" },
+                        { label: "Weekly", value: "WEEKLY" },
+                        { label: "Monthly", value: "MONTHLY" },
+                    ],
+                },
+            },
         });
-        // If recurrence is enabled, add recurrence fields
-        if (hasRecurrence) {
+        schema.push({
+            name: "recurrence_interval",
+            selector: {
+                number: {
+                    min: 1,
+                    max: 999,
+                    mode: "box",
+                },
+            },
+        });
+        // Frequency-specific fields
+        if (recurrenceFrequency === "WEEKLY") {
             schema.push({
-                name: "recurrence_frequency",
+                name: "recurrence_byweekday",
                 selector: {
                     select: {
+                        multiple: true,
                         options: [
-                            { label: "Daily", value: "DAILY" },
-                            { label: "Weekly", value: "WEEKLY" },
-                            { label: "Monthly", value: "MONTHLY" },
+                            { label: "Monday", value: "MO" },
+                            { label: "Tuesday", value: "TU" },
+                            { label: "Wednesday", value: "WE" },
+                            { label: "Thursday", value: "TH" },
+                            { label: "Friday", value: "FR" },
+                            { label: "Saturday", value: "SA" },
+                            { label: "Sunday", value: "SU" },
                         ],
                     },
                 },
             });
+        }
+        else if (recurrenceFrequency === "MONTHLY") {
             schema.push({
-                name: "recurrence_interval",
+                name: "recurrence_bymonthday",
                 selector: {
                     number: {
                         min: 1,
-                        max: 999,
+                        max: 31,
                         mode: "box",
                     },
                 },
             });
-            // Frequency-specific fields
-            if (recurrenceFrequency === "WEEKLY") {
-                schema.push({
-                    name: "recurrence_byweekday",
-                    selector: {
-                        select: {
-                            multiple: true,
-                            options: [
-                                { label: "Monday", value: "MO" },
-                                { label: "Tuesday", value: "TU" },
-                                { label: "Wednesday", value: "WE" },
-                                { label: "Thursday", value: "TH" },
-                                { label: "Friday", value: "FR" },
-                                { label: "Saturday", value: "SA" },
-                                { label: "Sunday", value: "SU" },
-                            ],
-                        },
-                    },
-                });
-            }
-            else if (recurrenceFrequency === "MONTHLY") {
-                schema.push({
-                    name: "recurrence_bymonthday",
-                    selector: {
-                        number: {
-                            min: 1,
-                            max: 31,
-                            mode: "box",
-                        },
-                    },
-                });
-            }
         }
     }
     // Points section
@@ -925,8 +948,9 @@ function buildEditDialogSchema(task, sections, availableTags) {
             },
         },
     });
-    // Streak bonus section (only for recurring tasks)
-    if (hasDueDate && task.has_recurrence) {
+    // Streak bonus section (only for recurring tasks - scheduled OR dateless)
+    const isRecurring = recurrenceType === "scheduled" || recurrenceType === "on_completion";
+    if (isRecurring) {
         schema.push({
             name: "streak_bonus_points",
             selector: {
@@ -937,8 +961,13 @@ function buildEditDialogSchema(task, sections, availableTags) {
                 },
             },
         });
+        // Label changes based on recurrence type
+        const intervalLabel = recurrenceType === "on_completion"
+            ? "Bonus Every X Completions (0 = no bonus)"
+            : "Bonus Every X Days (0 = no bonus)";
         schema.push({
             name: "streak_bonus_interval",
+            label: intervalLabel,
             selector: {
                 number: {
                     min: 0,
@@ -978,7 +1007,8 @@ function buildEditDialogData(task, sections) {
                 ? sections.sort((a, b) => b.sort_order - a.sort_order)[0].id
                 : undefined),
         tags: task.tags || [],
-        has_recurrence: hasDueDate ? task.has_recurrence || false : false,
+        recurrence_type: task.recurrence_type || "none",
+        has_recurrence: task.has_recurrence || false, // Deprecated but keep for compat
         recurrence_frequency: task.recurrence_frequency || "DAILY",
         recurrence_interval: task.recurrence_interval || 1,
         recurrence_byweekday: task.recurrence_byweekday || [],
@@ -1005,6 +1035,7 @@ function getFieldLabels(hass) {
             description: "Description",
             section_id: "Section",
             tags: "Tags",
+            recurrence_type: "Recurrence",
             has_recurrence: "Recurring Task",
             recurrence_frequency: "Frequency",
             recurrence_interval: "Repeat Every",
@@ -1012,7 +1043,7 @@ function getFieldLabels(hass) {
             recurrence_bymonthday: "Day of Month",
             points_value: `${pointsTerm} Value`,
             streak_bonus_points: `Streak Bonus ${pointsTerm}`,
-            streak_bonus_interval: "Bonus Every X Days (0 = no bonus)",
+            streak_bonus_interval: "Bonus Every X Completions (0 = no bonus)",
         };
         return labels[schema.name] || schema.name;
     };
@@ -3127,10 +3158,12 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
         if (rrule !== null) {
             serviceData.rrule = rrule;
         }
-        else if (this._editingTask.has_recurrence === false) {
+        else if (this._editingTask.recurrence_type === "none" || this._editingTask.has_recurrence === false) {
             // User explicitly disabled recurrence, send empty string to clear it
             serviceData.rrule = "";
         }
+        // Handle dateless recurring (cannot be updated via update_task - would require recreating template)
+        // Skip for now - dateless recurring tasks can only be created, not converted from existing tasks
         // Handle points fields
         if (this._editingTask.points_value !== undefined) {
             serviceData.points_value = this._editingTask.points_value;
@@ -3359,16 +3392,21 @@ let ChoreBotGroupedCard = class ChoreBotGroupedCard extends i {
         }
         // Handle recurrence
         const rrule = buildRrule(this._newTask);
+        const isDatelessRecurring = this._newTask.recurrence_type === "on_completion";
         if (rrule !== null) {
             serviceData.rrule = rrule;
+        }
+        if (isDatelessRecurring) {
+            serviceData.is_dateless_recurring = true;
         }
         // Handle points
         if (this._newTask.points_value !== undefined &&
             this._newTask.points_value > 0) {
             serviceData.points_value = this._newTask.points_value;
         }
-        // Handle streak bonus (only for recurring tasks)
-        if (rrule !== null) {
+        // Handle streak bonus (only for recurring tasks - scheduled OR dateless)
+        const isRecurring = rrule !== null || isDatelessRecurring;
+        if (isRecurring) {
             if (this._newTask.streak_bonus_points !== undefined &&
                 this._newTask.streak_bonus_points > 0) {
                 serviceData.streak_bonus_points = this._newTask.streak_bonus_points;

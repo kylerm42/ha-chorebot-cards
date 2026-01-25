@@ -67,7 +67,11 @@ export function parseRrule(rrule: string | undefined): ParsedRrule | null {
  * @returns rrule string or null if recurrence disabled
  */
 export function buildRrule(editingTask: EditingTask): string | null {
-  if (!editingTask || !editingTask.has_recurrence) {
+  // Use recurrence_type if available, fall back to has_recurrence for backwards compat
+  const isScheduledRecurring = editingTask.recurrence_type === "scheduled" || 
+                                 (editingTask.recurrence_type === undefined && editingTask.has_recurrence);
+  
+  if (!editingTask || !isScheduledRecurring) {
     return null;
   }
 
